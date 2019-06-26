@@ -114,8 +114,9 @@ files = glob.glob(base_path + "*.csv")
 index_dict = {'air_port': [112, 279, 649, 17, 77, 128],
               'haim': [11, 17, 31, 34, 67, 70, 82, 83, 103, 121, 122, 125, 127, 135, 227]}
 
-meta_dict = {'haim': [25, 25, 0, 18.8, 1.4],
-             'air_port': [14, 17, 1, 23.3, 2.5]}
+meta_dict = {'haim': tr.MetaData(frequency=18.8, polarization=0, length=1.4, height_far=25, height_near=25),
+             'air_port': tr.MetaData(frequency=23.3, polarization=1, length=2.5, height_far=14, height_near=17)}
+
 print(files)
 # name = 'air_port'
 # name = 'haim'
