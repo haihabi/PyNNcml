@@ -7,6 +7,15 @@ import datetime
 import torchrain as tr
 
 
+def calculate_cross_corrlation(x, y):
+    x_n = x - x.mean()
+    y_n = y - y.mean()
+    return np.mean(x_n * y_n) / (np.std(x_n) * np.std(y_n) + 0.001)
+
+
+from matplotlib import pyplot as plt
+
+
 def change2min_base(data_array, time_array, step_size=60):
     start_time = np.min(time_array)
     stop_time = np.max(time_array)
@@ -50,7 +59,7 @@ def rain_depth2rain_rate(gauge_array, window_size=30):
             index = i
             start = True
     res = res * scale
-    return np.convolve(res, np.ones(15) * (1 / 15), mode='same')
+    return np.convolve(res, np.ones(5) * (1 / 5), mode='same')
 
 
 def _time_date2unix(date_input, time_input):
@@ -65,6 +74,7 @@ def read_links_data(input_base_path):
     data_base = None
     time_base = None
     for file in files:
+        print(file)
         data_new = pd.read_csv(file, header=-1)
 
         data = data_new[1].values
@@ -92,21 +102,74 @@ def read_links_data(input_base_path):
     return data_list
 
 
-base_path = os.path.join(os.path.expanduser("~"), "projects/open_dataset/pelephon_2007-2008/AirPort_City-Ben_Guryon/")
+print("aaa")
+base_path = "/data/projects/thesis/Data/OpenDataset/AirPort_City-Ben_Guryon/"
 link_a = read_links_data(base_path)
-base_path = os.path.join(os.path.expanduser("~"), "projects/open_dataset/pelephon_2007-2008/Revadim-Sorek/")
+base_path = "/data/projects/thesis/Data/OpenDataset/Revadim-Sorek/"
 link_b = read_links_data(base_path)
-base_path = os.path.join(os.path.expanduser("~"), "Downloads/drive-download-20190621T163247Z-001/")
-link_data = {'air_port': link_a, 'other': link_b}
+base_path = os.path.join("/data/projects/thesis/Data/OpenDataset/rain/")
+link_data = {'air_port': link_a, 'haim': link_b}
 
 files = glob.glob(base_path + "*.csv")
-name = 'air_port'
-for file in files:
-    if name in file:
-        rain_data_new = pd.read_csv(file, header=0)
-        time_array = np.asarray([_time_date2unix(d, t) for d, t in zip(rain_data_new['date'], rain_data_new['time'])])
-        time_array, index = np.unique(time_array, return_index=True)
-        rain_array = rain_data_new['rain'].values[index]
-        rain_array, time_array = change2min_base(rain_array, time_array)
-        rain_array = rain_depth2rain_rate(rain_array)
-        # Math the correct link sequnce
+index_dict = {'air_port': [112, 279, 649, 17, 77, 128],
+              'haim': [11, 17, 31, 34, 67, 70, 82, 83, 103, 121, 122, 125, 127, 135, 227]}
+
+meta_dict = {'haim': [25, 25, 0, 18.8, 1.4],
+             'air_port': [14, 17, 1, 23.3, 2.5]}
+print(files)
+# name = 'air_port'
+# name = 'haim'
+names = ['air_port', 'haim']
+data_list = []
+for name in names:
+    time_array = None
+    rain_array = None
+    for file in files:
+        if name in file:
+            rain_data_new = pd.read_csv(file, header=0)
+            if time_array is None:
+                time_array = np.asarray(
+                    [_time_date2unix(d, t) for d, t in zip(rain_data_new['date'], rain_data_new['time'])])
+                rain_array = rain_data_new['rain'].values
+            else:
+                time_array = np.concatenate([time_array, np.asarray(
+                    [_time_date2unix(d, t) for d, t in zip(rain_data_new['date'], rain_data_new['time'])])])
+                rain_array = np.concatenate([rain_array, rain_data_new['rain'].values])
+
+    time_array, index = np.unique(time_array, return_index=True)
+    rain_array = rain_array[index]
+    rain_array, time_array = change2min_base(rain_array, time_array)
+    rain_array = rain_depth2rain_rate(rain_array, window_size=10)
+
+    n_hours = 8
+    n_max = len(time_array)
+    for i, (rsl, tl) in enumerate(link_data.get(name)):
+        if len(tl) < 60: continue
+        start_index = np.where(tl[0] == time_array)[0][0]
+        stop_index = np.where(tl[-1] == time_array)[0][0]
+        if np.sum(rain_array[start_index:(stop_index + 1)]) == 0: continue
+
+        corr_list = [calculate_cross_corrlation(rain_array[(start_index + i):(stop_index + 1 + i)], rsl) for i in
+                     range(-60 * n_hours, 60 * n_hours, 10)]
+        shift = list(range(-60 * n_hours, 60 * n_hours, 10))[np.argmin(corr_list)]
+        rg = rain_array[(start_index + shift):(stop_index + 1 + shift)]
+        t = time_array[(start_index + shift):(stop_index + 1 + shift)]
+        # if np.min(corr_list) < -0.4:
+        #     print(i, np.min(corr_list))
+        #     plt.subplot(1, 2, 1)
+        #     plt.plot(rsl)
+        #     plt.grid()
+        #     plt.subplot(1, 2, 2)
+        #     plt.plot(rg)
+        #     plt.grid()
+        #     plt.show()
+        if i in index_dict.get(name):
+            data_list.append((rsl, rg, t, meta_dict.get(name)))
+
+import pickle
+
+pickle.dump(data_list, open("/data/projects/torch_rain/data/open_cml.p", "wb"))
+print("Finshed with dataset :)")
+#
+# print("a")
+# Math the correct link sequnce
