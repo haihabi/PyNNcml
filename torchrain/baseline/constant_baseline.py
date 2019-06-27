@@ -6,11 +6,16 @@ class ConstantBaseLine(nn.Module):
     def __init__(self):
         super(ConstantBaseLine, self).__init__()
 
-    def forward(self, input_attenuation, input_wet_dry):  # model forward pass
-        baseline = [input_attenuation[0]]
-        for i in range(1, len(input_attenuation)):
-            if input_wet_dry[i]:
+    def _single_link(self, attenuation, wd_classification):
+        baseline = [attenuation[0]]
+        for i in range(1, len(attenuation)):
+            if wd_classification[i]:
                 baseline.append(baseline[i - 1])
             else:
-                baseline.append(input_attenuation[i])
+                baseline.append(attenuation[i])
         return torch.stack(baseline, dim=0)
+
+    def forward(self, input_attenuation, input_wet_dry):  # model forward pass\
+        return torch.stack(
+            [self._single_link(input_attenuation[batch_index, :], input_wet_dry[batch_index, :]) for batch_index in
+             range(input_attenuation.shape[0])], dim=0)

@@ -5,4 +5,4 @@ from torchrain import baseline
 from torchrain import wet_dry
 from torchrain import metrics
 from torchrain import robustness
-from torchrain.method_constructor import statistics_wet_dry
+from torchrain import rain_estimation

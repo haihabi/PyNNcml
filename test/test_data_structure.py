@@ -21,6 +21,3 @@ class TestDataStructure(unittest.TestCase):
         l_min_max = l.create_min_max_link(0.1)
         self.assertTrue(len(l_min_max)==10)
 
-
-if __name__ == '__main__':
-    unittest.main()

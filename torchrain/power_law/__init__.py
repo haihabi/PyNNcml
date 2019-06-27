@@ -1,1 +1,1 @@
-from torchrain.power_law.pl_module import PowerLaw, PowerLawMinMax
+from torchrain.power_law.pl_module import PowerLaw, PowerLawType

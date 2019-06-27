@@ -2,9 +2,10 @@ from pycomlink.processing.A_R_relation.A_R_relation import ITU_table
 from torch import nn
 import torch
 import numpy as np
+from enum import Enum
 from scipy.interpolate import interp1d
 
-ITU_table = np.array([
+ITU_TABLE = np.array([
     [1.000e+0, 2.000e+0, 4.000e+0, 6.000e+0, 7.000e+0, 8.000e+0, 1.000e+1,
      1.200e+1, 1.500e+1, 2.000e+1, 2.500e+1, 3.000e+1, 3.500e+1, 4.000e+1,
      4.500e+1, 5.000e+1, 6.000e+1, 7.000e+1, 8.000e+1, 9.000e+1, 1.000e+2],
@@ -21,47 +22,43 @@ ITU_table = np.array([
      1.200e+0, 1.128e+0, 1.065e+0, 1.030e+0, 1.000e+0, 9.630e-1, 9.290e-1,
      8.970e-1, 8.680e-1, 8.240e-1, 7.930e-1, 7.690e-1, 7.540e-1, 7.440e-1]])
 EULER_GAMMA = 0.57721566
+FREQMAX = 100
+FREQMIN = 1
+
+
+class PowerLawType(Enum):
+    ITU = 0
+    MINMAX = 1
 
 
 class PowerLaw(nn.Module):
-    def __init__(self, r_min):
+    def __init__(self, input_type: PowerLawType, r_min: float, k: int = 90):
         super(PowerLaw, self).__init__()
         self.r_min = r_min
-
-    def forward(self, input_attenuation, length, frequncey, polrization):  # model forward pass
-        a, b = a_b_parameters(frequncey, polrization)
-        beta = 1 / b
-        alpha = 1 / (a * length)
-        rain_rate = alpha * torch.pow(input_attenuation.float(), beta)
-        rain_rate[rain_rate < self.r_min] = 0  # zero rain value below minmal rain
-        return rain_rate
-
-
-class PowerLawMinMax(nn.Module):
-    def __init__(self, r_min, k=90):
-        super(PowerLawMinMax, self).__init__()
-        self.r_min = r_min
         self.k = k
+        self.input_type = input_type
 
-    def forward(self, input_attenuation, length, frequncey, polrization):
-        a, b = a_b_parameters(frequncey, polrization)
-        a_max = a * (np.log(self.k) + EULER_GAMMA) ** b
+    def forward(self, input_attenuation: torch.Tensor, length: float, frequency: float,
+                polarization: bool) -> torch.Tensor:  # model forward pass
+        a, b = a_b_parameters(frequency, polarization)
+        if self.input_type == PowerLawType.MINMAX:
+            a = a * (np.log(self.k) + EULER_GAMMA) ** b
         beta = 1 / b
-        alpha = np.power(1 / (a_max * length), beta)
+        alpha = np.power(1 / (a * length), beta)
         att = input_attenuation * (input_attenuation > 0).float()
         rain_rate = alpha * torch.pow(att, beta)
         rain_rate[rain_rate < self.r_min] = 0  # zero rain value below minmal rain
         return rain_rate
 
 
-def a_b_parameters(frequncey, polrization):
+def a_b_parameters(frequency, polarization) -> (float, float):
     """Approximation of parameters for A-R relationship
 
     Parameters
     ----------
-    f_GHz : int, float or np.array of these
+    frequency : int, float or np.array of these
             Frequency of the microwave link in GHz
-    pol : str
+    polarization : bool
             Polarization of the microwave link
 
     Returns
@@ -82,19 +79,19 @@ def a_b_parameters(frequncey, polrization):
         prediction methods", International Telecommunication Union, 2013
 
     """
-    frequncey = np.asarray(frequncey)
+    frequncey = np.asarray(frequency)
 
-    if frequncey.min() < 1 or frequncey.max() > 100:
-        raise ValueError('Frequency must be between 1 Ghz and 100 GHz.')
+    if frequncey.min() < FREQMIN or frequncey.max() > FREQMAX:
+        raise ValueError('Frequency must be between {} Ghz and {} GHz.'.format(FREQMIN, FREQMAX))
+
+    if polarization.lower() == 'v':
+        f_a = interp1d(ITU_TABLE[0, :], ITU_TABLE[2, :], kind='cubic')
+        f_b = interp1d(ITU_TABLE[0, :], ITU_TABLE[4, :], kind='cubic')
+    elif polarization.lower() == 'h':
+        f_a = interp1d(ITU_TABLE[0, :], ITU_TABLE[1, :], kind='cubic')
+        f_b = interp1d(ITU_TABLE[0, :], ITU_TABLE[3, :], kind='cubic')
     else:
-        if polrization == 'V' or polrization == 'v':
-            f_a = interp1d(ITU_table[0, :], ITU_table[2, :], kind='cubic')
-            f_b = interp1d(ITU_table[0, :], ITU_table[4, :], kind='cubic')
-        elif polrization == 'H' or polrization == 'h':
-            f_a = interp1d(ITU_table[0, :], ITU_table[1, :], kind='cubic')
-            f_b = interp1d(ITU_table[0, :], ITU_table[3, :], kind='cubic')
-        else:
-            raise ValueError('Polarization must be V, v, H or h.')
-        a = f_a(frequncey)
-        b = f_b(frequncey)
+        raise ValueError('Polarization must be V, v, H or h.')
+    a = f_a(frequncey)
+    b = f_b(frequncey)
     return a, b

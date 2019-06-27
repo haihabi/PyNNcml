@@ -1,6 +1,7 @@
 import numpy as np
 import pickle
 import os
+import torch
 from abc import abstractstaticmethod
 from matplotlib import pyplot as plt
 
@@ -83,15 +84,20 @@ class Link(LinkBase):
         self.link_rsl = link_rsl
         self.link_tsl = link_tsl
 
-    def plot_link(self):
-        plt.plot(link_data.attenuation())
+    def plot(self):
+        plt.subplot(1, 2, 1)
+        plt.plot(self.attenuation())
+        plt.ylabel(r'$A_n$')
+        plt.subplot(1, 2, 2)
+        plt.plot(self.rain_gauge)
+        plt.ylabel(r'$R_n$')
         plt.show()
 
     def attenuation(self):
         if self.has_tsl():
-            return -(self.tsl - self.rsl)
+            return torch.tensor(-(self.tsl - self.rsl))
         else:
-            return -self.link_rsl
+            return torch.tensor(-self.link_rsl)
 
     def has_tsl(self):
         return self.link_tsl is not None
@@ -121,7 +127,11 @@ class Link(LinkBase):
         max_tsl_vector = np.asarray(max_tsl_vector)
         rain_vector = np.asarray(rain_vector)
         time_vector = np.asarray(time_vector)
-        return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data)
+        if self.link_tsl is not None:
+            return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data)
+        else:
+            return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data,
+                              min_tsl=min_tsl_vector, max_tsl=max_tsl_vector)
 
 
 class LinkMinMax(LinkBase):

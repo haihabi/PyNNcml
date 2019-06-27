@@ -13,8 +13,3 @@ class TestOpenCML(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             link_list = tr.read_open_cml_dataset(pickle_path)
         self.assertTrue('The input path: ' + pickle_path + ' is not a file' == str(context.exception))
-
-
-
-if __name__ == '__main__':
-    unittest.main()

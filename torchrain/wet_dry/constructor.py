@@ -1,4 +1,4 @@
-from torchrain.wet_dry import STDWetDry
+from torchrain.wet_dry.std_wd import STDWetDry
 
 
 def statistics_wet_dry(th, step):
