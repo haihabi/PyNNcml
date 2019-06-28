@@ -70,8 +70,8 @@ def a_b_parameters(frequency, polarization) -> (float, float):
     ----
     The frequency value must be between 1 Ghz and 100 GHz.
 
-    The polarization has to be indicated by 'h' or 'H' for horizontal and
-    'v' or 'V' for vertical polarization respectively.
+    The polarization has to be indicated by False for horizontal and
+    True for vertical polarization respectively.
 
     References
     ----------
@@ -84,14 +84,14 @@ def a_b_parameters(frequency, polarization) -> (float, float):
     if frequncey.min() < FREQMIN or frequncey.max() > FREQMAX:
         raise ValueError('Frequency must be between {} Ghz and {} GHz.'.format(FREQMIN, FREQMAX))
 
-    if polarization.lower() == 'v':
+    if polarization == 1:  # V
         f_a = interp1d(ITU_TABLE[0, :], ITU_TABLE[2, :], kind='cubic')
         f_b = interp1d(ITU_TABLE[0, :], ITU_TABLE[4, :], kind='cubic')
-    elif polarization.lower() == 'h':
+    elif polarization == 0:  # H
         f_a = interp1d(ITU_TABLE[0, :], ITU_TABLE[1, :], kind='cubic')
         f_b = interp1d(ITU_TABLE[0, :], ITU_TABLE[3, :], kind='cubic')
     else:
-        raise ValueError('Polarization must be V, v, H or h.')
+        raise ValueError('Polarization must be 0 (horizontal) or 1 (vertical).')
     a = f_a(frequncey)
     b = f_b(frequncey)
     return a, b
