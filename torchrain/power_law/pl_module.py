@@ -1,4 +1,3 @@
-from pycomlink.processing.A_R_relation.A_R_relation import ITU_table
 from torch import nn
 import torch
 import numpy as np
