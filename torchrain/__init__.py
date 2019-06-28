@@ -6,3 +6,4 @@ from torchrain import wet_dry
 from torchrain import metrics
 from torchrain import robustness
 from torchrain import rain_estimation
+from torchrain.plot_common import change_x_axis_time_format

@@ -2,6 +2,7 @@ import numpy as np
 import pickle
 import os
 import torch
+import torchrain as tr
 from abc import abstractstaticmethod
 from matplotlib import pyplot as plt
 
@@ -23,7 +24,7 @@ class LinkBase(object):
         self._check_input(rain_gauge)
         assert time_array.shape[0] == rain_gauge.shape[0]
         self.rain_gauge = rain_gauge
-        self.time_array = time_array
+        self.time = time_array.astype('datetime64[s]')
         self.meta_data = meta_data
 
     @staticmethod
@@ -32,7 +33,7 @@ class LinkBase(object):
         assert len(input_array.shape) == 1
 
     def __len__(self):
-        return len(self.time_array)
+        return len(self.time)
 
     @abstractstaticmethod
     def has_tsl(self):
@@ -46,16 +47,16 @@ class LinkBase(object):
         raise NotImplemented
 
     def step(self):
-        return np.diff(self.time_array).min() / HOUR_IN_SECONDS
+        return np.diff(self.time).min() / HOUR_IN_SECONDS
 
     def cumulative_rain(self):
         return np.cumsum(self.rain_gauge) * self.step()
 
     def start_time(self):
-        return self.time_array[0]
+        return self.time[0]
 
     def stop_time(self):
-        return self.time_array[-1]
+        return self.time[-1]
 
     def delta_time(self):
         return self.stop_time() - self.start_time()
@@ -86,18 +87,25 @@ class Link(LinkBase):
 
     def plot(self):
         plt.subplot(1, 2, 1)
-        plt.plot(self.attenuation())
+        plt.plot(self.time, self.attenuation().numpy().flatten())
         plt.ylabel(r'$A_n$')
+        plt.title('Attenuation')
+        tr.change_x_axis_time_format('%H')
+        plt.grid()
         plt.subplot(1, 2, 2)
-        plt.plot(self.rain_gauge)
+        plt.plot(self.time, self.rain_gauge)
         plt.ylabel(r'$R_n$')
+        tr.change_x_axis_time_format('%H')
+        plt.title('Rain')
+        plt.grid()
+
         plt.show()
 
     def attenuation(self):
         if self.has_tsl():
-            return torch.tensor(-(self.tsl - self.rsl))
+            return torch.tensor(-(self.tsl - self.rsl)).reshape(1, -1).float()
         else:
-            return torch.tensor(-self.link_rsl)
+            return torch.tensor(-self.link_rsl).reshape(1, -1).float()
 
     def has_tsl(self):
         return self.link_tsl is not None
@@ -114,13 +122,13 @@ class Link(LinkBase):
         max_rsl_vector = []
         rain_vector = []
         for lt, ht in zip(low_time, high_time):  # loop over high and low time step
-            rsl = self.link_rsl[(self.time_array >= lt) * (self.time_array < ht)]
+            rsl = self.link_rsl[(self.time >= lt) * (self.time < ht)]
             if self.link_tsl is not None:
-                tsl = self.link_tsl[(self.time_array >= lt) * (self.time_array < ht)]
+                tsl = self.link_tsl[(self.time >= lt) * (self.time < ht)]
             time_vector.append(lt)
             min_rsl_vector.append(rsl.min())
             max_rsl_vector.append(rsl.max())
-            rain_vector.append(self.rain_gauge[(self.time_array >= lt) * (self.time_array < ht)].mean())
+            rain_vector.append(self.rain_gauge[(self.time >= lt) * (self.time < ht)].mean())
         min_rsl_vector = np.asarray(min_rsl_vector)
         max_rsl_vector = np.asarray(max_rsl_vector)
         min_tsl_vector = np.asarray(min_tsl_vector)

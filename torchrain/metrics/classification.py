@@ -1,2 +1,2 @@
 def accuracy():
-    pass
+    raise NotImplemented

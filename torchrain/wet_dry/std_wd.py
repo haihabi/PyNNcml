@@ -26,4 +26,4 @@ class STDWetDry(nn.Module):
         res = torch.max(res, torch.Tensor([0], device=input_attenuation.device))
 
         res = res - sigma_n
-        return res.detach() + sigma_n
+        return res.detach() + sigma_n, sigma_n_base
