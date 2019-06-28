@@ -6,6 +6,6 @@ before_install:
   - pip install pytest pytest-cov
 install:
   - pip install .
-  - pip install --progress-bar off --quiet -r requirements.txt
+  - pip install --quiet -r requirements.txt
 # command to run tests
 script: pytest

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="time_tensor",
+    name="torchrain",
     version="0.1",
     author="Hai Victor Habi",
     license="MIT",
