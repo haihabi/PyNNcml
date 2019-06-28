@@ -24,8 +24,11 @@ class LinkBase(object):
         self._check_input(rain_gauge)
         assert time_array.shape[0] == rain_gauge.shape[0]
         self.rain_gauge = rain_gauge
-        self.time = time_array.astype('datetime64[s]')
+        self.time_array = time_array
         self.meta_data = meta_data
+
+    def time(self):
+        return self.time_array.astype('datetime64[s]')
 
     @staticmethod
     def _check_input(input_array):
@@ -33,7 +36,7 @@ class LinkBase(object):
         assert len(input_array.shape) == 1
 
     def __len__(self):
-        return len(self.time)
+        return len(self.time_array)
 
     @abstractstaticmethod
     def has_tsl(self):
@@ -47,16 +50,16 @@ class LinkBase(object):
         raise NotImplemented
 
     def step(self):
-        return np.diff(self.time).min() / HOUR_IN_SECONDS
+        return np.diff(self.time_array).min() / HOUR_IN_SECONDS
 
     def cumulative_rain(self):
         return np.cumsum(self.rain_gauge) * self.step()
 
     def start_time(self):
-        return self.time[0]
+        return self.time_array[0].astype('int')
 
     def stop_time(self):
-        return self.time[-1]
+        return self.time_array[-1].astype('int')
 
     def delta_time(self):
         return self.stop_time() - self.start_time()
@@ -87,13 +90,13 @@ class Link(LinkBase):
 
     def plot(self):
         plt.subplot(1, 2, 1)
-        plt.plot(self.time, self.attenuation().numpy().flatten())
+        plt.plot(self.time(), self.attenuation().numpy().flatten())
         plt.ylabel(r'$A_n$')
         plt.title('Attenuation')
         tr.change_x_axis_time_format('%H')
         plt.grid()
         plt.subplot(1, 2, 2)
-        plt.plot(self.time, self.rain_gauge)
+        plt.plot(self.time(), self.rain_gauge)
         plt.ylabel(r'$R_n$')
         tr.change_x_axis_time_format('%H')
         plt.title('Rain')
@@ -122,13 +125,13 @@ class Link(LinkBase):
         max_rsl_vector = []
         rain_vector = []
         for lt, ht in zip(low_time, high_time):  # loop over high and low time step
-            rsl = self.link_rsl[(self.time >= lt) * (self.time < ht)]
+            rsl = self.link_rsl[(self.time_array >= lt) * (self.time_array < ht)]
             if self.link_tsl is not None:
-                tsl = self.link_tsl[(self.time >= lt) * (self.time < ht)]
+                tsl = self.link_tsl[(self.time_array >= lt) * (self.time_array < ht)]
             time_vector.append(lt)
             min_rsl_vector.append(rsl.min())
             max_rsl_vector.append(rsl.max())
-            rain_vector.append(self.rain_gauge[(self.time >= lt) * (self.time < ht)].mean())
+            rain_vector.append(self.rain_gauge[(self.time_array >= lt) * (self.time_array < ht)].mean())
         min_rsl_vector = np.asarray(min_rsl_vector)
         max_rsl_vector = np.asarray(max_rsl_vector)
         min_tsl_vector = np.asarray(min_tsl_vector)
