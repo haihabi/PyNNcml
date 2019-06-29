@@ -17,8 +17,14 @@ This library provide an implementations of algorithms for extracting rain-rate u
 
 # Dataset
 
+# Examples
+ 
+* Rain estimation using dynamic baseline []
+* Rain estimation using constant baseline []
+* Wet Dry Classification using statistic test []
+
 # Model Zoo
-In this project we supply a set of trained networks in our [Model Zoo](model_zoo/model zoo.md), this networks are trained on our own dataset which is not publicly available.
+In this project we supply a set of trained networks in our [Model Zoo](https://github.com/haihabi/torch_rain/blob/master/model_zoo/model_zoo.md), this networks are trained on our own dataset which is not publicly available.
 
 # TODO
 1. Create dataset
