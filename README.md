@@ -18,7 +18,7 @@ This library provide an implementations of algorithms for extracting rain-rate u
 # Dataset
 
 # Model Zoo
-In this project we supply a set of trained 
+In this project we supply a set of trained networks in our [Model Zoo](model_zoo/model zoo.md), this networks are trained on our own dataset which is not publicly available.
 
 # TODO
 1. Create dataset
