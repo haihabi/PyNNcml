@@ -13,6 +13,14 @@ class TestBaseLineMethod(unittest.TestCase):
         self.assertTrue(len(res) == len(att))
         self.assertTrue(np.min(res) == np.min(att))
 
+    def test_one_step_dynamic_exception(self):
+        att = torch.as_tensor(np.random.randn(100))
+        with self.assertRaises(Exception) as context:
+            dbl = tr.baseline.DynamicBaseLine(8)
+            dbl(att)
+        self.assertEqual('Dynamic base line module only accepts inputs with shape length equal to 2',
+                         str(context.exception))
+
     def test_constant(self):
         att = torch.as_tensor(np.random.randn(1, 100))
         cbl = tr.baseline.ConstantBaseLine()

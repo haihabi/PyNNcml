@@ -36,6 +36,10 @@ class TestMetrics(unittest.TestCase):
         self.assertTrue(tr.metrics.accuracy(one_vector, zero_vector) == 0)
         self.assertTrue(tr.metrics.accuracy(zero_vector, one_vector) == 0)
 
+    def test_mse(self):
+        x = np.random.randn(10, 10)
+        self.assertEqual(tr.metrics.mse(x, x), 0)
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_nmse(self):
+        x = np.random.randn(10, 10)
+        self.assertEqual(tr.metrics.nmse(x, x), 0)

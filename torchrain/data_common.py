@@ -27,7 +27,7 @@ class LinkBase(object):
         self.time_array = time_array
         self.meta_data = meta_data
 
-    def time(self):
+    def time(self) -> np.ndarray:
         return self.time_array.astype('datetime64[s]')
 
     @staticmethod
@@ -35,19 +35,8 @@ class LinkBase(object):
         assert isinstance(input_array, np.ndarray)
         assert len(input_array.shape) == 1
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.time_array)
-
-    @abstractstaticmethod
-    def has_tsl(self):
-        pass
-
-    @abstractstaticmethod
-    def plot_link(self):
-        pass
-
-    def plot_gauge(self):
-        raise NotImplemented
 
     def step(self):
         return np.diff(self.time_array).min() / HOUR_IN_SECONDS
@@ -63,6 +52,27 @@ class LinkBase(object):
 
     def delta_time(self):
         return self.stop_time() - self.start_time()
+
+
+class LinkMinMax(LinkBase):
+    def __init__(self, min_rsl, max_rsl, rain_gauge, time_array, meta_data: MetaData, min_tsl=None, max_tsl=None):
+        super().__init__(time_array, rain_gauge, meta_data)
+        self.min_rsl = min_rsl
+        self.max_rsl = max_rsl
+        self.min_tsl = min_tsl
+        self.max_tsl = max_tsl
+
+    def has_tsl(self) -> bool:
+        return self.min_tsl is not None and self.max_tsl is not None
+
+    def attenuation(self) -> torch.Tensor:
+        if self.has_tsl():
+            att_min = torch.tensor((self.min_tsl - self.max_rsl)).reshape(1, -1).float()
+            att_max = torch.tensor((self.max_tsl - self.min_rsl)).reshape(1, -1).float()
+        else:
+            att_min = torch.tensor(- self.max_rsl).reshape(1, -1).float()
+            att_max = torch.tensor(- self.min_rsl).reshape(1, -1).float()
+        return torch.stack([att_max, att_min], dim=-1)
 
 
 class Link(LinkBase):
@@ -104,16 +114,16 @@ class Link(LinkBase):
 
         plt.show()
 
-    def attenuation(self):
+    def attenuation(self) -> torch.Tensor:
         if self.has_tsl():
             return torch.tensor(-(self.tsl - self.rsl)).reshape(1, -1).float()
         else:
             return torch.tensor(-self.link_rsl).reshape(1, -1).float()
 
-    def has_tsl(self):
+    def has_tsl(self) -> bool:
         return self.link_tsl is not None
 
-    def create_min_max_link(self, step_size):
+    def create_min_max_link(self, step_size) -> LinkMinMax:
         low_time = np.linspace(self.start_time(), self.stop_time() - step_size,
                                np.ceil(self.delta_time() / step_size).astype('int'))
         high_time = np.linspace(self.start_time() + step_size, self.stop_time(),
@@ -138,24 +148,25 @@ class Link(LinkBase):
         max_tsl_vector = np.asarray(max_tsl_vector)
         rain_vector = np.asarray(rain_vector)
         time_vector = np.asarray(time_vector)
-        if self.link_tsl is not None:
-            return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data)
-        else:
+        if self.has_tsl():
             return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data,
                               min_tsl=min_tsl_vector, max_tsl=max_tsl_vector)
+        else:
+            return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data)
 
 
-class LinkMinMax(LinkBase):
-    def __init__(self, min_rsl, max_rsl, rain_gauge, time_array, meta_data: MetaData, min_tsl=None, max_tsl=None):
-        super().__init__(time_array, rain_gauge, meta_data)
-        self.min_rsl = min_rsl
-        self.max_rsl = max_rsl
-        self.min_tsl = min_tsl
-        self.max_tsl = max_tsl
-
-
-def read_open_cml_dataset(pickle_path: str):
+def read_open_cml_dataset(pickle_path: str) -> list:
     if not os.path.isfile(pickle_path):
         raise Exception('The input path: ' + pickle_path + ' is not a file')
     open_cml_ds = pickle.load(open(pickle_path, "rb"))
     return [Link(oc[0], oc[1], oc[2], oc[3]) for oc in open_cml_ds if len(oc) == 4]
+
+
+def handle_attenuation_input(attenuation: torch.Tensor) -> (torch.Tensor, torch.Tensor):
+    if len(attenuation.shape) == 2:
+        att_max, att_min = attenuation, attenuation
+    elif len(attenuation.shape) == 3 and attenuation.shape[2] == 2:
+        att_max, att_min = attenuation[:, :, 0], attenuation[:, :, 1]
+    else:
+        raise Exception('The input attenuation vector dont match min max format or regular format')
+    return att_max, att_min
