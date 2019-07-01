@@ -72,4 +72,7 @@ class TestRainEstimation(unittest.TestCase):
         self.assertTrue(state.shape[-1] == tr.neural_networks.RNN_FEATURES)
 
     def test_backbone_exception(self):
-        pass
+        pickle_path = '/bla/bla'
+        with self.assertRaises(Exception) as context:
+            swd = tr.rain_estimation.two_step_network(1, 3)
+        self.assertTrue('Unknown RNN type' == str(context.exception))

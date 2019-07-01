@@ -36,6 +36,13 @@ class TestMetrics(unittest.TestCase):
         self.assertTrue(tr.metrics.accuracy(one_vector, zero_vector) == 0)
         self.assertTrue(tr.metrics.accuracy(zero_vector, one_vector) == 0)
 
+    def test_classification_exception(self):
+
+        one_vector = np.zeros([TestMetrics.n_class])
+        with self.assertRaises(Exception) as context:
+            tr.metrics.accuracy(one_vector, one_vector)
+        self.assertTrue('Input arrays must have 2 or 3 dimension' == str(context.exception))
+
     def test_mse(self):
         x = np.random.randn(10, 10)
         self.assertEqual(tr.metrics.mse(x, x), 0)
