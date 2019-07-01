@@ -3,11 +3,13 @@ python:
   - "3.6"
 # command to install dependencies
 before_install:
-  - pip install pytest pytest-cov coveralls --upgrade
+  - pip install pytest pytest-cov codecov --upgrade
 install:
   - pip install .
   - pip install --quiet -r requirements.txt
 # command to run tests
-script: pytest --cov=torchrain
+script:
+  - coverage run tests
+# Push the results back to codecov
 after_success:
-  - coveralls
+  - codecov

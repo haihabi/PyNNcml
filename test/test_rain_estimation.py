@@ -70,3 +70,6 @@ class TestRainEstimation(unittest.TestCase):
         self.assertTrue(res.shape[1] == 100)
         self.assertTrue(res.shape[2] == 2)
         self.assertTrue(state.shape[-1] == tr.neural_networks.RNN_FEATURES)
+
+    def test_backbone_exception(self):
+        pass

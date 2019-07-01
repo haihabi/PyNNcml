@@ -23,4 +23,5 @@ class InputNormalizationConfig(object):
         self.std_metadata = std_metadata.reshape(1, -1)
 
 
-INPUT_NORMALIZATION = InputNormalizationConfig(np.asarray([]), np.asarray([]), np.asarray([]), np.asarray([]))
+INPUT_NORMALIZATION = InputNormalizationConfig(np.asarray([0, 0, 0, 0]), np.asarray([1, 1, 1, 1]),
+                                               np.asarray([0, 0, 0, 0, 0]), np.asarray([1, 1, 1, 1, 1]))

@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
 from torchrain import neural_networks
+from torchrain.neural_networks.normalization import InputNormalization
 
 
 class Backbone(nn.Module):
     def __init__(self, n_layers: int, rnn_type: neural_networks.RNNType,
+                 normalization_cfg: neural_networks.InputNormalizationConfig,
                  enable_tn: bool,
                  tn_alpha: float,
                  tn_affine: bool,
@@ -34,12 +36,14 @@ class Backbone(nn.Module):
             self.tn = neural_networks.TimeNormalization(alpha=tn_alpha, num_features=rnn_n_features,
                                                         affine=tn_affine)
         self.fc_meta = nn.Linear(metadata_input_size, metadata_n_features)
+        self.normalization = InputNormalization(normalization_cfg)
         self.relu = nn.ReLU()
 
     def total_n_features(self) -> int:
         return self.metadata_n_features + self.rnn_n_features
 
     def forward(self, input_tensor, input_meta_tensor, hidden):  # model forward pass
+        input_tensor, input_meta_tensor = self.normalization(input_tensor, input_meta_tensor)
         if self.enable_tn:  # split hidden state for RE
             hidden_tn = hidden[1]
             hidden_rnn = hidden[0]
