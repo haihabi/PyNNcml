@@ -5,6 +5,8 @@ import torchrain as tr
 
 
 class TestRainEstimation(unittest.TestCase):
+    n_samples = 100
+
     def test_two_step_constant(self):
         att = torch.ones(10, 100)
         swd = tr.rain_estimation.two_step_constant_baseline(tr.power_law.PowerLawType.MINMAX, 0.3, 6, 0.5)
@@ -76,3 +78,13 @@ class TestRainEstimation(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             swd = tr.rain_estimation.two_step_network(1, 3)
         self.assertTrue('Unknown RNN type' == str(context.exception))
+
+    def test_one_step_min_max(self):
+        step = 10
+        rsl = np.random.rand(TestRainEstimation.n_samples)
+        time = np.linspace(0, TestRainEstimation.n_samples - 1, TestRainEstimation.n_samples).astype('int')
+        rain = np.zeros(TestRainEstimation.n_samples)
+        l = tr.Link(rsl, rain, time, tr.MetaData(0, 2, 3, 4, 5))
+        l_min_max = l.create_min_max_link(5)
+        model = tr.rain_estimation.one_step_dynamic_baseline(tr.power_law.PowerLawType.MINMAX, 0.3, 6)
+        res = model(l_min_max.attenuation(), tr.MetaData(15, 0, 18, 10, 12))
