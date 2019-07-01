@@ -5,7 +5,7 @@ import os
 
 class TestOpenCML(unittest.TestCase):
 
-    @unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true", "Skipping this test on Travis CI.")
+    @unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true", "Skipping this tests on Travis CI.")
     def test_load(self):
         link_list = tr.read_open_cml_dataset('../data/open_cml.p')
         [self.assertTrue(isinstance(d, tr.Link)) for d in link_list]
