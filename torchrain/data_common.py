@@ -3,7 +3,6 @@ import pickle
 import os
 import torch
 import torchrain as tr
-from abc import abstractstaticmethod
 from matplotlib import pyplot as plt
 
 HOUR_IN_SECONDS = 3600
@@ -16,6 +15,10 @@ class MetaData(object):
         self.length = length
         self.height_far = height_far
         self.height_near = height_near
+
+    def as_tensor(self) -> torch.Tensor:
+        return torch.Tensor(
+            [self.height_far, self.height_near, self.frequency, self.polarization, self.length]).reshape(1, -1)
 
 
 class LinkBase(object):
@@ -44,6 +47,9 @@ class LinkBase(object):
     def cumulative_rain(self):
         return np.cumsum(self.rain_gauge) * self.step()
 
+    def rain(self):
+        return self.rain_gauge.copy()
+
     def start_time(self):
         return self.time_array[0].astype('int')
 
@@ -67,7 +73,7 @@ class LinkMinMax(LinkBase):
 
     def attenuation(self) -> torch.Tensor:
         if self.has_tsl():
-            att_min = torch.tensor((self.min_tsl - self.max_rsl)).reshape(1, -1).float()
+            att_min = torch.tensor(self.min_tsl - self.max_rsl).reshape(1, -1).float()
             att_max = torch.tensor((self.max_tsl - self.min_rsl)).reshape(1, -1).float()
         else:
             att_min = torch.tensor(- self.max_rsl).reshape(1, -1).float()
@@ -112,11 +118,9 @@ class Link(LinkBase):
         plt.title('Rain')
         plt.grid()
 
-        plt.show()
-
     def attenuation(self) -> torch.Tensor:
         if self.has_tsl():
-            return torch.tensor(-(self.tsl - self.rsl)).reshape(1, -1).float()
+            return torch.tensor(-(self.link_tsl - self.link_rsl)).reshape(1, -1).float()
         else:
             return torch.tensor(-self.link_rsl).reshape(1, -1).float()
 
@@ -138,6 +142,8 @@ class Link(LinkBase):
             rsl = self.link_rsl[(self.time_array >= lt) * (self.time_array < ht)]
             if self.link_tsl is not None:
                 tsl = self.link_tsl[(self.time_array >= lt) * (self.time_array < ht)]
+                min_tsl_vector.append(tsl.min())
+                max_tsl_vector.append(tsl.max())
             time_vector.append(lt)
             min_rsl_vector.append(rsl.min())
             max_rsl_vector.append(rsl.max())

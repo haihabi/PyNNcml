@@ -11,8 +11,3 @@ TOTAL_FEATURES = FC_FEATURES + RNN_FEATURES
 class RNNType(Enum):
     GRU = 0
     LSTM = 1
-
-
-class NLayers(Enum):
-    ONE = 0
-    TWO = 1

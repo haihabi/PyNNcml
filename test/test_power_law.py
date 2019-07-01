@@ -12,6 +12,13 @@ class TestPowerLaw(unittest.TestCase):
     precision = 0.001
     freq = 36
 
+    def test_rmin(self):
+        att = 5
+        length = 8.3
+        pl = tr.power_law.PowerLaw(tr.power_law.PowerLawType.ITU, 1000)
+        res = pl(torch.as_tensor(att * np.ones(TestPowerLaw.n_samples)).float(), length, TestPowerLaw.freq, 0).numpy()
+        self.assertTrue(np.round(100 * (res))[0] == 0)
+
     def test_powerlaw(self):
         att = 5
         length = 8.3

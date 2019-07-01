@@ -12,7 +12,7 @@ class OneStepDynamic(nn.Module):
 
     def forward(self, data: torch.Tensor, metadata: tr.MetaData) -> torch.Tensor:  # model forward pass
         att_max, att_min = handle_attenuation_input(data)
-        bl_min = self.bl(att_min)
-        att = att_max - bl_min
+        bl_min = self.bl(att_min + 0.5)
+        att = att_max - bl_min - 0.5
         rain_rate = self.pl(att, metadata.length, metadata.frequency, metadata.polarization)
         return rain_rate
