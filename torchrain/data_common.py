@@ -164,7 +164,8 @@ class Link(LinkBase):
 def read_open_cml_dataset(pickle_path: str) -> list:
     if not os.path.isfile(pickle_path):
         raise Exception('The input path: ' + pickle_path + ' is not a file')
-    open_cml_ds = pickle.load(open(pickle_path, "rb"))
+    with open(pickle_path, "rb") as f:
+        open_cml_ds = pickle.load(f)
     return [Link(oc[0], oc[1], oc[2], oc[3]) for oc in open_cml_ds if len(oc) == 4]
 
 
