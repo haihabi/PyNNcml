@@ -24,19 +24,19 @@ class TimeNormalization(nn.Module):
         self.weight = Parameter(torch.Tensor(1, 1, num_features))
         self.bias = Parameter(torch.Tensor(1, 1, num_features))
 
-    def forward(self, x, state, indecator=None):
+    def forward(self, x, state, indicator=None):
         p = self.alpha * torch.stack([x, torch.pow(x, 2)], dim=0)
         ##########################################################
         # Loop over all time steps
         ##########################################################
         res_list_state = []
-        if indecator is None:
+        if indicator is None:
             for i in range(x.shape[1]):  # This may slow the
                 state = p[:, :, i, :] + self.one_minus_alpha * state
                 res_list_state.append(state)
         else:
             for i in range(x.shape[1]):  # This may slow the
-                ind = indecator[:, 0, :].unsqueeze(0).repeat([2, 1, 1])
+                ind = indicator[:, i].repeat(2, 1).unsqueeze(dim=-1)
                 state = ind * (p[:, :, i, :] + self.one_minus_alpha * state) + (1 - ind) * state
                 res_list_state.append(state)
         state_vector = torch.stack(res_list_state, dim=2)  # stack all time steps
@@ -49,8 +49,7 @@ class TimeNormalization(nn.Module):
 
     def init_state(self, batch_size=1):  # model init state
         state = torch.stack(
-            [torch.zeros(batch_size, self.num_features), torch.ones(batch_size, self.num_features)],
+            [torch.zeros(batch_size, self.num_features, device=self.weight.device.type),
+             torch.ones(batch_size, self.num_features, device=self.weight.device.type)],
             dim=0)
-        if self.weight.is_cuda:
-            state = state.cuda()
         return state
