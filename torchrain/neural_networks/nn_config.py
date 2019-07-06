@@ -15,6 +15,12 @@ class RNNType(Enum):
 
 
 class InputNormalizationConfig(object):
+    r"""
+    Input Normalization Config class, this class holds the normalization values of the inputs.
+    There are two type of normalization values: dynamic normalization and metadata normalization values.
+
+
+    """
     def __init__(self, mean_dynamic: np.ndarray, std_dynamic: np.ndarray, mean_metadata: np.ndarray,
                  std_metadata: np.ndarray):
         self.mean_dynamic = mean_dynamic.reshape(1, 1, -1)

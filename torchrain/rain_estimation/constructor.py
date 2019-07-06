@@ -26,6 +26,20 @@ def two_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
                      rnn_n_features: int = tr.neural_networks.RNN_FEATURES,
                      metadata_input_size: int = tr.neural_networks.STATIC_INPUT_SIZE,
                      metadata_n_features: int = tr.neural_networks.FC_FEATURES):
+    """
+
+
+    :param n_layers: integer that state the number of recurrent layers.
+    :param rnn_type: enum that define the type of the recurrent layer (GRU or LSTM).
+    :param normalization_cfg: a class tr.neural_networks.InputNormalizationConfig which hold the normalization parameters.
+    :param enable_tn: boolean that enable or disable time normalization.
+    :param tn_alpha: floating point number which define the alpha factor of time normalization layer.
+    :param tn_affine: boolean that state if time normalization have affine transformation.
+    :param rnn_input_size: int that represent the dynamic input size.
+    :param rnn_n_features: int that represent the dynamic feature size.
+    :param metadata_input_size: int that represent the metadata input size.
+    :param metadata_n_features: int that represent the metadata feature size.
+    """
     return TwoStepNetwork(n_layers, rnn_type, normalization_cfg, enable_tn=enable_tn, tn_alpha=tn_alpha,
                           tn_affine=tn_affine,
                           rnn_input_size=rnn_input_size, rnn_n_features=rnn_n_features,
@@ -41,6 +55,20 @@ def one_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
                      rnn_n_features: int = tr.neural_networks.RNN_FEATURES,
                      metadata_input_size: int = tr.neural_networks.STATIC_INPUT_SIZE,
                      metadata_n_features: int = tr.neural_networks.FC_FEATURES):
+    """
+
+
+    :param n_layers: integer that state the number of recurrent layers.
+    :param rnn_type: enum that define the type of the recurrent layer (GRU or LSTM).
+    :param normalization_cfg: a class tr.neural_networks.InputNormalizationConfig which hold the normalization parameters.
+    :param enable_tn: boolean that enable or disable time normalization.
+    :param tn_alpha: floating point number which define the alpha factor of time normalization layer.
+    :param tn_affine: boolean that state if time normalization have affine transformation.
+    :param rnn_input_size: int that represent the dynamic input size.
+    :param rnn_n_features: int that represent the dynamic feature size.
+    :param metadata_input_size: int that represent the metadata input size.
+    :param metadata_n_features: int that represent the metadata feature size.
+    """
     return OneStepNetwork(n_layers, rnn_type, normalization_cfg, enable_tn=enable_tn, tn_alpha=tn_alpha,
                           tn_affine=tn_affine,
                           rnn_input_size=rnn_input_size, rnn_n_features=rnn_n_features,

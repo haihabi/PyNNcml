@@ -3,6 +3,21 @@ from torch import nn
 
 
 class ConstantBaseLine(nn.Module):
+    r"""
+            This is the module is implantation of Constant baseline that presented in [1] and defined as:
+
+            .. math::
+                    A^{\Delta}_{i,n} =
+                    \begin{cases}
+                        A_{i,n},& \text{if } \hat{y}^{wd}_{i,n} = 0\\
+                        A^{\Delta}_{i,n-1},              & \text{otherwise}
+                    \end{cases}
+
+            where :math:`A^{\Delta}_{i,n}` is the module output and baseline value, :math:`A_{i,n}` is the input attenuation and  :math:`\hat{y}^{wd}_{i,n}` is the predicition of wet-dry classification used as indicator.
+            [1]
+
+    """
+
     def __init__(self):
         super(ConstantBaseLine, self).__init__()
 
@@ -17,17 +32,12 @@ class ConstantBaseLine(nn.Module):
         return torch.stack(baseline, dim=0)
 
     def forward(self, input_attenuation: torch.Tensor, input_wet_dry: torch.Tensor) -> torch.Tensor:
-        """
-        This is the forward function of Constant baseline model that implants the following equation:
+        r"""
+        The forward function of constant baseline.
 
-
-
-        :param input_attenuation: A Tensor of shape $[N_b,N_s]$ where $N_b$ is the batch size and $N_s$ is the length of
-        time sequence. This parameter is the attenuation tensor symbolized as $A_{i,n}$
-        :param input_wet_dry: A Tensor of shape $[N_b,N_s]$ where $N_b$ is the batch size and $N_s$ is the length of
-        time sequence. This parameter is the wet dry induction tensor symbolized as $\hat{y}^{wd}_{i,n}$
-        :return: A Tensor of shape $[N_b,N_s]$ where $N_b$ is the batch size and $N_s$ is the length of
-        time sequence. This parameter is the baseline tensor symbolized as $A^{\Delta}_{i,n}$
+        :param input_attenuation: A Tensor of shape :math:`[N_b,N_s]` where :math:`N_b` is the batch size and :math:`N_s` is the length of time sequence. This parameter is the attenuation tensor symbolized as :math:`A_{i,n}`.
+        :param input_wet_dry: A Tensor of shape :math:`[N_b,N_s]` where :math:`N_b` is the batch size and :math:`N_s` is the length of time sequence. This parameter is the wet dry induction tensor symbolized as :math:`\hat{y}^{wd}_{i,n}`.
+        :return: A Tensor of shape :math:`[N_b,N_s]` where :math:`N_b` is the batch size and :math:`N_s` is the length of time sequence. This parameter is the baseline tensor symbolized as :math:`A^{\Delta}_{i,n}`.
         """
         return torch.stack(
             [self._single_link(input_attenuation[batch_index, :], input_wet_dry[batch_index, :]) for batch_index in

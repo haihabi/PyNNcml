@@ -5,6 +5,9 @@ from torchrain.neural_networks import InputNormalizationConfig
 
 
 class InputNormalization(nn.Module):
+    r"""
+
+    """
     def __init__(self, config: InputNormalizationConfig):
         super(InputNormalization, self).__init__()
         self.mean_dynamic = Parameter(torch.as_tensor(config.mean_dynamic).float(), requires_grad=False)
