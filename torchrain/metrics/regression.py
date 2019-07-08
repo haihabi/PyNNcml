@@ -6,6 +6,7 @@ def mse(input_array: np.ndarray, reference_array: np.ndarray) -> float:
     The mse function compute the mean square error of predication array.
         .. math::
             mse=\frac{1}{N}\sum_i^N (p_i-r_i)^2
+
     where mse is the mean square error measurement, p is the predication array, r is the reference array.
     Note:reference array shape must be equal to input array shape
 
@@ -21,6 +22,7 @@ def nmse(input_array: np.ndarray, reference_array: np.ndarray, epsilon: float = 
     The nmse function compute the normalized mean square error of predication array.
         .. math::
             nmse=\frac{1}{N}\sum_i^N \frac{(p_i-r_i)^2}{r_i^2+\epsilon}
+
     where nmse is the normalized mean square error measurement, p is the predication array, r is the reference array
     and epsilon is a floating point number fo numeric stability.
     Note:reference array shape must be equal to input array shape

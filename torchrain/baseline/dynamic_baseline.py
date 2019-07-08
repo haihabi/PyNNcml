@@ -7,11 +7,11 @@ class DynamicBaseLine(nn.Module):
     r"""
     The module impalement the dynamic baseline method that presented in [1] and defined as:
         .. math::
-                    A^{\Delta}_{i,n} =\min(A_{i,n},...,A_{i,n-k_s})
+                A^{\Delta}_{i,n} =\min(A_{i,n},...,A_{i,n-k_s})
+
     where :math:`A^{\Delta}_{i,n}` is the module output and baseline value, :math:`A_{i,n}` is the input attenuation. The dynamic baseline method take the minimal value of :math:`k_s` consecutive samples.
 
     :param k_steps: An integer, which state the number of step used for taking the minimal value.
-    [1]
     """
 
     def __init__(self, k_steps: int):

@@ -39,8 +39,8 @@ class OneStepNetwork(nn.Module):
                            metadata_n_features=metadata_n_features)
         self.rh = RainHead(self.bb.total_n_features())
 
-    def forward(self, data: torch.Tensor, metadata: tr.MetaData,
-                state: torch.Tensor) -> (torch.Tensor, torch.Tensor):  # model forward pass
+    def forward(self, data: torch.Tensor, metadata: torch.Tensor, state: torch.Tensor) -> (
+            torch.Tensor, torch.Tensor):  # model forward pass
         """
         This is the module forward function
 
@@ -54,7 +54,7 @@ class OneStepNetwork(nn.Module):
                     and :math:`N_f` is the number of feature.
                     The second tensor is the state tensor.
         """
-        features, state = self.bb(data, metadata.as_tensor(), state)
+        features, state = self.bb(data, metadata, state)
         return self.rh(features), state
 
     def init_state(self, batch_size: int = 1) -> torch.Tensor:

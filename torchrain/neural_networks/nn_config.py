@@ -10,6 +10,11 @@ TOTAL_FEATURES = FC_FEATURES + RNN_FEATURES
 
 
 class RNNType(Enum):
+    """
+    The RNNType Enum: state the type of Recurrent Neural Network (RNN) the model will run.
+    The enum support two types of RNNs LSTM or GRU.
+
+    """
     GRU = 0
     LSTM = 1
 
@@ -19,8 +24,12 @@ class InputNormalizationConfig(object):
     Input Normalization Config class, this class holds the normalization values of the inputs.
     There are two type of normalization values: dynamic normalization and metadata normalization values.
 
-
+    :param mean_dynamic: Numpy array that contains the mean values of the dynamic input
+    :param std_dynamic: Numpy array that contains the standard deviation values of the dynamic input
+    :param mean_metadata: Numpy array that contains the standard deviation values of the metadata input
+    :param std_metadata: Numpy array that contains the standard deviation values of the metadata input
     """
+
     def __init__(self, mean_dynamic: np.ndarray, std_dynamic: np.ndarray, mean_metadata: np.ndarray,
                  std_metadata: np.ndarray):
         self.mean_dynamic = mean_dynamic.reshape(1, 1, -1)

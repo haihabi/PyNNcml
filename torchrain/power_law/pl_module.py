@@ -26,11 +26,30 @@ FREQMIN = 1
 
 
 class PowerLawType(Enum):
-    ITU = 0
-    MINMAX = 1
+    r"""
+    Power Law Type select between  max attenuation and instance attenuation
+    """
+    INSTANCE = 0
+    MAX = 1
 
 
 class PowerLaw(nn.Module):
+    r"""
+    The PowerLaw Module is implanted two type attenuation: max and instance attenuation as define in the following equations:
+        The instance power law:
+            .. math::
+                R_n=\Big(\frac{1}{aL}\Big)^{\frac{1}{b}}A_n^{\frac{1}{b}}
+        The max power law:
+            .. math::
+                R_n=\Big(\frac{1}{a(log(k)+\gamma)L}\Big)^{\frac{1}{b}}A_n^{\frac{1}{b}} \\
+        where
+
+    :param input_type: an Enum that config the current type of input attenuation
+    :param r_min: a float number setting the minimal amount of rain.
+    :param k: an integer value
+
+    """
+
     def __init__(self, input_type: PowerLawType, r_min: float, k: int = 90):
         super(PowerLaw, self).__init__()
         self.r_min = r_min
@@ -39,8 +58,17 @@ class PowerLaw(nn.Module):
 
     def forward(self, input_attenuation: torch.Tensor, length: float, frequency: float,
                 polarization: bool) -> torch.Tensor:  # model forward pass
+        """
+        This is the module forward function
+
+        :param input_attenuation: A tensor of attenuation of any shape.
+        :param length:
+        :param frequency:
+        :param polarization:
+        :return: A tensor of rain with the same shape as the input_attenuation tensor.
+        """
         a, b = a_b_parameters(frequency, polarization)
-        if self.input_type == PowerLawType.MINMAX:
+        if self.input_type == PowerLawType.MAX:
             a = a * (np.log(self.k) + EULER_GAMMA) ** b
         beta = 1 / b
         alpha = np.power(1 / (a * length), beta)
@@ -50,33 +78,16 @@ class PowerLaw(nn.Module):
         return rain_rate
 
 
-def a_b_parameters(frequency, polarization) -> (float, float):
-    """Approximation of parameters for A-R relationship
+def a_b_parameters(frequency: float, polarization: bool) -> (float, float):
+    """This function return the Power Law parameters which approximate the relation between A-R
+       as define in [1].
 
-    Parameters
-    ----------
-    frequency : int, float or np.array of these
-            Frequency of the microwave link in GHz
-    polarization : bool
-            Polarization of the microwave link
+    :param frequency: a floating point number represent the frequency in GHz (value must be between 1 Ghz and 100 GHz)
+    :param polarization: boolean flag represent the polarization True - vertical and False -  horizontal
+    :returns: a,b Power Law parameters
 
-    Returns
-    -------
-    a,b : float
-          Parameters of A-R relationship
-
-    Note
-    ----
-    The frequency value must be between 1 Ghz and 100 GHz.
-
-    The polarization has to be indicated by False for horizontal and
-    True for vertical polarization respectively.
-
-    References
-    ----------
-    .. [4] ITU, "ITU-R: Specific attenuation model for rain for use in
-        prediction methods", International Telecommunication Union, 2013
-
+    References:
+    [1] ITU, "ITU-R: Specific attenuation model for rain for use in prediction methods", International Telecommunication Union, 2013
     """
     frequncey = np.asarray(frequency)
 
