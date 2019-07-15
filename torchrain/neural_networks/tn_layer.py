@@ -4,17 +4,20 @@ from torch.nn.parameter import Parameter
 
 
 class TimeNormalization(nn.Module):
+    r"""
+    Time Normalization Layer, normalized the input using it's mean and variance over time as defined in the follow equation:
+        .. math::
+            \hat{h}_n=\frac{h_n-\mu_n}{\sqrt{\sigma_n^2+\epsilon}}\\
+            \mu_n=\alpha h_n +(1-\alpha)\mu_{n-1}
+
+
+    :param alpha:
+    :param num_features:
+    :param epsilon:
+    :param affine:
+    """
+
     def __init__(self, alpha: float, num_features: int, epsilon: float = 0.001, affine: bool = False):
-        """
-        Time Normalization Layer
-
-        $$ $$
-
-        :param alpha:
-        :param num_features:
-        :param epsilon:
-        :param affine:
-        """
         super(TimeNormalization, self).__init__()
         self.num_features = num_features
         self.epsilon = epsilon
@@ -25,7 +28,7 @@ class TimeNormalization(nn.Module):
         self.bias = Parameter(torch.Tensor(1, 1, num_features))
 
     def forward(self, x: torch.Tensor, state: torch.Tensor, indicator: torch.Tensor = None) -> (
-    torch.Tensor, torch.Tensor):
+            torch.Tensor, torch.Tensor):
         p = self.alpha * torch.stack([x, torch.pow(x, 2)], dim=0)
         ##########################################################
         # Loop over all time steps

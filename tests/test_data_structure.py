@@ -11,7 +11,7 @@ class TestDataStructure(unittest.TestCase):
         att = torch.ones(100)
 
         with self.assertRaises(Exception) as context:
-            swd = tr.rain_estimation.two_step_constant_baseline(tr.power_law.PowerLawType.MINMAX, 0.3, 6, 0.5)
+            swd = tr.rain_estimation.two_step_constant_baseline(tr.power_law.PowerLawType.MAX, 0.3, 6, 0.5)
             res, wd = swd(att, tr.MetaData(15, 0, 18, 10, 12))
         self.assertTrue(
             'The input attenuation vector dont match min max format or regular format' == str(context.exception))
