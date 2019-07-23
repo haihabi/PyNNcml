@@ -4,7 +4,7 @@ from torchrain.rain_estimation.ts_constant import TwoStepConstant
 from torchrain.rain_estimation.os_dynamic import OneStepDynamic
 from torchrain.rain_estimation.os_network import OneStepNetwork
 from torchrain.rain_estimation.ts_network import TwoStepNetwork
-from torchrain.model_common import download_model, ModelType
+from torchrain.model_common import get_model_from_zoo, ModelType
 
 
 def two_step_constant_baseline(power_law_type: tr.power_law.PowerLawType, r_min: float, window_size: int,
@@ -27,7 +27,7 @@ def two_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
                      rnn_input_size: int = tr.neural_networks.DYNAMIC_INPUT_SIZE,
                      rnn_n_features: int = tr.neural_networks.RNN_FEATURES,
                      metadata_input_size: int = tr.neural_networks.STATIC_INPUT_SIZE,
-                     metadata_n_features: int = tr.neural_networks.FC_FEATURES, pretrained=True, model_path='./'):
+                     metadata_n_features: int = tr.neural_networks.FC_FEATURES, pretrained=True):
     """
 
 
@@ -42,14 +42,13 @@ def two_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
     :param metadata_input_size: int that represent the metadata input size.
     :param metadata_n_features: int that represent the metadata feature size.
     :param pretrained: boolean flag state that state if to download a pretrained model.
-    :param model_path: path of where to download pretrained model.
     """
     model = TwoStepNetwork(n_layers, rnn_type, normalization_cfg, enable_tn=enable_tn, tn_alpha=tn_alpha,
                            tn_affine=tn_affine,
                            rnn_input_size=rnn_input_size, rnn_n_features=rnn_n_features,
                            metadata_input_size=metadata_input_size, metadata_n_features=metadata_n_features)
-    if pretrained:
-        model_file = download_model(ModelType.TWOSTEP, rnn_type, n_layers, download_path=model_path)
+    if pretrained and not enable_tn:
+        model_file = get_model_from_zoo(ModelType.TWOSTEP, rnn_type, n_layers)
         model.load_state_dict(torch.load(model_file))
     return model
 
@@ -63,7 +62,7 @@ def one_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
                      rnn_n_features: int = tr.neural_networks.RNN_FEATURES,
                      metadata_input_size: int = tr.neural_networks.STATIC_INPUT_SIZE,
                      metadata_n_features: int = tr.neural_networks.FC_FEATURES,
-                     pretrained=True, model_path='./'
+                     pretrained=True
                      ):
     """
 
@@ -79,14 +78,13 @@ def one_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
     :param metadata_input_size: int that represent the metadata input size.
     :param metadata_n_features: int that represent the metadata feature size.
     :param pretrained: boolean flag state that state if to download a pretrained model.
-    :param model_path: path of where to download pretrained model.
     """
     model = OneStepNetwork(n_layers, rnn_type, normalization_cfg, enable_tn=enable_tn, tn_alpha=tn_alpha,
                            tn_affine=tn_affine,
                            rnn_input_size=rnn_input_size, rnn_n_features=rnn_n_features,
                            metadata_input_size=metadata_input_size, metadata_n_features=metadata_n_features)
-    if pretrained:
-        model_file = download_model(ModelType.ONESTEP, rnn_type, n_layers, download_path=model_path)
+    if pretrained and not enable_tn:
+        model_file = get_model_from_zoo(ModelType.ONESTEP, rnn_type, n_layers)
         model.load_state_dict(torch.load(model_file))
 
     return model
