@@ -78,7 +78,37 @@ class LinkMinMax(LinkBase):
         else:
             att_min = torch.tensor(- self.max_rsl).reshape(1, -1).float()
             att_max = torch.tensor(- self.min_rsl).reshape(1, -1).float()
-        return torch.stack([att_max, att_min], dim=-1)
+        return torch.cat([att_max, att_min], dim=0)
+
+    def plot(self):
+        att = self.attenuation()
+        # print(att.shape)
+        att_max = att[0, :]
+        att_min = att[1, :]
+        plt.subplot(1, 2, 1)
+        plt.plot(self.time(), att_max.numpy().flatten(), label=r'$A_n^{max}$')
+        plt.plot(self.time(), att_min.numpy().flatten(), label=r'$A_n^{min}$')
+        plt.legend()
+        plt.ylabel(r'$A[dB]$')
+        plt.title('Attenuation')
+        tr.change_x_axis_time_format('%H')
+        plt.grid()
+        plt.subplot(1, 2, 2)
+        plt.plot(self.time(), self.rain_gauge)
+        plt.ylabel(r'$R_n[mm/hr]$')
+        tr.change_x_axis_time_format('%H')
+        plt.title('Rain')
+        plt.grid()
+
+    def as_tensor(self, constant_tsl=None):
+        if self.has_tsl():
+            return torch.stack([self.max_rsl, self.min_rsl, self.max_tsl, self.min_tsl])
+        else:
+            if constant_tsl is None:
+                return torch.stack([self.max_rsl, self.min_rsl])
+            else:
+                tsl = None
+                return torch.stack([self.max_rsl, self.min_rsl, tsl, tsl])
 
 
 class Link(LinkBase):
