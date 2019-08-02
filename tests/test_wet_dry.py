@@ -1,7 +1,7 @@
 import unittest
-import numpy as np
 import torch
 import torchrain as tr
+import os
 
 
 class TestWetDry(unittest.TestCase):
@@ -22,6 +22,7 @@ class TestWetDry(unittest.TestCase):
         self.assertTrue(state[0].shape[-1] == tr.neural_networks.RNN_FEATURES)
         self.assertTrue(state[1].shape[-1] == tr.neural_networks.RNN_FEATURES)
 
+    @unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true", "Skipping this tests on Travis CI.")
     def test_with_real_data(self):
         open_cml_dataset = tr.read_open_cml_dataset('../data/open_cml.p')  # read OpenCML dataset
 
