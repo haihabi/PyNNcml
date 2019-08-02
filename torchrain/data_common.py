@@ -102,13 +102,16 @@ class LinkMinMax(LinkBase):
 
     def as_tensor(self, constant_tsl=None):
         if self.has_tsl():
-            return torch.stack([self.max_rsl, self.min_rsl, self.max_tsl, self.min_tsl])
+            return torch.stack([torch.Tensor(self.max_rsl).float(), torch.Tensor(self.min_rsl).float(),
+                                torch.Tensor(self.max_tsl).float(), torch.Tensor(self.min_tsl).float()])
         else:
             if constant_tsl is None:
-                return torch.stack([self.max_rsl, self.min_rsl])
+                return torch.stack([torch.Tensor(self.max_rsl).float(), torch.Tensor(self.min_rsl).float()])
             else:
-                tsl = None
-                return torch.stack([self.max_rsl, self.min_rsl, tsl, tsl])
+                tsl = torch.Tensor(constant_tsl * np.ones(len(self))).float()
+                return torch.stack(
+                    [tsl, torch.Tensor(self.min_rsl).float(), tsl, torch.Tensor(self.max_rsl).float()],
+                    dim=1)
 
 
 class Link(LinkBase):
