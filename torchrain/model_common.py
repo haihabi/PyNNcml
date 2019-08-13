@@ -1,5 +1,3 @@
-import os
-import urllib.request
 from enum import Enum
 from torchrain.neural_networks.nn_config import RNNType
 import pkg_resources
@@ -11,7 +9,7 @@ class ModelType(Enum):
     WETDRY = 2
 
 
-DOWNLOAD_URL = {
+MODEL_ZOO = {
     ModelType.ONESTEP: {RNNType.GRU: {1: 'one_step_1_rnntype_best.gru',
                                       2: 'one_step_2_rnntype_best.gru',
                                       3: 'one_step_3_rnntype_best.gru'},
@@ -34,13 +32,13 @@ DOWNLOAD_URL = {
 
 
 def get_model_from_zoo(model_type: ModelType, rnn_type: RNNType, n_layers: int) -> str:
-    if DOWNLOAD_URL.get(model_type) is None:
+    if MODEL_ZOO.get(model_type) is None:
         raise Exception('unknown model:' + str(model_type))
-    if DOWNLOAD_URL.get(model_type).get(rnn_type) is None:
+    if MODEL_ZOO.get(model_type).get(rnn_type) is None:
         raise Exception('unknown RNN type:' + str(rnn_type))
-    if DOWNLOAD_URL.get(model_type).get(rnn_type).get(n_layers) is None:
+    if MODEL_ZOO.get(model_type).get(rnn_type).get(n_layers) is None:
         raise Exception('there is not model with:' + str(n_layers) + 'layers')
     path2download = pkg_resources.resource_filename('torchrain',
-                                                    'model_zoo/' + DOWNLOAD_URL.get(model_type).get(rnn_type).get(
+                                                    'model_zoo/' + MODEL_ZOO.get(model_type).get(rnn_type).get(
                                                         n_layers))
     return path2download
