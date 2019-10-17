@@ -24,7 +24,6 @@ class Backbone(nn.Module):
                  normalization_cfg: neural_networks.InputNormalizationConfig,
                  enable_tn: bool,
                  tn_alpha: float,
-                 tn_affine: bool,
                  rnn_input_size: int,
                  rnn_n_features: int,
                  metadata_input_size: int,
@@ -49,8 +48,7 @@ class Backbone(nn.Module):
             raise Exception('Unknown RNN type')
         self.enable_tn = enable_tn
         if enable_tn:
-            self.tn = neural_networks.TimeNormalization(alpha=tn_alpha, num_features=rnn_n_features,
-                                                        affine=tn_affine)
+            self.tn = neural_networks.TimeNormalization(alpha=tn_alpha, num_features=rnn_n_features)
         self.fc_meta = nn.Linear(metadata_input_size, metadata_n_features)
         self.normalization = InputNormalization(normalization_cfg)
         self.relu = nn.ReLU()
@@ -118,5 +116,5 @@ class Backbone(nn.Module):
             state = (self._base_init(batch_size), self._base_init(batch_size))
 
         if self.enable_tn:  # if TimeNormalization is enable then update init state
-            state = (state, self.tn.init_state(batch_size=batch_size))
+            state = (state, self.tn.init_state(self.fc_meta.weight.device.type, batch_size=batch_size))
         return state

@@ -35,8 +35,8 @@ class WetDryNetwork(nn.Module):
                  ):
         super(WetDryNetwork, self).__init__()
         self.bb = Backbone(n_layers, rnn_type, normalization_cfg, enable_tn=enable_tn, tn_alpha=tn_alpha,
-                           rnn_input_size=rnn_input_size,
-                           tn_affine=tn_affine, rnn_n_features=rnn_n_features, metadata_input_size=metadata_input_size,
+                           rnn_input_size=rnn_input_size, rnn_n_features=rnn_n_features,
+                           metadata_input_size=metadata_input_size,
                            metadata_n_features=metadata_n_features)
         self.wdh = WetDryHead(self.bb.total_n_features())
 
