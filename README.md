@@ -83,4 +83,12 @@ Also this package contains the implementaion of the following papers:
 
 [5] M. Schleiss and A. Berne, “Identification of dry and rainy periods usingtelecommunication  microwave  links,”IEEE  Geoscience  and  RemoteSensing Letters, vol. 7, no. 3, pp. 611–615, 2010
 
+[6] Jonatan Ostrometzky, Adam Eshel, Pinhas Alpert, and Hagit Messer. Induced bias in attenuation measurements taken from commercial microwave links. In 2017 IEEE International
+Conference on Acoustics, Speech and Signal Processing (ICASSP), pages 3744–3748. IEEE,2017. <br>
+
+[7] Jonatan Ostrometzky, Roi Raich, Adam Eshel, and Hagit Messer.
+Calibration of the
+attenuation-rain rate power-law parameters using measurements from commercial microwave networks. In 2016 IEEE International Conference on Acoustics, Speech and Signal
+Processing (ICASSP), pages 3736–3740. IEEE, 2016.
+
 If you found on of this methods usefully please cite.
