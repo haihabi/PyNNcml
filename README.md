@@ -4,7 +4,7 @@ Library for rain estimation and detection built with pytorch.
 This library provide an implementations of algorithms for extracting rain-rate using data from commercial microwave links (CMLs). Addinaly this project provide an example dataset with data from two CMLs and implementation of perfomance and robustness metrics.  
 
 # Install
-The install via pip
+Installation via pip:
 ```
 pip instal torchrain
 
@@ -21,17 +21,24 @@ pip instal torchrain
 6. Robustness
 # Dataset
 This repository includes an example of a dataset with a reference rain gauge.
-# Examples
-Example of
+# Usage
+The following examples:
 * Wet Dry Classification using neural network[1] shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/wet_dry_classification_rnn.ipynb) 
 * wet Dry Classification using statistic test [5]  shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/wet_dry_classification.ipynb)
 * Rain estimation using dynamic baseline[4] shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/rain_estimation_dynamic.ipynb)
 * Rain estimation using constant baseline[5] shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/rain_estimation_constant.ipynb)
 
+Show jupyter notebooks of TorchRain
+
 
 # Model Zoo
-In this project we supply a set of trained networks in our [Model Zoo](https://github.com/haihabi/torch_rain/blob/master/model_zoo/model_zoo.md), this networks are trained on our own dataset which is not publicly available.
+In this project we supply a set of trained networks in our [Model Zoo](https://github.com/haihabi/torch_rain/blob/master/model_zoo/), this networks are trained on our own dataset which is not publicly available.
 The model contains three types of networks: Wet-dry classification network, one-step network (rain estimation only) and two-step network (rain estimation and wet-dry classification). Moreover, we have provided all of these networks with a various number of RNN cells (1, 2, 3). From more details about network structure and results see the publication list.
+
+# Contributing
+
+If you find a bug or have a question, please create a GitHub issue.
+
 
 
 # Publications
