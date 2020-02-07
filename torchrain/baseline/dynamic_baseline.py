@@ -11,6 +11,8 @@ class DynamicBaseLine(nn.Module):
 
     where :math:`A^{\Delta}_{i,n}` is the module output and baseline value, :math:`A_{i,n}` is the input attenuation. The dynamic baseline method take the minimal value of :math:`k_s` consecutive samples.
 
+    [1] J.Ostrometzky and H.Messer. "Dynamic Determination of the Baseline Level in Microwave Links for Rain Monitoring From Minimum Attenuation Values"
+
     :param k_steps: An integer, which state the number of step used for taking the minimal value.
     """
 

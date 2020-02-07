@@ -14,7 +14,8 @@ class ConstantBaseLine(nn.Module):
                     \end{cases}
 
             where :math:`A^{\Delta}_{i,n}` is the module output and baseline value, :math:`A_{i,n}` is the input attenuation and  :math:`\hat{y}^{wd}_{i,n}` is the predicition of wet-dry classification used as indicator.
-            [1]
+
+            [1] Schleiss, Marc and Berne, Alexis. "Identification of dry and rainy periods using telecommunication microwave links"
 
     """
 
