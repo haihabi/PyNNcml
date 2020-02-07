@@ -23,10 +23,10 @@ pip instal torchrain
 This repository includes an example of a dataset with a reference rain gauge.
 # Examples
 Example of
-* Wet Dry Classification using neural network[1] shown in the following [notebook](../examples/wet_dry_classification_rnn.ipynb) 
-* wet Dry Classification using statistic test [5]  shown in the following [notebook](../examples/wet_dry_classification.ipynb)
-* Rain estimation using dynamic baseline[4] shown in the following [notebook](../examples/rain_estimation_dynamic.ipynb)
-* Rain estimation using constant baseline[5] shown in the following [notebook](../examples/rain_estimation_constant.ipynb)
+* Wet Dry Classification using neural network[1] shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/wet_dry_classification_rnn.ipynb) 
+* wet Dry Classification using statistic test [5]  shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/wet_dry_classification.ipynb)
+* Rain estimation using dynamic baseline[4] shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/rain_estimation_dynamic.ipynb)
+* Rain estimation using constant baseline[5] shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/rain_estimation_constant.ipynb)
 
 
 # Model Zoo
