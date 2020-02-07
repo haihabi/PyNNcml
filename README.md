@@ -6,17 +6,16 @@ This library provide an implementations of algorithms for extracting rain-rate u
 # Install
 
 
-# Projects Structer
+# Projects Structure
 
 1. Wet Dry Classification
-2. Baseline - Done
-3. Power Law - Done
+2. Baseline 
+3. Power Law 
 4. Rain estimation
 5. Metrics
-6. Robutness
-
+6. Robustness
 # Dataset
-
+This repository includes an example of a dataset with a reference rain gauge.
 # Examples
  
 * Rain estimation using dynamic baseline []
@@ -25,6 +24,7 @@ This library provide an implementations of algorithms for extracting rain-rate u
 
 # Model Zoo
 In this project we supply a set of trained networks in our [Model Zoo](https://github.com/haihabi/torch_rain/blob/master/model_zoo/model_zoo.md), this networks are trained on our own dataset which is not publicly available.
+The model contains three types of networks: Wet-dry classification network, one-step network (rain estimation only) and two-step network (rain estimation and wet-dry classification). Moreover, we have provided all of these networks with a various number of RNN cells (1, 2, 3). From more details about network structure and results see the following link ()
 
 # TODO
 1. Create dataset

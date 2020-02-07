@@ -13,7 +13,6 @@ class Backbone(nn.Module):
     :param normalization_cfg: a class tr.neural_networks.InputNormalizationConfig which hold the normalization parameters.
     :param enable_tn: boolean that enable or disable time normalization.
     :param tn_alpha: floating point number which define the alpha factor of time normalization layer.
-    :param tn_affine: boolean that state if time normalization have affine transformation.
     :param rnn_input_size: int that represent the dynamic input size.
     :param rnn_n_features: int that represent the dynamic feature size.
     :param metadata_input_size: int that represent the metadata input size.
