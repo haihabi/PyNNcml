@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/haihabi/torch_rain.svg?token=eE741jb2R5GqWJWLJhiE&branch=master)](https://travis-ci.com/haihabi/torch_rain)
 # Torch Rain
-Library for rain estimation and detection built with pytorch. 
+Library for rain estimation and detection implemented using pytorch. 
 This library provide an implementations of algorithms for extracting rain-rate using data from commercial microwave links (CMLs). Addinaly this project provide an example dataset with data from two CMLs and implementation of perfomance and robustness metrics.  
 
 # Install
