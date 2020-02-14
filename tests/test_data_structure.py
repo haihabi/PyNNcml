@@ -1,5 +1,5 @@
 import unittest
-import torchrain as tr
+import pynncml as pnc
 import torch
 import numpy as np
 
@@ -11,8 +11,8 @@ class TestDataStructure(unittest.TestCase):
         att = torch.ones(100)
 
         with self.assertRaises(Exception) as context:
-            swd = tr.rain_estimation.two_step_constant_baseline(tr.power_law.PowerLawType.MAX, 0.3, 6, 0.5)
-            res, wd = swd(att, tr.MetaData(15, 0, 18, 10, 12))
+            swd = pnc.rain_estimation.two_step_constant_baseline(pnc.power_law.PowerLawType.MAX, 0.3, 6, 0.5)
+            res, wd = swd(att, pnc.MetaData(15, 0, 18, 10, 12))
         self.assertTrue(
             'The input attenuation vector dont match min max format or regular format' == str(context.exception))
 
@@ -20,7 +20,7 @@ class TestDataStructure(unittest.TestCase):
         rsl = np.random.rand(TestDataStructure.n_samples)
         time = np.linspace(0, TestDataStructure.n_samples - 1, TestDataStructure.n_samples).astype('int')
         rain = np.zeros(TestDataStructure.n_samples)
-        l = tr.Link(rsl, rain, time, tr.MetaData(0, 2, 3, 4, 5))
+        l = pnc.Link(rsl, rain, time, pnc.MetaData(0, 2, 3, 4, 5))
         l.plot()
         self.assertEqual(l.meta_data.as_tensor().shape[1], 5)
         self.assertEqual(l.meta_data.as_tensor().shape[0], 1)
@@ -44,7 +44,7 @@ class TestDataStructure(unittest.TestCase):
         rsl = np.random.rand(TestDataStructure.n_samples)
         time = np.linspace(0, TestDataStructure.n_samples - 1, TestDataStructure.n_samples).astype('int')
         rain = np.zeros(TestDataStructure.n_samples)
-        l = tr.Link(rsl, rain, time, tr.MetaData(0, 2, 3, 4, 5))
+        l = pnc.Link(rsl, rain, time, pnc.MetaData(0, 2, 3, 4, 5))
         res = l.create_min_max_link(step)
         self.assertEqual(l.stop_time(), res.stop_time() + step)
         self.assertEqual(l.start_time(), res.start_time())
@@ -62,7 +62,7 @@ class TestDataStructure(unittest.TestCase):
         tsl = np.random.rand(TestDataStructure.n_samples)
         time = np.linspace(0, TestDataStructure.n_samples - 1, TestDataStructure.n_samples).astype('int')
         rain = np.zeros(TestDataStructure.n_samples)
-        l = tr.Link(rsl, rain, time, tr.MetaData(0, 2, 3, 4, 5), link_tsl=tsl)
+        l = pnc.Link(rsl, rain, time, pnc.MetaData(0, 2, 3, 4, 5), link_tsl=tsl)
         self.assertTrue(l.start_time().astype('int') == 0)
         self.assertTrue(l.stop_time().astype('int') == 99)
         self.assertTrue(l.delta_time().astype('int') == 99)

@@ -1,19 +1,19 @@
 import torch
-import torchrain as tr
+import pynncml as pnc
 from torch import nn
-from torchrain.neural_networks.backbone import Backbone
-from torchrain.neural_networks.rain_head import RainHead
-from torchrain.neural_networks.wd_head import WetDryHead
-from torchrain import neural_networks
+from pynncml.neural_networks.backbone import Backbone
+from pynncml.neural_networks.wd_head import WetDryHead
+from pynncml import neural_networks
 
 
-class TwoStepNetwork(nn.Module):
+class WetDryNetwork(nn.Module):
     """
-
+    The module generate a wet dry network that was presented in [1]
 
     :param n_layers: integer that state the number of recurrent layers.
     :param rnn_type: enum that define the type of the recurrent layer (GRU or LSTM).
-    :param normalization_cfg: a class tr.neural_networks.InputNormalizationConfig which hold the normalization parameters.
+    :param normalization_cfg: a class pnc.neural_networks.InputNormalizationConfig which
+                              hold the normalization parameters.
     :param enable_tn: boolean that enable or disable time normalization.
     :param tn_alpha: floating point number which define the alpha factor of time normalization layer.
     :param tn_affine: boolean that state if time normalization have affine transformation.
@@ -23,7 +23,7 @@ class TwoStepNetwork(nn.Module):
     :param metadata_n_features: int that represent the metadata feature size.
     """
 
-    def __init__(self, n_layers: int, rnn_type: tr.neural_networks.RNNType,
+    def __init__(self, n_layers: int, rnn_type: pnc.neural_networks.RNNType,
                  normalization_cfg: neural_networks.InputNormalizationConfig,
                  enable_tn: bool,
                  tn_alpha: float,
@@ -33,16 +33,15 @@ class TwoStepNetwork(nn.Module):
                  metadata_input_size: int,
                  metadata_n_features: int,
                  ):
-        super(TwoStepNetwork, self).__init__()
+        super(WetDryNetwork, self).__init__()
         self.bb = Backbone(n_layers, rnn_type, normalization_cfg, enable_tn=enable_tn, tn_alpha=tn_alpha,
                            rnn_input_size=rnn_input_size, rnn_n_features=rnn_n_features,
                            metadata_input_size=metadata_input_size,
                            metadata_n_features=metadata_n_features)
-        self.rh = RainHead(self.bb.total_n_features())
         self.wdh = WetDryHead(self.bb.total_n_features())
 
-    def forward(self, data: torch.Tensor, metadata: torch.Tensor,
-                state: torch.Tensor) -> (torch.Tensor, torch.Tensor):  # model forward pass
+    def forward(self, data: torch.Tensor, metadata: torch.Tensor, state: torch.Tensor) -> (
+            torch.Tensor, torch.Tensor):
         """
         This is the module forward function
 
@@ -56,10 +55,11 @@ class TwoStepNetwork(nn.Module):
                     and :math:`N_f` is the number of feature.
                     The second tensor is the state tensor.
         """
-        features, state = self.bb(data, metadata, state)
-        return torch.cat([self.rh(features), self.wdh(features)], dim=-1), state
 
-    def init_state(self, batch_size: int = 1) -> torch.Tensor:
+        features, state = self.bb(data, metadata, state)
+        return self.wdh(features), state
+
+    def init_state(self, batch_size: int = 1) -> torch.Tensor:  # model init state\
         """
         This function generate the initial state of the Module.
 

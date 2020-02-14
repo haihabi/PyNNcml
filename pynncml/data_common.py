@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import os
 import torch
-import torchrain as tr
+import pynncml as pnc
 from matplotlib import pyplot as plt
 
 HOUR_IN_SECONDS = 3600
@@ -91,12 +91,12 @@ class LinkMinMax(LinkBase):
         plt.legend()
         plt.ylabel(r'$A[dB]$')
         plt.title('Attenuation')
-        tr.change_x_axis_time_format('%H')
+        pnc.change_x_axis_time_format('%H')
         plt.grid()
         plt.subplot(1, 2, 2)
         plt.plot(self.time(), self.rain_gauge)
         plt.ylabel(r'$R_n[mm/hr]$')
-        tr.change_x_axis_time_format('%H')
+        pnc.change_x_axis_time_format('%H')
         plt.title('Rain')
         plt.grid()
 
@@ -142,12 +142,12 @@ class Link(LinkBase):
         plt.plot(self.time(), self.attenuation().numpy().flatten())
         plt.ylabel(r'$A_n$')
         plt.title('Attenuation')
-        tr.change_x_axis_time_format('%H')
+        pnc.change_x_axis_time_format('%H')
         plt.grid()
         plt.subplot(1, 2, 2)
         plt.plot(self.time(), self.rain_gauge)
         plt.ylabel(r'$R_n$')
-        tr.change_x_axis_time_format('%H')
+        pnc.change_x_axis_time_format('%H')
         plt.title('Rain')
         plt.grid()
 

@@ -1,6 +1,6 @@
 import unittest
 import os
-from torchrain.model_common import get_model_from_zoo, ModelType, RNNType
+from pynncml.model_common import get_model_from_zoo, ModelType, RNNType
 
 
 class TestModelZoo(unittest.TestCase):

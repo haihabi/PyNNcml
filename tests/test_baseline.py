@@ -1,5 +1,5 @@
 import unittest
-import torchrain as tr
+import pynncml as pnc
 import numpy as np
 import torch
 
@@ -7,7 +7,7 @@ import torch
 class TestBaseLineMethod(unittest.TestCase):
     def test_dynamic(self):
         att = torch.as_tensor(np.random.randn(1, 100))
-        dbl = tr.baseline.DynamicBaseLine(8)
+        dbl = pnc.baseline.DynamicBaseLine(8)
         res = dbl(att).numpy()
         att = att.numpy()
         self.assertTrue(len(res) == len(att))
@@ -16,14 +16,14 @@ class TestBaseLineMethod(unittest.TestCase):
     def test_one_step_dynamic_exception(self):
         att = torch.as_tensor(np.random.randn(100))
         with self.assertRaises(Exception) as context:
-            dbl = tr.baseline.DynamicBaseLine(8)
+            dbl = pnc.baseline.DynamicBaseLine(8)
             dbl(att)
         self.assertEqual('Dynamic base line module only accepts inputs with shape length equal to 2',
                          str(context.exception))
 
     def test_constant(self):
         att = torch.as_tensor(np.random.randn(1, 100))
-        cbl = tr.baseline.ConstantBaseLine()
+        cbl = pnc.baseline.ConstantBaseLine()
         res = cbl(att, np.zeros([1, 100])).numpy()
         self.assertTrue(len(res) == len(att.numpy()))
         self.assertTrue(np.min(res) == np.min(att.numpy()))

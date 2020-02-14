@@ -1,13 +1,13 @@
 import torch
-import torchrain as tr
-from torchrain.rain_estimation.ts_constant import TwoStepConstant
-from torchrain.rain_estimation.os_dynamic import OneStepDynamic
-from torchrain.rain_estimation.os_network import OneStepNetwork
-from torchrain.rain_estimation.ts_network import TwoStepNetwork
-from torchrain.model_common import get_model_from_zoo, ModelType
+import pynncml as pnc
+from pynncml.rain_estimation.ts_constant import TwoStepConstant
+from pynncml.rain_estimation.os_dynamic import OneStepDynamic
+from pynncml.rain_estimation.os_network import OneStepNetwork
+from pynncml.rain_estimation.ts_network import TwoStepNetwork
+from pynncml.model_common import get_model_from_zoo, ModelType
 
 
-def two_step_constant_baseline(power_law_type: tr.power_law.PowerLawType, r_min: float, window_size: int,
+def two_step_constant_baseline(power_law_type: pnc.power_law.PowerLawType, r_min: float, window_size: int,
                                threshold: float, wa_factor: float = None):
     if wa_factor is None:
         return TwoStepConstant(power_law_type, r_min, window_size, threshold)
@@ -15,19 +15,19 @@ def two_step_constant_baseline(power_law_type: tr.power_law.PowerLawType, r_min:
         return TwoStepConstant(power_law_type, r_min, window_size, threshold, wa_factor=wa_factor)
 
 
-def one_step_dynamic_baseline(power_law_type: tr.power_law.PowerLawType, r_min: float, window_size: int):
+def one_step_dynamic_baseline(power_law_type: pnc.power_law.PowerLawType, r_min: float, window_size: int):
     return OneStepDynamic(power_law_type, r_min, window_size)
 
 
-def two_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
-                     normalization_cfg: tr.neural_networks.InputNormalizationConfig = tr.neural_networks.INPUT_NORMALIZATION,
+def two_step_network(n_layers: int, rnn_type: pnc.neural_networks.RNNType,
+                     normalization_cfg: pnc.neural_networks.InputNormalizationConfig = pnc.neural_networks.INPUT_NORMALIZATION,
                      enable_tn: bool = False,
                      tn_alpha: float = 0.9,
                      tn_affine: bool = False,
-                     rnn_input_size: int = tr.neural_networks.DYNAMIC_INPUT_SIZE,
-                     rnn_n_features: int = tr.neural_networks.RNN_FEATURES,
-                     metadata_input_size: int = tr.neural_networks.STATIC_INPUT_SIZE,
-                     metadata_n_features: int = tr.neural_networks.FC_FEATURES, pretrained=True):
+                     rnn_input_size: int = pnc.neural_networks.DYNAMIC_INPUT_SIZE,
+                     rnn_n_features: int = pnc.neural_networks.RNN_FEATURES,
+                     metadata_input_size: int = pnc.neural_networks.STATIC_INPUT_SIZE,
+                     metadata_n_features: int = pnc.neural_networks.FC_FEATURES, pretrained=True):
     """
 
 
@@ -53,15 +53,15 @@ def two_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
     return model
 
 
-def one_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
-                     normalization_cfg: tr.neural_networks.InputNormalizationConfig = tr.neural_networks.INPUT_NORMALIZATION,
+def one_step_network(n_layers: int, rnn_type: pnc.neural_networks.RNNType,
+                     normalization_cfg: pnc.neural_networks.InputNormalizationConfig = pnc.neural_networks.INPUT_NORMALIZATION,
                      enable_tn: bool = False,
                      tn_alpha: float = 0.9,
                      tn_affine: bool = False,
-                     rnn_input_size: int = tr.neural_networks.DYNAMIC_INPUT_SIZE,
-                     rnn_n_features: int = tr.neural_networks.RNN_FEATURES,
-                     metadata_input_size: int = tr.neural_networks.STATIC_INPUT_SIZE,
-                     metadata_n_features: int = tr.neural_networks.FC_FEATURES,
+                     rnn_input_size: int = pnc.neural_networks.DYNAMIC_INPUT_SIZE,
+                     rnn_n_features: int = pnc.neural_networks.RNN_FEATURES,
+                     metadata_input_size: int = pnc.neural_networks.STATIC_INPUT_SIZE,
+                     metadata_n_features: int = pnc.neural_networks.FC_FEATURES,
                      pretrained=True
                      ):
     """
@@ -69,7 +69,7 @@ def one_step_network(n_layers: int, rnn_type: tr.neural_networks.RNNType,
 
     :param n_layers: integer that state the number of recurrent layers.
     :param rnn_type: enum that define the type of the recurrent layer (GRU or LSTM).
-    :param normalization_cfg: a class tr.neural_networks.InputNormalizationConfig which hold the normalization parameters.
+    :param normalization_cfg: a class pnc.neural_networks.InputNormalizationConfig which hold the normalization parameters.
     :param enable_tn: boolean that enable or disable time normalization.
     :param tn_alpha: floating point number which define the alpha factor of time normalization layer.
     :param tn_affine: boolean that state if time normalization have affine transformation.

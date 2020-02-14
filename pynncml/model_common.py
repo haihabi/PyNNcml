@@ -1,5 +1,5 @@
 from enum import Enum
-from torchrain.neural_networks.nn_config import RNNType
+from pynncml.neural_networks.nn_config import RNNType
 import pkg_resources
 
 
@@ -38,7 +38,7 @@ def get_model_from_zoo(model_type: ModelType, rnn_type: RNNType, n_layers: int) 
         raise Exception('unknown RNN type:' + str(rnn_type))
     if MODEL_ZOO.get(model_type).get(rnn_type).get(n_layers) is None:
         raise Exception('there is not model with:' + str(n_layers) + 'layers')
-    path2download = pkg_resources.resource_filename('torchrain',
+    path2download = pkg_resources.resource_filename('pynncml',
                                                     'model_zoo/' + MODEL_ZOO.get(model_type).get(rnn_type).get(
                                                         n_layers))
     return path2download

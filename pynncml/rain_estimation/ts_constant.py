@@ -1,19 +1,19 @@
 import torch
-import torchrain as tr
+import pynncml as pnc
 from torch import nn
-from torchrain.data_common import handle_attenuation_input
+from pynncml.data_common import handle_attenuation_input
 
 
 class TwoStepConstant(nn.Module):
-    def __init__(self, power_law_type: tr.power_law.PowerLawType, r_min: float, window_size: int, threshold: float,
+    def __init__(self, power_law_type: pnc.power_law.PowerLawType, r_min: float, window_size: int, threshold: float,
                  wa_factor: float = 0.0):
         super(TwoStepConstant, self).__init__()
-        self.wd = tr.wet_dry.STDWetDry(threshold, window_size)
-        self.bl = tr.baseline.ConstantBaseLine()
+        self.wd = pnc.wet_dry.STDWetDry(threshold, window_size)
+        self.bl = pnc.baseline.ConstantBaseLine()
         self.wa_factor = wa_factor
-        self.pl = tr.power_law.PowerLaw(power_law_type, r_min)
+        self.pl = pnc.power_law.PowerLaw(power_law_type, r_min)
 
-    def forward(self, data: torch.Tensor, metadata: tr.MetaData) -> (torch.Tensor, torch.Tensor):  # model forward pass
+    def forward(self, data: torch.Tensor, metadata: pnc.MetaData) -> (torch.Tensor, torch.Tensor):  # model forward pass
         att_max, att_min = handle_attenuation_input(data)
 
         wet_dry_classification, _ = self.wd(att_max)

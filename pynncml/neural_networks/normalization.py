@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from torch.nn.parameter import Parameter
-from torchrain.neural_networks import InputNormalizationConfig
+from pynncml.neural_networks import InputNormalizationConfig
 
 
 class InputNormalization(nn.Module):

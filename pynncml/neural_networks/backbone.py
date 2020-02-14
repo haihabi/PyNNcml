@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from torchrain import neural_networks
-from torchrain.neural_networks.normalization import InputNormalization
+from pynncml import neural_networks
+from pynncml.neural_networks.normalization import InputNormalization
 
 
 class Backbone(nn.Module):

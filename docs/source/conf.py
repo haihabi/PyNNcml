@@ -19,7 +19,7 @@ import torch
 
 # -- Project information -----------------------------------------------------
 
-project = 'torchrain'
+project = 'pynncml'
 copyright = '2019, Hai Victor Habi'
 author = 'Hai Victor Habi'
 

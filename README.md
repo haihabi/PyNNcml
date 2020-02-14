@@ -1,8 +1,6 @@
 [![Build Status](https://travis-ci.com/haihabi/torch_rain.svg?token=eE741jb2R5GqWJWLJhiE&branch=master)](https://travis-ci.com/haihabi/torch_rain)
-# Torch Rain
-Library for rain estimation and detection built with pytorch. 
-This library provide an implementations of algorithms for extracting rain-rate using data from commercial microwave links (CMLs). Addinaly this project provide an example dataset with data from two CMLs and implementation of perfomance and robustness metrics.  
-
+# PyNNcml
+A python toolbox based on PyTorch which utilized neural network for rain estimation and classification from commercial microwave link (CMLs) data. This toolbox provides an implementation of algorithms for extracting rain-rate using neural networks and CMLs. Addinaly this project provides an example dataset with data from two CMLs and implementation of performance and robustness metrics.  
 # Install
 Installation via pip:
 ```
