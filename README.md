@@ -4,7 +4,7 @@ A python toolbox based on PyTorch which utilized neural network for rain estimat
 # Install
 Installation via pip:
 ```
-pip instal torchrain
+pip install pynncml
 
 ```
 
