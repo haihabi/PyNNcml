@@ -9,7 +9,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="pynncml",
-    version="0.1",
+    version="0.1.1",
     author="Hai Victor Habi",
     author_email="victoropensource@gmail.com",
     description="A python toolbox based on PyTorch which utilized neural network for rain estimation and classification from commercial microwave link (CMLs) data.",

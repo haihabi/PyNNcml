@@ -21,16 +21,16 @@ pip install pynncml
 This repository includes an example of a dataset with a reference rain gauge.
 # Usage
 The following examples:
-* Wet Dry Classification using neural network[1] shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/wet_dry_classification_rnn.ipynb) 
-* wet Dry Classification using statistic test [5]  shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/wet_dry_classification.ipynb)
-* Rain estimation using dynamic baseline[4] shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/rain_estimation_dynamic.ipynb)
-* Rain estimation using constant baseline[5] shown in the following [notebook](https://github.com/haihabi/torch_rain/blob/master/examples/rain_estimation_constant.ipynb)
+* Wet Dry Classification using neural network[1] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/wet_dry_classification_rnn.ipynb) 
+* wet Dry Classification using statistic test [5]  shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/wet_dry_classification.ipynb)
+* Rain estimation using dynamic baseline[4] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/rain_estimation_dynamic.ipynb)
+* Rain estimation using constant baseline[5] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/rain_estimation_constant.ipynb)
 
-Show jupyter notebooks of TorchRain
+Show jupyter notebooks of PyNNcml
 
 
 # Model Zoo
-In this project we supply a set of trained networks in our [Model Zoo](https://github.com/haihabi/torch_rain/tree/master/torchrain/model_zoo), this networks are trained on our own dataset which is not publicly available.
+In this project we supply a set of trained networks in our [Model Zoo](https://github.com/haihabi/PyNNcml/tree/master/pynncml/model_zoo), this networks are trained on our own dataset which is not publicly available.
 The model contains three types of networks: Wet-dry classification network, one-step network (rain estimation only) and two-step network (rain estimation and wet-dry classification). Moreover, we have provided all of these networks with a various number of RNN cells (1, 2, 3). From more details about network structure and results see the publication list.
 
 # Contributing
