@@ -3,3 +3,5 @@ torch
 torchvision
 matplotlib
 scipy
+pandas
+xarray
