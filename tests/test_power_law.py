@@ -15,14 +15,14 @@ class TestPowerLaw(unittest.TestCase):
     def test_rmin(self):
         att = 5
         length = 8.3
-        pl = pnc.power_law.PowerLaw(pnc.power_law.PowerLawType.INSTANCE, 1000)
+        pl = pnc.scm.power_law.PowerLaw(pnc.scm.power_law.PowerLawType.INSTANCE, 1000)
         res = pl(torch.as_tensor(att * np.ones(TestPowerLaw.n_samples)).float(), length, TestPowerLaw.freq, 0).numpy()
         self.assertTrue(np.round(100 * (res))[0] == 0)
 
     def test_powerlaw(self):
         att = 5
         length = 8.3
-        pl = pnc.power_law.PowerLaw(pnc.power_law.PowerLawType.INSTANCE, TestPowerLaw.r_min)
+        pl = pnc.scm.power_law.PowerLaw(pnc.scm.power_law.PowerLawType.INSTANCE, TestPowerLaw.r_min)
         res = pl(torch.as_tensor(att * np.ones(TestPowerLaw.n_samples)).float(), length, TestPowerLaw.freq, 0).numpy()
         self.assertTrue(np.round(100 * (res - TestPowerLaw.h_rain_value))[0] == 0)
         self.assertTrue(len(res) == TestPowerLaw.n_samples)
@@ -30,7 +30,7 @@ class TestPowerLaw(unittest.TestCase):
     def test_powerlaw_min_max(self):
         att = 5
         length = 8.3
-        pl = pnc.power_law.PowerLaw(pnc.power_law.PowerLawType.MAX, TestPowerLaw.r_min)
+        pl = pnc.scm.power_law.PowerLaw(pnc.scm.power_law.PowerLawType.MAX, TestPowerLaw.r_min)
         res = pl(torch.as_tensor(att * np.ones(TestPowerLaw.n_samples)).float(), length, TestPowerLaw.freq, 0).numpy()
         self.assertTrue(np.round(100 * (res - TestPowerLaw.h_rain_value_min_max))[0] == 0)
         self.assertTrue(len(res) == TestPowerLaw.n_samples)
@@ -39,7 +39,7 @@ class TestPowerLaw(unittest.TestCase):
         freq = TestPowerLaw.freq + np.random.rand()
         att = 5
         length = 8.3
-        pl = pnc.power_law.PowerLaw(pnc.power_law.PowerLawType.INSTANCE, TestPowerLaw.r_min)
+        pl = pnc.scm.power_law.PowerLaw(pnc.scm.power_law.PowerLawType.INSTANCE, TestPowerLaw.r_min)
 
         res_h = pl(torch.as_tensor(att * np.ones(TestPowerLaw.n_samples)).float(), length, freq, 0).numpy()
         res_v = pl(torch.as_tensor(att * np.ones(TestPowerLaw.n_samples)).float(), length, freq, 1).numpy()
@@ -48,7 +48,7 @@ class TestPowerLaw(unittest.TestCase):
     def test_frequency_exception(self):
         att = 5
         length = 8.3
-        pl = pnc.power_law.PowerLaw(pnc.power_law.PowerLawType.INSTANCE, TestPowerLaw.r_min)
+        pl = pnc.scm.power_law.PowerLaw(pnc.scm.power_law.PowerLawType.INSTANCE, TestPowerLaw.r_min)
         with self.assertRaises(Exception) as context:
             pl(torch.as_tensor(att * np.ones(TestPowerLaw.n_samples)), length, 0.5, 0).numpy()
         self.assertTrue('Frequency must be between 1 Ghz and 100 GHz.' == str(context.exception))
@@ -56,7 +56,7 @@ class TestPowerLaw(unittest.TestCase):
     def test_h_v_exception(self):
         att = 5
         length = 8.3
-        pl = pnc.power_law.PowerLaw(pnc.power_law.PowerLawType.INSTANCE, TestPowerLaw.r_min)
+        pl = pnc.scm.power_law.PowerLaw(pnc.scm.power_law.PowerLawType.INSTANCE, TestPowerLaw.r_min)
         with self.assertRaises(Exception) as context:
             pl(torch.as_tensor(att * np.ones(TestPowerLaw.n_samples)), length, 3, 'blalba').numpy()
         self.assertTrue('Polarization must be 0 (horizontal) or 1 (vertical).' == str(context.exception))

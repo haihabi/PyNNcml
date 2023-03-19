@@ -1,8 +1,8 @@
 import torch
 import pynncml as pnc
-from pynncml.wet_dry.std_wd import STDWetDry
-from pynncml.wet_dry.wd_network import WetDryNetwork
-from pynncml.model_common import get_model_from_zoo, ModelType
+from pynncml.single_cml_methods.wet_dry.std_wd import STDWetDry
+from pynncml.single_cml_methods.wet_dry.wd_network import WetDryNetwork
+from pynncml.model_zoo.model_common import get_model_from_zoo, ModelType
 
 
 def statistics_wet_dry(th, step):

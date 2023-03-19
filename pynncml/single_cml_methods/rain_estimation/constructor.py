@@ -1,13 +1,16 @@
 import torch
-import pynncml as pnc
-from pynncml.rain_estimation.ts_constant import TwoStepConstant
-from pynncml.rain_estimation.os_dynamic import OneStepDynamic
-from pynncml.rain_estimation.os_network import OneStepNetwork
-from pynncml.rain_estimation.ts_network import TwoStepNetwork
-from pynncml.model_common import get_model_from_zoo, ModelType
+
+from pynncml.neural_networks import InputNormalizationConfig, RNNType, INPUT_NORMALIZATION, STATIC_INPUT_SIZE, \
+    DYNAMIC_INPUT_SIZE, RNN_FEATURES, FC_FEATURES
+from pynncml.single_cml_methods.power_law import PowerLawType
+from pynncml.single_cml_methods.rain_estimation.ts_constant import TwoStepConstant
+from pynncml.single_cml_methods.rain_estimation.os_dynamic import OneStepDynamic
+from pynncml.single_cml_methods.rain_estimation.os_network import OneStepNetwork
+from pynncml.single_cml_methods.rain_estimation.ts_network import TwoStepNetwork
+from pynncml.model_zoo.model_common import get_model_from_zoo, ModelType
 
 
-def two_step_constant_baseline(power_law_type: pnc.power_law.PowerLawType, r_min: float, window_size: int,
+def two_step_constant_baseline(power_law_type: PowerLawType, r_min: float, window_size: int,
                                threshold: float, wa_factor: float = None):
     if wa_factor is None:
         return TwoStepConstant(power_law_type, r_min, window_size, threshold)
@@ -15,19 +18,19 @@ def two_step_constant_baseline(power_law_type: pnc.power_law.PowerLawType, r_min
         return TwoStepConstant(power_law_type, r_min, window_size, threshold, wa_factor=wa_factor)
 
 
-def one_step_dynamic_baseline(power_law_type: pnc.power_law.PowerLawType, r_min: float, window_size: int):
+def one_step_dynamic_baseline(power_law_type: PowerLawType, r_min: float, window_size: int):
     return OneStepDynamic(power_law_type, r_min, window_size)
 
 
-def two_step_network(n_layers: int, rnn_type: pnc.neural_networks.RNNType,
-                     normalization_cfg: pnc.neural_networks.InputNormalizationConfig = pnc.neural_networks.INPUT_NORMALIZATION,
+def two_step_network(n_layers: int, rnn_type: RNNType,
+                     normalization_cfg: InputNormalizationConfig = INPUT_NORMALIZATION,
                      enable_tn: bool = False,
                      tn_alpha: float = 0.9,
                      tn_affine: bool = False,
-                     rnn_input_size: int = pnc.neural_networks.DYNAMIC_INPUT_SIZE,
-                     rnn_n_features: int = pnc.neural_networks.RNN_FEATURES,
-                     metadata_input_size: int = pnc.neural_networks.STATIC_INPUT_SIZE,
-                     metadata_n_features: int = pnc.neural_networks.FC_FEATURES, pretrained=True):
+                     rnn_input_size: int = DYNAMIC_INPUT_SIZE,
+                     rnn_n_features: int = RNN_FEATURES,
+                     metadata_input_size: int = STATIC_INPUT_SIZE,
+                     metadata_n_features: int = FC_FEATURES, pretrained=True):
     """
 
 
@@ -53,15 +56,15 @@ def two_step_network(n_layers: int, rnn_type: pnc.neural_networks.RNNType,
     return model
 
 
-def one_step_network(n_layers: int, rnn_type: pnc.neural_networks.RNNType,
-                     normalization_cfg: pnc.neural_networks.InputNormalizationConfig = pnc.neural_networks.INPUT_NORMALIZATION,
+def one_step_network(n_layers: int, rnn_type: RNNType,
+                     normalization_cfg: InputNormalizationConfig = INPUT_NORMALIZATION,
                      enable_tn: bool = False,
                      tn_alpha: float = 0.9,
                      tn_affine: bool = False,
-                     rnn_input_size: int = pnc.neural_networks.DYNAMIC_INPUT_SIZE,
-                     rnn_n_features: int = pnc.neural_networks.RNN_FEATURES,
-                     metadata_input_size: int = pnc.neural_networks.STATIC_INPUT_SIZE,
-                     metadata_n_features: int = pnc.neural_networks.FC_FEATURES,
+                     rnn_input_size: int = DYNAMIC_INPUT_SIZE,
+                     rnn_n_features: int = RNN_FEATURES,
+                     metadata_input_size: int = STATIC_INPUT_SIZE,
+                     metadata_n_features: int = FC_FEATURES,
                      pretrained=True
                      ):
     """

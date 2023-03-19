@@ -9,7 +9,7 @@ class TestRainEstimation(unittest.TestCase):
 
     def test_two_step_constant(self):
         att = torch.ones(10, 100)
-        swd = pnc.rain_estimation.two_step_constant_baseline(pnc.power_law.PowerLawType.MAX, 0.3, 6, 0.5)
+        swd = pnc.scm.rain_estimation.two_step_constant_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 6, 0.5)
 
         res, wd = swd(att, pnc.MetaData(15, 0, 18, 10, 12))
         self.assertTrue(res.shape[0] == 10)
@@ -18,7 +18,7 @@ class TestRainEstimation(unittest.TestCase):
 
     def test_two_step_constant_wa_factor(self):
         att = torch.ones(10, 100)
-        swd = pnc.rain_estimation.two_step_constant_baseline(pnc.power_law.PowerLawType.MAX, 0.3, 6, 0.5, wa_factor=-1)
+        swd = pnc.scm.rain_estimation.two_step_constant_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 6, 0.5, wa_factor=-1)
 
         res, wd = swd(att, pnc.MetaData(15, 0, 18, 10, 12))
         self.assertTrue(res.shape[0] == 10)
@@ -27,7 +27,7 @@ class TestRainEstimation(unittest.TestCase):
 
     def test_one_step_dynamic(self):
         att = torch.ones(10, 100)
-        model = pnc.rain_estimation.one_step_dynamic_baseline(pnc.power_law.PowerLawType.MAX, 0.3, 6)
+        model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 6)
 
         res = model(att, pnc.MetaData(15, 0, 18, 10, 12))
         self.assertTrue(res.shape[0] == 10)
@@ -36,7 +36,7 @@ class TestRainEstimation(unittest.TestCase):
 
     def test_one_step_network(self):
         att = torch.ones(1, 100, 4)
-        swd = pnc.rain_estimation.one_step_network(1, pnc.neural_networks.RNNType.GRU)
+        swd = pnc.scm.rain_estimation.one_step_network(1, pnc.neural_networks.RNNType.GRU)
         res, state = swd(att, pnc.MetaData(15, 0, 18, 10, 12).as_tensor(), swd.init_state(batch_size=1))
         self.assertTrue(res.shape[0] == 1)
         self.assertTrue(res.shape[1] == 100)
@@ -44,7 +44,7 @@ class TestRainEstimation(unittest.TestCase):
 
     def test_one_step_network_lstm(self):
         att = torch.ones(1, 100, 4)
-        swd = pnc.rain_estimation.one_step_network(1, pnc.neural_networks.RNNType.LSTM)
+        swd = pnc.scm.rain_estimation.one_step_network(1, pnc.neural_networks.RNNType.LSTM)
         res, state = swd(att, pnc.MetaData(15, 0, 18, 10, 12).as_tensor(), swd.init_state(batch_size=1))
         self.assertTrue(res.shape[0] == 1)
         self.assertTrue(res.shape[1] == 100)
@@ -53,12 +53,12 @@ class TestRainEstimation(unittest.TestCase):
 
     def test_one_step_network_tn_enable(self):
         att = torch.ones(1, 100, 4)
-        swd = pnc.rain_estimation.one_step_network(1, pnc.neural_networks.RNNType.GRU, enable_tn=True, tn_affine=False)
+        swd = pnc.scm.rain_estimation.one_step_network(1, pnc.neural_networks.RNNType.GRU, enable_tn=True, tn_affine=False)
         res, state = swd(att, pnc.MetaData(15, 0, 18, 10, 12).as_tensor(), swd.init_state(batch_size=1))
         self.assertTrue(res.shape[0] == 1)
         self.assertTrue(res.shape[1] == 100)
         self.assertTrue(state[0].shape[-1] == pnc.neural_networks.RNN_FEATURES)
-        swd = pnc.rain_estimation.one_step_network(1, pnc.neural_networks.RNNType.GRU, enable_tn=True, tn_affine=True)
+        swd = pnc.scm.rain_estimation.one_step_network(1, pnc.neural_networks.RNNType.GRU, enable_tn=True, tn_affine=True)
         res, state = swd(att, pnc.MetaData(15, 0, 18, 10, 12).as_tensor(), swd.init_state(batch_size=1))
         self.assertTrue(res.shape[0] == 1)
         self.assertTrue(res.shape[1] == 100)
@@ -66,7 +66,7 @@ class TestRainEstimation(unittest.TestCase):
 
     def test_two_step_network(self):
         att = torch.ones(1, 100, 4)
-        swd = pnc.rain_estimation.two_step_network(1, pnc.neural_networks.RNNType.GRU)
+        swd = pnc.scm.rain_estimation.two_step_network(1, pnc.neural_networks.RNNType.GRU)
         res, state = swd(att, pnc.MetaData(15, 0, 18, 10, 12).as_tensor(), swd.init_state(batch_size=1))
         self.assertTrue(res.shape[0] == 1)
         self.assertTrue(res.shape[1] == 100)
@@ -74,9 +74,8 @@ class TestRainEstimation(unittest.TestCase):
         self.assertTrue(state.shape[-1] == pnc.neural_networks.RNN_FEATURES)
 
     def test_backbone_exception(self):
-        pickle_path = '/bla/bla'
         with self.assertRaises(Exception) as context:
-            swd = pnc.rain_estimation.two_step_network(1, 3)
+            swd = pnc.scm.rain_estimation.two_step_network(1, 3)
         self.assertTrue('Unknown RNN type' == str(context.exception))
 
     def test_one_step_min_max(self):
@@ -86,5 +85,5 @@ class TestRainEstimation(unittest.TestCase):
         rain = np.zeros(TestRainEstimation.n_samples)
         l = pnc.Link(rsl, rain, time, pnc.MetaData(0, 2, 3, 4, 5))
         l_min_max = l.create_min_max_link(5)
-        model = pnc.rain_estimation.one_step_dynamic_baseline(pnc.power_law.PowerLawType.MAX, 0.3, 6)
+        model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 6)
         res = model(l_min_max.attenuation(), pnc.MetaData(15, 0, 18, 10, 12))
