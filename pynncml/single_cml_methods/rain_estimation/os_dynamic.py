@@ -1,6 +1,7 @@
 import torch
 from torch import nn
-from pynncml.datasets.data_common import handle_attenuation_input, MetaData
+from pynncml.datasets.data_common import handle_attenuation_input
+from pynncml.datasets import MetaData
 from pynncml.single_cml_methods.baseline import DynamicBaseLine
 from pynncml.single_cml_methods.power_law import PowerLawType, PowerLaw
 

@@ -14,5 +14,5 @@ class TestOpenCML(unittest.TestCase):
     def test_file_exception(self):
         pickle_path = '/bla/bla'
         with self.assertRaises(Exception) as context:
-            link_list = pnc.read_open_cml_dataset(pickle_path)
+            link_list = pnc.datasets.read_open_cml_dataset(pickle_path)
         self.assertTrue('The input path: ' + pickle_path + ' is not a file' == str(context.exception))

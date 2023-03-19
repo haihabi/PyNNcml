@@ -5,20 +5,9 @@ import torch
 import pynncml as pnc
 from matplotlib import pyplot as plt
 
+from pynncml.datasets import MetaData
+
 HOUR_IN_SECONDS = 3600
-
-
-class MetaData(object):
-    def __init__(self, frequency, polarization, length, height_far, height_near):
-        self.frequency = frequency
-        self.polarization = polarization
-        self.length = length
-        self.height_far = height_far
-        self.height_near = height_near
-
-    def as_tensor(self) -> torch.Tensor:
-        return torch.Tensor(
-            [self.height_far, self.height_near, self.frequency, self.polarization, self.length]).reshape(1, -1)
 
 
 class LinkBase(object):
