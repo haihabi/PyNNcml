@@ -18,8 +18,8 @@ def two_step_constant_baseline(power_law_type: PowerLawType, r_min: float, windo
         return TwoStepConstant(power_law_type, r_min, window_size, threshold, wa_factor=wa_factor)
 
 
-def one_step_dynamic_baseline(power_law_type: PowerLawType, r_min: float, window_size: int):
-    return OneStepDynamic(power_law_type, r_min, window_size)
+def one_step_dynamic_baseline(power_law_type: PowerLawType, r_min: float, window_size: int, quantization_delta: float):
+    return OneStepDynamic(power_law_type, r_min, window_size, quantization_delta)
 
 
 def two_step_network(n_layers: int, rnn_type: RNNType,

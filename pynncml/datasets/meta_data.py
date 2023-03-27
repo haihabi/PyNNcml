@@ -1,5 +1,5 @@
 from typing import List
-
+from pynncml.datasets.link_data import Link
 import torch
 
 
@@ -19,6 +19,9 @@ class MetaData(object):
         self.height_near = height_near
         self.lon_lat_site_zero = lon_lat_site_zero
         self.lon_lat_site_one = lon_lat_site_one
+
+    def has_location(self):
+        return self.lon_lat_site_one is not None and self.lon_lat_site_zero is not None
 
     def as_tensor(self) -> torch.Tensor:
         return torch.Tensor(

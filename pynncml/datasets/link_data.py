@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import pickle
 import os
@@ -5,19 +7,24 @@ import torch
 import pynncml as pnc
 from matplotlib import pyplot as plt
 
-from pynncml.datasets import MetaData
+# from pynncml.datasets.meta_data import MetaData
 
 HOUR_IN_SECONDS = 3600
 
 
 class LinkBase(object):
-    def __init__(self, time_array: np.ndarray, rain_gauge: np.ndarray, meta_data: MetaData):
+    def __init__(self, time_array: np.ndarray, rain_gauge: np.ndarray, meta_data):
         self._check_input(time_array)
-        self._check_input(rain_gauge)
-        assert time_array.shape[0] == rain_gauge.shape[0]
+        if rain_gauge is not None:
+            self._check_input(rain_gauge)
+            assert time_array.shape[0] == rain_gauge.shape[0]
         self.rain_gauge = rain_gauge
         self.time_array = time_array
         self.meta_data = meta_data
+
+    def plot_link_position(self):
+        if self.meta_data.has_location():
+            pass
 
     def time(self) -> np.ndarray:
         return self.time_array.astype('datetime64[s]')
@@ -50,7 +57,7 @@ class LinkBase(object):
 
 
 class LinkMinMax(LinkBase):
-    def __init__(self, min_rsl, max_rsl, rain_gauge, time_array, meta_data: MetaData, min_tsl=None, max_tsl=None):
+    def __init__(self, min_rsl, max_rsl, rain_gauge, time_array, meta_data, min_tsl=None, max_tsl=None):
         super().__init__(time_array, rain_gauge, meta_data)
         self.min_rsl = min_rsl
         self.max_rsl = max_rsl
@@ -104,7 +111,8 @@ class LinkMinMax(LinkBase):
 
 
 class Link(LinkBase):
-    def __init__(self, link_rsl: np.ndarray, rain_gauge: np.ndarray, time_array: np.ndarray, meta_data: MetaData,
+    def __init__(self, link_rsl: np.ndarray, time_array: np.ndarray, meta_data,
+                 rain_gauge: np.ndarray = None,
                  link_tsl=None):
         """
         Link object is a data structure that contains the link dynamic information:
@@ -127,18 +135,19 @@ class Link(LinkBase):
         self.link_tsl = link_tsl
 
     def plot(self):
-        plt.subplot(1, 2, 1)
+        if self.rain_gauge is not None: plt.subplot(1, 2, 1)
         plt.plot(self.time(), self.attenuation().numpy().flatten())
         plt.ylabel(r'$A_n$')
         plt.title('Attenuation')
         pnc.change_x_axis_time_format('%H')
         plt.grid()
-        plt.subplot(1, 2, 2)
-        plt.plot(self.time(), self.rain_gauge)
-        plt.ylabel(r'$R_n$')
-        pnc.change_x_axis_time_format('%H')
-        plt.title('Rain')
-        plt.grid()
+        if self.rain_gauge is not None:
+            plt.subplot(1, 2, 2)
+            plt.plot(self.time(), self.rain_gauge)
+            plt.ylabel(r'$R_n$')
+            pnc.change_x_axis_time_format('%H')
+            plt.title('Rain')
+            plt.grid()
 
     def attenuation(self) -> torch.Tensor:
         if self.has_tsl():
@@ -189,6 +198,24 @@ def read_open_cml_dataset(pickle_path: str) -> list:
     with open(pickle_path, "rb") as f:
         open_cml_ds = pickle.load(f)
     return [Link(oc[0], oc[1], oc[2], oc[3]) for oc in open_cml_ds if len(oc) == 4]
+
+
+class LinkSet:
+    def __init__(self, link_list: List[LinkBase]):
+        self.link_list = link_list
+
+    @property
+    def n_links(self):
+        return len(self.link_list)
+
+    def get_link(self, link_index: int):
+        if link_index > self.n_links or link_index < 0:
+            raise Exception("illegal link index")
+        return self.link_list[link_index]
+
+    def plot_links(self):
+        for link in self.link_list:
+            link.plot_link_position()
 
 
 def handle_attenuation_input(attenuation: torch.Tensor) -> (torch.Tensor, torch.Tensor):

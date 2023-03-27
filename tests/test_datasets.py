@@ -16,3 +16,10 @@ class TestOpenCML(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             link_list = pnc.datasets.read_open_cml_dataset(pickle_path)
         self.assertTrue('The input path: ' + pickle_path + ' is not a file' == str(context.exception))
+
+    def test_open_mrg_load(self):
+        import pynncml as pnc
+
+        dataset = pnc.datasets.load_open_mrg()
+
+        pass

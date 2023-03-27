@@ -3,10 +3,14 @@ import os
 import urllib.request
 import zipfile
 from functools import partial
-
 import pandas as pd
 import xarray as xr
+from pynncml.datasets.link_data import Link, LinkSet
+from pynncml.datasets.meta_data import MetaData
+import numpy as np
 
+
+# TODO: Change to constants
 
 def download_data_file(url, local_path=".", local_file_name=None, print_output=False):
     if not os.path.exists(local_path):
@@ -75,7 +79,28 @@ def transform_open_mrg(fn, path_to_extract_to):
     return ds
 
 
-def load_open_mrg():
-    pass
-    raise NotImplemented
-    return radar, cml, cml_meta, gauges, gagues_meta
+def load_open_mrg(data_path="./data/", change2min_max=True):
+    download_open_mrg(local_path=data_path)
+    file_location = data_path + "OpenMRG.zip"
+    ds = transform_open_mrg(file_location, data_path)
+
+    link_list = []
+    for i in range(10):
+        ds_sublink = ds.isel(sublink_id=i + 1)
+
+        md = MetaData(float(ds_sublink.frequency),
+                      "Vertical" in str(ds_sublink.polarization),
+                      float(ds_sublink.length),
+                      None,
+                      None,
+                      lon_lat_site_zero=[float(ds_sublink.site_0_lat), float(ds_sublink.site_0_lon)],
+                      lon_lat_site_one=[float(ds_sublink.site_1_lat), float(ds_sublink.site_1_lon)])
+        link = Link(np.asarray(ds_sublink.rsl),
+                    np.asarray(ds_sublink.time).astype("int64"),
+                    meta_data=md,
+                    rain_gauge=None,  # TODO: add rain gauge measurements
+                    link_tsl=np.asarray(ds_sublink.tsl))
+        if change2min_max:
+            link_min_max = link.create_min_max_link(900)
+        link_list.append(link)
+    return LinkSet(link_list)

@@ -3,7 +3,7 @@ from torch import nn
 from pynncml.single_cml_methods.power_law import PowerLaw, PowerLawType
 from pynncml.single_cml_methods.wet_dry import STDWetDry
 from pynncml.single_cml_methods.baseline import ConstantBaseLine
-from pynncml.datasets.data_common import handle_attenuation_input
+from pynncml.datasets.link_data import handle_attenuation_input
 from pynncml.datasets import MetaData
 
 
