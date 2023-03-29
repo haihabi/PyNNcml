@@ -1,6 +1,7 @@
-from typing import List
-from pynncml.datasets.link_data import Link
 import torch
+import utm
+import numpy as np
+from typing import List
 
 
 class MetaData(object):
@@ -22,6 +23,10 @@ class MetaData(object):
 
     def has_location(self):
         return self.lon_lat_site_one is not None and self.lon_lat_site_zero is not None
+
+    def xy(self):
+        return np.stack([utm.from_latlon(self.lon_lat_site_zero[1], self.lon_lat_site_zero[0])[:2],
+                         utm.from_latlon(self.lon_lat_site_one[1], self.lon_lat_site_one[0])[:2]]).flatten()
 
     def as_tensor(self) -> torch.Tensor:
         return torch.Tensor(

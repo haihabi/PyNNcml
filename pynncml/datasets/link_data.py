@@ -24,7 +24,8 @@ class LinkBase(object):
 
     def plot_link_position(self):
         if self.meta_data.has_location():
-            pass
+            xy_array = self.meta_data.xy()
+            print("a")
 
     def time(self) -> np.ndarray:
         return self.time_array.astype('datetime64[s]')

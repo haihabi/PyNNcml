@@ -21,5 +21,5 @@ class TestOpenCML(unittest.TestCase):
         import pynncml as pnc
 
         dataset = pnc.datasets.load_open_mrg()
-
+        dataset.plot_links()
         pass
