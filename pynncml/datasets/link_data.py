@@ -1,31 +1,31 @@
-from typing import List
-
 import numpy as np
 import pickle
 import os
 import torch
 import pynncml as pnc
 from matplotlib import pyplot as plt
-
-# from pynncml.datasets.meta_data import MetaData
+from pynncml.datasets.meta_data import MetaData
 
 HOUR_IN_SECONDS = 3600
 
 
 class LinkBase(object):
-    def __init__(self, time_array: np.ndarray, rain_gauge: np.ndarray, meta_data):
+    def __init__(self, time_array: np.ndarray, rain_gauge: np.ndarray, meta_data: MetaData):
         self._check_input(time_array)
         if rain_gauge is not None:
             self._check_input(rain_gauge)
             assert time_array.shape[0] == rain_gauge.shape[0]
         self.rain_gauge = rain_gauge
         self.time_array = time_array
-        self.meta_data = meta_data
+        self.meta_data: MetaData = meta_data
 
-    def plot_link_position(self):
+    def plot_link_position(self, scale=False):
         if self.meta_data.has_location():
-            xy_array = self.meta_data.xy()
-            print("a")
+            if scale:
+                xy_array = self.meta_data.xy_scale()
+            else:
+                xy_array = self.meta_data.xy()
+            return xy_array
 
     def time(self) -> np.ndarray:
         return self.time_array.astype('datetime64[s]')
@@ -48,10 +48,10 @@ class LinkBase(object):
         return self.rain_gauge.copy()
 
     def start_time(self):
-        return self.time_array[0].astype('int')
+        return self.time_array[0]
 
     def stop_time(self):
-        return self.time_array[-1].astype('int')
+        return self.time_array[-1]
 
     def delta_time(self):
         return self.stop_time() - self.start_time()
@@ -82,7 +82,7 @@ class LinkMinMax(LinkBase):
         # print(att.shape)
         att_max = att[0, :]
         att_min = att[1, :]
-        plt.subplot(1, 2, 1)
+        if self.rain_gauge is not None: plt.subplot(1, 2, 1)
         plt.plot(self.time(), att_max.numpy().flatten(), label=r'$A_n^{max}$')
         plt.plot(self.time(), att_min.numpy().flatten(), label=r'$A_n^{min}$')
         plt.legend()
@@ -90,12 +90,13 @@ class LinkMinMax(LinkBase):
         plt.title('Attenuation')
         pnc.change_x_axis_time_format('%H')
         plt.grid()
-        plt.subplot(1, 2, 2)
-        plt.plot(self.time(), self.rain_gauge)
-        plt.ylabel(r'$R_n[mm/hr]$')
-        pnc.change_x_axis_time_format('%H')
-        plt.title('Rain')
-        plt.grid()
+        if self.rain_gauge is not None:
+            plt.subplot(1, 2, 2)
+            plt.plot(self.time(), self.rain_gauge)
+            plt.ylabel(r'$R_n[mm/hr]$')
+            pnc.change_x_axis_time_format('%H')
+            plt.title('Rain')
+            plt.grid()
 
     def as_tensor(self, constant_tsl=None):
         if self.has_tsl():
@@ -172,19 +173,24 @@ class Link(LinkBase):
         rain_vector = []
         for lt, ht in zip(low_time, high_time):  # loop over high and low time step
             rsl = self.link_rsl[(self.time_array >= lt) * (self.time_array < ht)]
+            min_rsl_vector.append(rsl.min())
+            max_rsl_vector.append(rsl.max())
             if self.link_tsl is not None:
                 tsl = self.link_tsl[(self.time_array >= lt) * (self.time_array < ht)]
                 min_tsl_vector.append(tsl.min())
                 max_tsl_vector.append(tsl.max())
             time_vector.append(lt)
-            min_rsl_vector.append(rsl.min())
-            max_rsl_vector.append(rsl.max())
-            rain_vector.append(self.rain_gauge[(self.time_array >= lt) * (self.time_array < ht)].mean())
+
+            if self.rain_gauge is not None:
+                rain_vector.append(self.rain_gauge[(self.time_array >= lt) * (self.time_array < ht)].mean())
         min_rsl_vector = np.asarray(min_rsl_vector)
         max_rsl_vector = np.asarray(max_rsl_vector)
         min_tsl_vector = np.asarray(min_tsl_vector)
         max_tsl_vector = np.asarray(max_tsl_vector)
-        rain_vector = np.asarray(rain_vector)
+        if self.rain_gauge is not None:
+            rain_vector = np.asarray(rain_vector)
+        else:
+            rain_vector = None
         time_vector = np.asarray(time_vector)
         if self.has_tsl():
             return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data,
@@ -199,24 +205,6 @@ def read_open_cml_dataset(pickle_path: str) -> list:
     with open(pickle_path, "rb") as f:
         open_cml_ds = pickle.load(f)
     return [Link(oc[0], oc[1], oc[2], oc[3]) for oc in open_cml_ds if len(oc) == 4]
-
-
-class LinkSet:
-    def __init__(self, link_list: List[LinkBase]):
-        self.link_list = link_list
-
-    @property
-    def n_links(self):
-        return len(self.link_list)
-
-    def get_link(self, link_index: int):
-        if link_index > self.n_links or link_index < 0:
-            raise Exception("illegal link index")
-        return self.link_list[link_index]
-
-    def plot_links(self):
-        for link in self.link_list:
-            link.plot_link_position()
 
 
 def handle_attenuation_input(attenuation: torch.Tensor) -> (torch.Tensor, torch.Tensor):

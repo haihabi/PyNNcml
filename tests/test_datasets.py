@@ -5,12 +5,6 @@ import os
 
 class TestOpenCML(unittest.TestCase):
 
-    # @unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true", "Skipping this tests on Travis CI.")
-    # def test_load(self):
-    #     link_list = pnc.read_open_cml_dataset('../dataset/open_cml.p')
-    #     [self.assertTrue(isinstance(d, pnc.Link)) for d in link_list]
-    #     self.assertTrue(len(link_list) == 20)
-
     def test_file_exception(self):
         pickle_path = '/bla/bla'
         with self.assertRaises(Exception) as context:
@@ -18,8 +12,8 @@ class TestOpenCML(unittest.TestCase):
         self.assertTrue('The input path: ' + pickle_path + ' is not a file' == str(context.exception))
 
     def test_open_mrg_load(self):
-        import pynncml as pnc
-
-        dataset = pnc.datasets.load_open_mrg()
-        dataset.plot_links()
-        pass
+        xy_min = [0.57e6, 1.32e6]
+        xy_max = [0.5875e6, 1.335e6]
+        time_slice = slice("2015-06-01", "2015-06-10")
+        dataset = pnc.datasets.load_open_mrg(xy_min=xy_min, xy_max=xy_max, time_slice=time_slice)
+        print("a")

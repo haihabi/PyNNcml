@@ -2,6 +2,7 @@ import unittest
 import pynncml as pnc
 import torch
 import numpy as np
+from tests import helpers4tests as helpers
 
 
 class TestDataStructure(unittest.TestCase):
@@ -20,7 +21,7 @@ class TestDataStructure(unittest.TestCase):
         rsl = np.random.rand(TestDataStructure.n_samples)
         time = np.linspace(0, TestDataStructure.n_samples - 1, TestDataStructure.n_samples).astype('int')
         rain = np.zeros(TestDataStructure.n_samples)
-        l = pnc.datasets.Link(rsl, rain, time, pnc.datasets.MetaData(0, 2, 3, 4, 5))
+        l = pnc.datasets.Link(rsl, time, pnc.datasets.MetaData(0, 2, 3, 4, 5), rain_gauge=rain)
         l.plot()
         self.assertEqual(l.meta_data.as_tensor().shape[1], 5)
         self.assertEqual(l.meta_data.as_tensor().shape[0], 1)
@@ -44,7 +45,7 @@ class TestDataStructure(unittest.TestCase):
         rsl = np.random.rand(TestDataStructure.n_samples)
         time = np.linspace(0, TestDataStructure.n_samples - 1, TestDataStructure.n_samples).astype('int')
         rain = np.zeros(TestDataStructure.n_samples)
-        l = pnc.datasets.Link(rsl, rain, time, pnc.datasets.MetaData(0, 2, 3, 4, 5))
+        l = pnc.datasets.Link(rsl, time, pnc.datasets.MetaData(0, 2, 3, 4, 5), rain_gauge=rain)
         res = l.create_min_max_link(step)
         self.assertEqual(l.stop_time(), res.stop_time() + step)
         self.assertEqual(l.start_time(), res.start_time())
@@ -62,7 +63,7 @@ class TestDataStructure(unittest.TestCase):
         tsl = np.random.rand(TestDataStructure.n_samples)
         time = np.linspace(0, TestDataStructure.n_samples - 1, TestDataStructure.n_samples).astype('int')
         rain = np.zeros(TestDataStructure.n_samples)
-        l = pnc.datasets.Link(rsl, rain, time, pnc.datasets.MetaData(0, 2, 3, 4, 5), link_tsl=tsl)
+        l = pnc.datasets.Link(rsl, time, pnc.datasets.MetaData(0, 2, 3, 4, 5), link_tsl=tsl, rain_gauge=rain)
         self.assertTrue(l.start_time().astype('int') == 0)
         self.assertTrue(l.stop_time().astype('int') == 99)
         self.assertTrue(l.delta_time().astype('int') == 99)
@@ -74,3 +75,9 @@ class TestDataStructure(unittest.TestCase):
         l_min_max = l.create_min_max_link(10)
         self.assertTrue(len(l_min_max) == 10)
         self.assertEqual(len(l_min_max.attenuation().shape), 2)
+
+    def test_link_set(self):
+        ls,link_list = helpers.generate_link_set(TestDataStructure.n_samples, n_links=10)
+        self.assertTrue(ls.n_links == 10)
+        for link_a, link_b in zip(link_list, ls):
+            self.assertTrue(link_a == link_b)
