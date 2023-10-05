@@ -17,15 +17,17 @@ pip install pynncml
 5. Metrics
 6. Robustness
 # Dataset
-This repository includes an example of a dataset with a reference rain gauge.
+This repository includes an example of a dataset with a reference rain gauge. 
+In addition, this repository provide PyTorch version of the OpenMRG dataset [9].
+
 # Usage
 The following examples:
 * Wet Dry Classification using neural network[1] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/wet_dry_classification_rnn.ipynb) 
-* wet Dry Classification using statistic test [5]  shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/wet_dry_classification.ipynb)
-* Rain estimation using dynamic baseline[4] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/rain_estimation_dynamic.ipynb)
-* Rain estimation using constant baseline[5] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/rain_estimation_constant.ipynb)
+* wet Dry Classification using statistic test [6]  shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/wet_dry_classification.ipynb)
+* Rain estimation using dynamic baseline[5] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/rain_estimation_dynamic.ipynb)
+* Rain estimation using constant baseline[6] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/rain_estimation_constant.ipynb)
+* Training One Step RNN [4] on the OpenMRG dataset [9] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/training_rnn.ipynb)
 
-Show jupyter notebooks of PyNNcml
 
 
 # Model Zoo
@@ -42,7 +44,7 @@ If you find a bug or have a question, please create a GitHub issue.
 
 Please cite one of following paper if you found our neural network model useful. Thanks!
 
->[1] Habi, Hai Victor and Messer, Hagit. "Wet-Dry Classification Using LSTM and Commercial Microwave Links"
+[1] Habi, Hai Victor and Messer, Hagit. "Wet-Dry Classification Using LSTM and Commercial Microwave Links"
 
 ```
 @inproceedings{habi2018wet,
@@ -56,7 +58,7 @@ Please cite one of following paper if you found our neural network model useful.
 
 ```
 
->[2] Habi, Hai Victor and Messer, Hagit. "RNN MODELS FOR RAIN DETECTION"
+[2] Habi, Hai Victor and Messer, Hagit. "RNN MODELS FOR RAIN DETECTION"
 
 ```
 @inproceedings{habi2019rnn,
@@ -69,7 +71,7 @@ Please cite one of following paper if you found our neural network model useful.
 
 ```
 
->[3] Habi, Hai Victor. "Rain Detection and Estimation Using Recurrent Neural Network and Commercial Microwave Links"
+[3] Habi, Hai Victor. "Rain Detection and Estimation Using Recurrent Neural Network and Commercial Microwave Links"
 
 ```
 @article{habi2020,
@@ -81,18 +83,37 @@ Please cite one of following paper if you found our neural network model useful.
 
 ```
 
-Also this package contains the implementaion of the following papers:
+[4] Habi, Hai Victor, and Hagit Messer. "Recurrent neural network for rain estimation using commercial microwave links." IEEE Transactions on Geoscience and Remote Sensing 59.5 (2020): 3672-3681.
+```
+@article{habi2020recurrent,
+  title={Recurrent neural network for rain estimation using commercial microwave links},
+  author={Habi, Hai Victor and Messer, Hagit},
+  journal={IEEE Transactions on Geoscience and Remote Sensing},
+  volume={59},
+  number={5},
+  pages={3672--3681},
+  year={2020},
+  publisher={IEEE}
+}
+```
 
-[4] J. Ostrometzky and H. Messer, “Dynamic determination of the baselinelevel in microwave links for rain monitoring from minimum attenuationvalues,”IEEE Journal of Selected Topics in Applied Earth Observationsand Remote Sensing, vol. 11, no. 1, pp. 24–33, Jan 2018.
+Also, this package contains the implementations of the following papers:
 
-[5] M. Schleiss and A. Berne, “Identification of dry and rainy periods usingtelecommunication  microwave  links,”IEEE  Geoscience  and  RemoteSensing Letters, vol. 7, no. 3, pp. 611–615, 2010
+[5] J. Ostrometzky and H. Messer, “Dynamic determination of the baselinelevel in microwave links for rain monitoring from minimum attenuationvalues,”IEEE Journal of Selected Topics in Applied Earth Observationsand Remote Sensing, vol. 11, no. 1, pp. 24–33, Jan 2018.
 
-[6] Jonatan Ostrometzky, Adam Eshel, Pinhas Alpert, and Hagit Messer. Induced bias in attenuation measurements taken from commercial microwave links. In 2017 IEEE International
+[6] M. Schleiss and A. Berne, “Identification of dry and rainy periods usingtelecommunication  microwave  links,”IEEE  Geoscience  and  RemoteSensing Letters, vol. 7, no. 3, pp. 611–615, 2010
+
+[7] Jonatan Ostrometzky, Adam Eshel, Pinhas Alpert, and Hagit Messer. Induced bias in attenuation measurements taken from commercial microwave links. In 2017 IEEE International
 Conference on Acoustics, Speech and Signal Processing (ICASSP), pages 3744–3748. IEEE,2017. <br>
 
-[7] Jonatan Ostrometzky, Roi Raich, Adam Eshel, and Hagit Messer.
+[8] Jonatan Ostrometzky, Roi Raich, Adam Eshel, and Hagit Messer.
 Calibration of the
 attenuation-rain rate power-law parameters using measurements from commercial microwave networks. In 2016 IEEE International Conference on Acoustics, Speech and Signal
 Processing (ICASSP), pages 3736–3740. IEEE, 2016.
 
-If you found on of this methods usefully please cite.
+And include PyTorch implementation of the OpenMRG dataset:
+
+[9] van de Beek, Remco CZ, et al. OpenMRG: Open data from Microwave links, Radar, and Gauges for rainfall quantification in Gothenburg, Sweden. No. EGU23-14295. Copernicus Meetings, 2023.
+
+
+If you found one of those methods usefully please cite.

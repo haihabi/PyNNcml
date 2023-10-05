@@ -188,30 +188,3 @@ def loader_open_mrg_dataset(data_path="./data/", change2min_max=False, xy_min=No
                                         xy_max=xy_max,
                                         time_slice=time_slice, link2gauge_distance=link2gauge_distance)
     return LinkDataset(link_set)
-
-
-if __name__ == '__main__':
-    xy_min = [1.29e6, 0.565e6]
-    xy_max = [1.34e6, 0.5875e6]
-
-    # # xy_min = [0, 0]
-    # # xy_max = [np.inf, np.inf]
-    time_slice = slice("2015-06-01", "2015-06-10")
-    cml_dataset = loader_open_mrg_dataset(xy_min=xy_min, xy_max=xy_max, time_slice=time_slice)
-    cml_dataset.link_set.plot_links()
-    plt.show()
-    # for i in range(len(cml_dataset)):
-    #     label, rsl, tsl, metadata = cml_dataset[i]
-    #     print(metadata.shape)
-    #
-    #     # plt.subplot(1, 2, 1)
-    #     # plt.plot(label)
-    #     # plt.subplot(1, 2, 2)
-    #     # att = tsl - rsl
-    #     # plt.plot(att.max(axis=-1))
-    #     # plt.show()
-    #     # print("a")
-    # # print(link_set.n_links)
-    # # link_set.plot_links()
-    # # point_set.plot_points()
-    # # plt.show()
