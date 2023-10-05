@@ -8,4 +8,4 @@ from pynncml import training_helpers
 from pynncml import analysis
 from pynncml.plot_common import change_x_axis_time_format
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
