@@ -10,8 +10,9 @@ HOUR_IN_SECONDS = 3600
 
 
 class LinkBase(object):
-    def __init__(self, time_array: np.ndarray, rain_gauge: np.ndarray, meta_data: MetaData):
+    def __init__(self, time_array: np.ndarray, rain_gauge: np.ndarray, meta_data: MetaData, gauge_ref=None):
         self._check_input(time_array)
+        self.gauge_ref = gauge_ref
         if rain_gauge is not None:
             self._check_input(rain_gauge)
             assert time_array.shape[0] == rain_gauge.shape[0]
@@ -115,7 +116,8 @@ class LinkMinMax(LinkBase):
 class Link(LinkBase):
     def __init__(self, link_rsl: np.ndarray, time_array: np.ndarray, meta_data,
                  rain_gauge: np.ndarray = None,
-                 link_tsl=None):
+                 link_tsl=None,
+                 gauge_ref=None):
         """
         Link object is a data structure that contains the link dynamic information:
         received signal level (RSL) and transmitted signal level (TSL).
@@ -135,6 +137,49 @@ class Link(LinkBase):
             assert len(link_tsl) == len(self)
         self.link_rsl = link_rsl
         self.link_tsl = link_tsl
+        self.gauge_ref = gauge_ref
+
+    def data_alignment(self):
+        delta_gauge = np.min(np.diff(self.gauge_ref.time_array))
+        delta_link = np.min(np.diff(self.time_array))
+
+        ratio = int(delta_gauge / delta_link)
+        gauge_end_cut = (self.time_array[-1] - self.time_array[-1] % delta_gauge) in self.gauge_ref.time_array
+        gauge_start_cut = (self.time_array[0] - self.time_array[0] % delta_gauge) in self.gauge_ref.time_array
+
+        link_end_cut = (self.gauge_ref.time_array[-1] - self.gauge_ref.time_array[-1] % delta_link) in self.time_array
+        link_start_cut = (self.gauge_ref.time_array[0] - self.gauge_ref.time_array[0] % delta_link) in self.time_array
+
+        rsl = self.link_rsl
+        tsl = self.link_tsl
+        time_link = self.time_array
+        gauge_data = self.gauge_ref.data_array
+        if gauge_start_cut:
+            raise NotImplemented
+
+        if gauge_end_cut:
+            link_end_point = self.time_array[-1] - self.time_array[-1] % delta_gauge
+            i = np.where(self.gauge_ref.time_array == link_end_point)[0][0]
+            gauge_data = gauge_data[:(i + 1)]
+
+        if link_start_cut:
+            gauge_start_point = self.gauge_ref.time_array[0] - self.gauge_ref.time_array[0] % delta_link
+            i = np.where(time_link == gauge_start_point)[0][0]
+            rsl = rsl[i:]
+            tsl = tsl[i:]
+            time_link = time_link[i:]
+
+        if link_end_cut:
+            gauge_end_point = self.gauge_ref.time_array[-1] - self.gauge_ref.time_array[-1] % delta_link
+            i = np.where(time_link == gauge_end_point)[0][0]
+            rsl = rsl[:(i + ratio)]
+            tsl = tsl[:(i + ratio)]
+            time_link = time_link[:(i + ratio)]
+
+        rsl = np.lib.stride_tricks.as_strided(rsl, shape=(int(rsl.shape[0] / ratio), ratio), strides=(4 * ratio, 4))
+        tsl = np.lib.stride_tricks.as_strided(tsl, shape=(int(tsl.shape[0] / ratio), ratio), strides=(4 * ratio, 4))
+
+        return gauge_data, rsl, tsl, np.asarray([self.meta_data.frequency, self.meta_data.length]).astype("float32")
 
     def plot(self):
         if self.rain_gauge is not None: plt.subplot(1, 2, 1)

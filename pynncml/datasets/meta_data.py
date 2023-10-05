@@ -21,8 +21,8 @@ class MetaData(object):
         self.lon_lat_site_zero = lon_lat_site_zero
         self.lon_lat_site_one = lon_lat_site_one
         if self.has_location():
-            self.xy_zero = utm.from_latlon(self.lon_lat_site_zero[1], self.lon_lat_site_zero[0])[:2]
-            self.xy_one = utm.from_latlon(self.lon_lat_site_one[1], self.lon_lat_site_one[0])[:2]
+            self.xy_zero = np.flip(utm.from_latlon(self.lon_lat_site_zero[0], self.lon_lat_site_zero[1])[:2])
+            self.xy_one = np.flip(utm.from_latlon(self.lon_lat_site_one[0], self.lon_lat_site_one[1])[:2])
             self.xy_scale_zero = None
             self.xy_scale_one = None
 
@@ -50,10 +50,11 @@ class MetaData(object):
 
     def as_tensor(self) -> torch.Tensor:
         return torch.Tensor(
-            [self.height_far, self.height_near, self.frequency, self.polarization, self.length]).reshape(1, -1)
+            [self.height_far, self.height_near, self.frequency, self.polarization, self.length]).reshape(1, -1).float()
 
     def xy_center(self):
         if self.has_scale():
-            return (self.xy_scale_zero[0] + self.xy_scale_one[0]) / 2, (self.xy_scale_zero[1] + self.xy_scale_one[1]) / 2
+            return (self.xy_scale_zero[0] + self.xy_scale_one[0]) / 2, (
+                    self.xy_scale_zero[1] + self.xy_scale_one[1]) / 2
         else:
             return (self.xy_zero[0] + self.xy_one[0]) / 2, (self.xy_zero[1] + self.xy_one[1]) / 2

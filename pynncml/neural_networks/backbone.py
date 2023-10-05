@@ -99,7 +99,7 @@ class Backbone(nn.Module):
         return features, hidden
 
     def _base_init(self, batch_size: int = 1) -> torch.Tensor:
-        return torch.zeros(self.n_layers, batch_size, neural_networks.RNN_FEATURES,
+        return torch.zeros(self.n_layers, batch_size, self.rnn_n_features,
                            device=self.fc_meta.weight.device.type)  # create inital state for rnn layer only
 
     def init_state(self, batch_size: int = 1) -> torch.Tensor:

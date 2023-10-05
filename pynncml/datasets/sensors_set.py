@@ -1,15 +1,27 @@
+import math
 from typing import List
 
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
 
-from pynncml.datasets.gauge_data import BasePointLocation
+from pynncml.datasets.gauge_data import PointSensor
 from pynncml.datasets.link_data import LinkBase
+
+COLOR_LIST = ["blue",
+              "green",
+              "red",
+              "cyan",
+              "purple",
+              "pink",
+              "brown",
+              "gray",
+              "olive",
+              "orange"]
 
 
 class PointSet:
-    def __init__(self, gauge_set: List[BasePointLocation]):
+    def __init__(self, gauge_set: List[PointSensor]):
         self.point_set = gauge_set
 
     def to_tensor(self) -> torch.Tensor:
@@ -34,6 +46,10 @@ class PointSet:
     def plot_points(self):
         for p in self:
             plt.plot(p.x, p.y, "o", color="red")
+
+    def find_near_gauge(self, xy_center):
+        d_list = [math.sqrt((xy_center[0] - g.x) ** 2 + (xy_center[1] - g.y) ** 2) for g in self.point_set]
+        return np.min(d_list), self.point_set[np.argmin(d_list)]
 
 
 class LinkSet:
@@ -72,7 +88,7 @@ class LinkSet:
         return len(self.link_list)
 
     def center_point(self):
-        return PointSet([BasePointLocation(*l.meta_data.xy_center()) for l in self])
+        return PointSet([PointSensor(*l.meta_data.xy_center()) for l in self])
 
     def get_link(self, link_index: int):
         if link_index > self.n_links or link_index < 0:
@@ -80,9 +96,20 @@ class LinkSet:
         return self.link_list[link_index]
 
     def plot_links(self):
+        index = 0
+        gauge2index = {}
         for link in self.link_list:
             xy_array = link.plot_link_position(self.scale_flag)
-            plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]], color="black")
+            if link.gauge_ref is None:
+                plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]], color="black")
+            else:
+                if gauge2index.get(link.gauge_ref) is None:
+                    gauge2index.update({link.gauge_ref: index})
+                    index = index + 1
+                plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]],
+                         color=COLOR_LIST[gauge2index[link.gauge_ref]])
+        for g,i in gauge2index.items():
+            plt.plot(g.x, g.y, "o", color=COLOR_LIST[i])
 
     def __iter__(self):
         self.n = 0

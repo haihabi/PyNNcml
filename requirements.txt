@@ -5,3 +5,5 @@ matplotlib
 scipy
 pandas
 xarray
+utm
+netcdf4

@@ -56,7 +56,8 @@ def two_step_network(n_layers: int, rnn_type: RNNType,
     return model
 
 
-def one_step_network(n_layers: int, rnn_type: RNNType,
+def one_step_network(n_layers: int,
+                     rnn_type: RNNType,
                      normalization_cfg: InputNormalizationConfig = INPUT_NORMALIZATION,
                      enable_tn: bool = False,
                      tn_alpha: float = 0.9,
@@ -65,8 +66,7 @@ def one_step_network(n_layers: int, rnn_type: RNNType,
                      rnn_n_features: int = RNN_FEATURES,
                      metadata_input_size: int = STATIC_INPUT_SIZE,
                      metadata_n_features: int = FC_FEATURES,
-                     pretrained=True
-                     ):
+                     pretrained=True):
     """
 
 
