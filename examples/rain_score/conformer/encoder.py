@@ -65,6 +65,7 @@ class ConformerBlock(nn.Module):
             conv_dropout_p: float = 0.1,
             conv_kernel_size: int = 31,
             half_step_residual: bool = True,
+            normalization: nn.Module = nn.LayerNorm,
     ):
         super(ConformerBlock, self).__init__()
         if half_step_residual:
@@ -78,6 +79,7 @@ class ConformerBlock(nn.Module):
                     encoder_dim=encoder_dim,
                     expansion_factor=feed_forward_expansion_factor,
                     dropout_p=feed_forward_dropout_p,
+                    normalization=normalization,
                 ),
                 module_factor=self.feed_forward_residual_factor,
             ),
@@ -86,6 +88,7 @@ class ConformerBlock(nn.Module):
                     d_model=encoder_dim,
                     num_heads=num_attention_heads,
                     dropout_p=attention_dropout_p,
+                    normalization=normalization,
                 ),
             ),
             ResidualConnectionModule(
@@ -94,6 +97,7 @@ class ConformerBlock(nn.Module):
                     kernel_size=conv_kernel_size,
                     expansion_factor=conv_expansion_factor,
                     dropout_p=conv_dropout_p,
+                    normalization=normalization,
                 ),
             ),
             ResidualConnectionModule(
@@ -101,10 +105,11 @@ class ConformerBlock(nn.Module):
                     encoder_dim=encoder_dim,
                     expansion_factor=feed_forward_expansion_factor,
                     dropout_p=feed_forward_dropout_p,
+                    normalization=normalization,
                 ),
                 module_factor=self.feed_forward_residual_factor,
             ),
-            nn.LayerNorm(encoder_dim),
+            normalization(encoder_dim),
         )
 
     def forward(self, inputs: Tensor) -> Tensor:
@@ -142,7 +147,7 @@ class RainConformer(nn.Module):
             self,
             input_dim: int = 180,
             meta_dim: int = 2,
-            encoder_dim: int = 512,
+            encoder_dim: int = 64,
             num_layers: int = 3,
             num_attention_heads: int = 8,
             feed_forward_expansion_factor: int = 4,
@@ -158,11 +163,7 @@ class RainConformer(nn.Module):
         self.lin_meta = nn.Linear(meta_dim, encoder_dim)
 
         self.mixing = nn.Linear(2 * encoder_dim, encoder_dim)
-        # self.conv_subsample = Conv2dSubampling(in_channels=1, out_channels=encoder_dim)
-        # self.input_projection = nn.Sequential(
-        #     Linear(encoder_dim * (((input_dim - 1) // 2 - 1) // 2), encoder_dim),
-        #     nn.Dropout(p=input_dropout_p),
-        # )
+
         self.layers = nn.ModuleList([ConformerBlock(
             encoder_dim=encoder_dim,
             num_attention_heads=num_attention_heads,
@@ -173,9 +174,11 @@ class RainConformer(nn.Module):
             conv_dropout_p=conv_dropout_p,
             conv_kernel_size=conv_kernel_size,
             half_step_residual=half_step_residual,
+            normalization=nn.InstanceNorm1d,
         ) for _ in range(num_layers)])
 
         self.output = nn.Linear(encoder_dim, 1)
+        self.output_scale = nn.Parameter(torch.ones(1) * 100)
 
     def count_parameters(self) -> int:
         """ Count parameters of encoder """
@@ -203,6 +206,8 @@ class RainConformer(nn.Module):
                 ``(batch, seq_length, dimension)``
             * output_lengths (torch.LongTensor): The length of output tensor. ``(batch)``
         """
+        inputs = torch.permute(inputs, [0, 2, 1])
+
         dyn = self.stem(inputs)
         meta = self.lin_meta(input_metadata)
         meta = torch.reshape(meta, [meta.shape[0], -1, 1]).repeat([1, 1, dyn.shape[-1]])
@@ -212,7 +217,6 @@ class RainConformer(nn.Module):
         for layer in self.layers:
             outputs = layer(outputs)
 
-        return self.output(outputs)
+        return self.output(outputs[:,-1,:])
 
-# if __name__ == '__main__':
-#     model = RainConformer()
+
