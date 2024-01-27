@@ -1,1 +1,1 @@
-from pynncml.analysis.results_accumlator import ResultsAccumulator,AverageMetric
+from pynncml.analysis.results_accumlator import ResultsAccumulator, AverageMetric, GroupAnalysis

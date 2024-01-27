@@ -4,18 +4,23 @@ import urllib.request
 import zipfile
 from functools import partial
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import xarray as xr
 
-from pynncml.datasets.dataset import LinkDataset
+from pynncml.datasets.dataset import LinkDataset, SubSequentLinkDataset
 from pynncml.datasets.link_data import Link
 from pynncml.datasets.gauge_data import PointSensor
 from pynncml.datasets import LinkSet, PointSet
 from pynncml.datasets.meta_data import MetaData
 import numpy as np
 from tqdm import tqdm
-import time
+from enum import Enum
+
+
+class DataType(Enum):
+    Instance = 0
+    MinMax = 1
+    Average = 2
 
 
 def download_data_file(url, local_path=".", local_file_name=None, print_output=True):
@@ -153,23 +158,26 @@ def load_open_mrg(data_path="./data/", change2min_max=False, xy_min=None, xy_max
                       lon_lat_site_zero=[float(ds_sublink.site_0_lon), float(ds_sublink.site_0_lat)],
                       lon_lat_site_one=[float(ds_sublink.site_1_lon), float(ds_sublink.site_1_lat)])
         xy_array = md.xy()
-        x_check = xy_min[0] < xy_array[0] and xy_min[0] < xy_array[2] and xy_max[0] > xy_array[2] and xy_max[0] > \
-                  xy_array[0]
+        if xy_min is None or xy_max is None:
+            x_check = y_check = True
+        else:
+            x_check = xy_min[0] < xy_array[0] and xy_min[0] < xy_array[2] and xy_max[0] > xy_array[2] and xy_max[0] > \
+                      xy_array[0]
 
-        y_check = xy_min[1] < xy_array[1] and xy_min[1] < xy_array[3] and xy_max[1] > xy_array[3] and xy_max[1] > \
-                  xy_array[1]
+            y_check = xy_min[1] < xy_array[1] and xy_min[1] < xy_array[3] and xy_max[1] > xy_array[3] and xy_max[1] > \
+                      xy_array[1]
+
         if x_check and y_check:
-            rsl = ds_sublink.rsl.to_numpy()
-            tsl = ds_sublink.tsl.to_numpy()
-            if np.any(np.isnan(rsl)):
-                for nan_index in np.where(np.isnan(rsl))[0]:
-                    rsl[nan_index] = rsl[nan_index - 1]
-            if np.any(np.isnan(tsl)):
-                tsl[np.isnan(tsl)] = np.unique(tsl)[0]
-
-            if not np.any(np.isnan(rsl)) and not np.any(np.isnan(tsl)):
-                d_min, gauge = ps.find_near_gauge(md.xy_center())
-                if d_min < link2gauge_distance:
+            d_min, gauge = ps.find_near_gauge(md.xy_center())
+            if d_min < link2gauge_distance:
+                rsl = ds_sublink.rsl.to_numpy()
+                tsl = ds_sublink.tsl.to_numpy()
+                if np.any(np.isnan(rsl)):
+                    for nan_index in np.where(np.isnan(rsl))[0]:
+                        rsl[nan_index] = rsl[nan_index - 1]
+                if np.any(np.isnan(tsl)):
+                    tsl[np.isnan(tsl)] = np.unique(tsl)[0]
+                if not np.any(np.isnan(rsl)) and not np.any(np.isnan(tsl)):
                     link = Link(rsl,
                                 ds_sublink.time.to_numpy().astype('datetime64[s]').astype("int"),
                                 meta_data=md,
@@ -188,3 +196,22 @@ def loader_open_mrg_dataset(data_path="./data/", change2min_max=False, xy_min=No
                                         xy_max=xy_max,
                                         time_slice=time_slice, link2gauge_distance=link2gauge_distance)
     return LinkDataset(link_set)
+
+
+def linkdataset2subsequent(in_linkdataset: LinkDataset, subsequent_size=128, threshold=0.1):
+    ref_list = []
+    data_list = []
+    meta_list = []
+    for i in range(len(in_linkdataset)):
+        gauge, rsl, tsl, meta = in_linkdataset[i]
+        for j in range(rsl.shape[0] - subsequent_size):
+            if gauge[j + subsequent_size - 1] > threshold:
+                ref = gauge[j + subsequent_size - 1]
+                if ref == 0:
+                    raise Exception()
+                _rsl = rsl[j:j + subsequent_size]
+                _tsl = tsl[j:j + subsequent_size]
+                meta_list.append(meta)
+                ref_list.append(ref)
+                data_list.append(np.concatenate([_rsl, _tsl], axis=-1))
+    return SubSequentLinkDataset(data_list, ref_list, meta_list)
