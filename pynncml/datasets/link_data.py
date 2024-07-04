@@ -22,10 +22,7 @@ class LinkBase(object):
 
     def plot_link_position(self, scale=False):
         if self.meta_data.has_location():
-            if scale:
-                xy_array = self.meta_data.xy_scale()
-            else:
-                xy_array = self.meta_data.xy()
+            xy_array = self.meta_data.xy()
             return xy_array
 
     def time(self) -> np.ndarray:

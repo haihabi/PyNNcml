@@ -15,7 +15,7 @@ from pynncml.datasets.meta_data import MetaData
 import numpy as np
 from tqdm import tqdm
 from enum import Enum
-
+import pandas
 
 class DataType(Enum):
     Instance = 0
@@ -130,7 +130,7 @@ def load_open_mrg(data_path="./data/", change2min_max=False, xy_min=None, xy_max
 
     gauge_metadata = pd.read_csv(os.path.join(data_path, 'gauges/city/CityGauges-metadata.csv'), index_col=0)
     gauge_data = pd.read_csv(os.path.join(data_path, 'gauges/city/CityGauges-2015JJA.csv'), index_col=0)
-    time_array_gauge = np.asarray(gauge_data.index).astype("datetime64")
+    time_array_gauge = np.asarray([x.to_numpy() for x in pandas.to_datetime(gauge_data.index).to_numpy()])
     sel_index = np.logical_and(time_array_gauge >= time_array[0], time_array_gauge <= time_array[-1])
     gauge_list = []
     for g_id in gauge_data.keys():
