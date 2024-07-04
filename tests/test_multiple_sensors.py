@@ -36,9 +36,8 @@ class TestMultipeSensors(unittest.TestCase):
     def test_idw_real(self):
         xy_min = [0.57e6, 1.32e6]
         xy_max = [0.5875e6, 1.335e6]
-        time_slice = slice("2015-06-01", "2015-06-02T17:00:00.000000000")
-        link_set, ps = pnc.datasets.load_open_mrg(time_slice=time_slice)
-        # print(link_set.area())
+        time_slice = slice("2015-06-02", "2015-06-02T02:00:00.000000000")
+        link_set, ps = pnc.datasets.load_open_mrg(time_slice=time_slice, change2min_max=True)
 
         model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 8,
                                                                   quantization_delta=0.3)
@@ -46,6 +45,7 @@ class TestMultipeSensors(unittest.TestCase):
         res = imc(link_set)
         idw = pnc.mcm.InverseDistanceWeighting(32, 32)
         rain_map = idw(res, link_set).numpy()
+        print(rain_map.shape)
 
         import matplotlib.pyplot as plt
         import matplotlib.animation as animation
