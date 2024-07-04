@@ -58,6 +58,10 @@ class DCGANGenerator(nn.Module):
     def forward(self, input_tensor, cond=None):
         """
         A forward pass of the generator.
+
+        :param input_tensor: Input tensor
+        :param cond: Conditional tensor
+        :return: Output tensor
         """
         if self.conditional:
             input_tensor = torch.cat([input_tensor, cond], dim=-1)

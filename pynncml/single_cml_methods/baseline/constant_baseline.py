@@ -2,6 +2,23 @@ import torch
 from torch import nn
 
 
+def _single_link(attenuation: torch.Tensor, wd_classification: torch.Tensor):
+    r"""
+    The forward function of constant baseline.
+    :param attenuation: A Tensor of shape :math:`[N_s]` where :math:`N_s` is the length of time sequence. This parameter is the attenuation tensor symbolized as :math:`A_{i,n}`.
+    :param wd_classification: A Tensor of shape :math:`[N_s]` where :math:`N_s` is the length of time sequence. This parameter is the wet dry induction tensor symbolized as :math:`\hat{y}^{wd}_{i,n}`.
+
+    """
+    assert len(attenuation.shape) == 1
+    baseline = [attenuation[0]]
+    for i in range(1, attenuation.shape[0]):
+        if wd_classification[i]:
+            baseline.append(baseline[i - 1])
+        else:
+            baseline.append(attenuation[i])
+    return torch.stack(baseline, dim=0)
+
+
 class ConstantBaseLine(nn.Module):
     r"""
             This is the module is implantation of Constant baseline that presented in [1] and defined as:
@@ -22,16 +39,6 @@ class ConstantBaseLine(nn.Module):
     def __init__(self):
         super(ConstantBaseLine, self).__init__()
 
-    def _single_link(self, attenuation: torch.Tensor, wd_classification: torch.Tensor):
-        assert len(attenuation.shape) == 1
-        baseline = [attenuation[0]]
-        for i in range(1, attenuation.shape[0]):
-            if wd_classification[i]:
-                baseline.append(baseline[i - 1])
-            else:
-                baseline.append(attenuation[i])
-        return torch.stack(baseline, dim=0)
-
     def forward(self, input_attenuation: torch.Tensor, input_wet_dry: torch.Tensor) -> torch.Tensor:
         r"""
         The forward function of constant baseline.
@@ -41,5 +48,5 @@ class ConstantBaseLine(nn.Module):
         :return: A Tensor of shape :math:`[N_b,N_s]` where :math:`N_b` is the batch size and :math:`N_s` is the length of time sequence. This parameter is the baseline tensor symbolized as :math:`A^{\Delta}_{i,n}`.
         """
         return torch.stack(
-            [self._single_link(input_attenuation[batch_index, :], input_wet_dry[batch_index, :]) for batch_index in
+            [_single_link(input_attenuation[batch_index, :], input_wet_dry[batch_index, :]) for batch_index in
              range(input_attenuation.shape[0])], dim=0)

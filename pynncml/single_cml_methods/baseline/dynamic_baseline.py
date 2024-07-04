@@ -33,5 +33,10 @@ class DynamicBaseLine(nn.Module):
                            dim=0)
 
     def _single_link(self, input_attenuation: torch.Tensor) -> torch.Tensor:
+        r"""
+        The forward function of dynamic baseline of a single link.
+
+        :param input_attenuation: A Tensor of shape :math:`[N_s]` where :math:`N_s` is the length of time sequence. This parameter is the attenuation tensor symbolized as :math:`A_{i,n}`.
+        """
         return torch.stack([torch.min(input_attenuation[np.maximum(0, i - self.k_steps + 1): (i + 1)]) for i in
                             range(input_attenuation.shape[0])], dim=0)

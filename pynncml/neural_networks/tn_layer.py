@@ -11,10 +11,10 @@ class TimeNormalization(nn.Module):
             \mu_n=\alpha h_n +(1-\alpha)\mu_{n-1}
 
 
-    :param alpha:
-    :param num_features:
-    :param epsilon:
-    :param affine:
+    :param alpha: A float, which represent the alpha parameter in the equation.
+    :param num_features: An integer, which represent the number of features in the input tensor.
+    :param epsilon: A float, which represent the epsilon parameter in the equation.
+    :param affine: A boolean, which represent if the layer should learn an affine transformation after normalization.
     """
 
     def __init__(self, alpha: float, num_features: int, epsilon: float = 0.001):
@@ -26,6 +26,15 @@ class TimeNormalization(nn.Module):
 
     def forward(self, x: torch.Tensor, state: torch.Tensor) -> (
             torch.Tensor, torch.Tensor):
+        """
+        This is the module forward function.
+
+        :param x: A tensor of the input data of shape :math:`[N_b,N_s,N_f]` where :math:`N_b` is the batch size,
+                    :math:`N_s` is the length of time sequence and :math:`N_f` is the number of features.
+        :param state: A tensor that represent the state of shape :math:`[2,N_b,N_f]` where :math:`N_b` is the batch size and :math:`N_f` is the number of features.
+
+        :return: Two Tensors, the first tensor if the normalized tensor of size :math:`[N_b,N_s,N_f]`
+        """
         p = self.alpha * torch.stack([x, torch.pow(x, 2)], dim=0)
         ##########################################################
         # Loop over all time steps
