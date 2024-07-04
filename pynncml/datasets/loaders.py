@@ -114,7 +114,7 @@ def rain2rain_rate(in_array, window_size=15, step_time=60):
 
 
 def load_open_mrg(data_path="./data/", change2min_max=False, xy_min=None, xy_max=None, time_slice=None,
-                  rain_gauge_time_base=900, link2gauge_distance=2000):
+                  rain_gauge_time_base=900, link2gauge_distance=2000, window_size_in_min=15):
     download_open_mrg(local_path=data_path)
     file_location = data_path + "OpenMRG.zip"
     ds = transform_open_mrg(file_location, data_path)
@@ -135,7 +135,7 @@ def load_open_mrg(data_path="./data/", change2min_max=False, xy_min=None, xy_max
     gauge_list = []
     for g_id in gauge_data.keys():
         gauge_data_array = gauge_data.get(g_id).values[sel_index]
-        rain_rate_gauge = rain2rain_rate(gauge_data_array)
+        rain_rate_gauge = rain2rain_rate(gauge_data_array, window_size=window_size_in_min)
         i = np.where(gauge_metadata.index == g_id)[0]
         lon = gauge_metadata.get("Longitude_DecDeg").values[i]
         lat = gauge_metadata.get("Latitude_DecDeg").values[i]
@@ -191,10 +191,11 @@ def load_open_mrg(data_path="./data/", change2min_max=False, xy_min=None, xy_max
 
 
 def loader_open_mrg_dataset(data_path="./data/", change2min_max=False, xy_min=None, xy_max=None, time_slice=None,
-                            link2gauge_distance=2000):
+                            link2gauge_distance=2000, window_size_in_min=15):
     link_set, point_set = load_open_mrg(data_path=data_path, change2min_max=change2min_max, xy_min=xy_min,
                                         xy_max=xy_max,
-                                        time_slice=time_slice, link2gauge_distance=link2gauge_distance)
+                                        time_slice=time_slice, link2gauge_distance=link2gauge_distance,
+                                        window_size_in_min=window_size_in_min)
     return LinkDataset(link_set)
 
 

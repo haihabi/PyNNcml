@@ -39,7 +39,7 @@ class InverseDistanceWeighting(nn.Module):
 
     def forward(self, rain_est, link_set):
         if self.point_set is None:
-            link_set.scale()
+            link_set.scale_mlp()
             self.point_set = link_set.center_point()
             self.point_set2weight()
 
