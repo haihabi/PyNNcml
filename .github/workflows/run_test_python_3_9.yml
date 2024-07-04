@@ -1,13 +1,14 @@
-name: Run Tests
+name: Run Tests 3.9
 on:
- workflow_call:
-    inputs:
-      python-version:
-        required: true
-        type: string
+  workflow_dispatch: # Allow manual triggers
+  schedule:
+    - cron: 0 0 * * *
+  pull_request:
+    branches:
+      - main
 
 jobs:
   run-tests:
     uses: ./.github/workflows/run_test_base.yml
     with:
-      python-version: "3.8"
+      python-version: "3.9"
