@@ -2,6 +2,8 @@ import unittest
 import pynncml as pnc
 import os
 
+OPEN_MRG_TIME_SLICE = slice("2015-06-02", "2015-06-02T02:00:00.000000000")
+
 
 class TestOpenCML(unittest.TestCase):
 
@@ -12,8 +14,5 @@ class TestOpenCML(unittest.TestCase):
         self.assertTrue('The input path: ' + pickle_path + ' is not a file' == str(context.exception))
 
     def test_open_mrg_load(self):
-        xy_min = [0.57e6, 1.32e6]
-        xy_max = [0.5875e6, 1.335e6]
-        time_slice = slice("2015-06-01", "2015-06-02")
-        dataset = pnc.datasets.load_open_mrg(xy_min=xy_min, xy_max=xy_max, time_slice=time_slice)
-        print("a")
+        dataset, _ = pnc.datasets.load_open_mrg(time_slice=OPEN_MRG_TIME_SLICE)
+        self.assertTrue(len(dataset) > 0)

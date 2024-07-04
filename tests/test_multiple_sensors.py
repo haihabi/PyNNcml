@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pynncml as pnc
 import numpy as np
 from tests import helpers4tests as helpers
+from tests.test_datasets import OPEN_MRG_TIME_SLICE
 
 
 class TestMultipeSensors(unittest.TestCase):
@@ -34,10 +35,7 @@ class TestMultipeSensors(unittest.TestCase):
         self.assertTrue(map.shape[2] == 32)
 
     def test_idw_real(self):
-        xy_min = [0.57e6, 1.32e6]
-        xy_max = [0.5875e6, 1.335e6]
-        time_slice = slice("2015-06-02", "2015-06-02T02:00:00.000000000")
-        link_set, ps = pnc.datasets.load_open_mrg(time_slice=time_slice, change2min_max=True)
+        link_set, ps = pnc.datasets.load_open_mrg(time_slice=OPEN_MRG_TIME_SLICE, change2min_max=True)
 
         model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 8,
                                                                   quantization_delta=0.3)
@@ -45,22 +43,24 @@ class TestMultipeSensors(unittest.TestCase):
         res = imc(link_set)
         idw = pnc.mcm.InverseDistanceWeighting(32, 32)
         rain_map = idw(res, link_set).numpy()
-        print(rain_map.shape)
+        self.assertTrue(rain_map.shape[1] == 32)
+        self.assertTrue(rain_map.shape[2] == 32)
+        # print(rain_map.shape)
 
-        import matplotlib.pyplot as plt
-        import matplotlib.animation as animation
-
-        fig, ax = plt.subplots()
-
-        ims = []
-        for i in range(rain_map.shape[0]):
-            # x += np.pi / 15
-            # y += np.pi / 30
-            im = ax.imshow(rain_map[i, :, :], animated=True)
-            if i == 0:
-                ax.imshow(rain_map[i, :, :])  # show an initial one first
-            ims.append([im])
-
-        ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
-                                        repeat_delay=1000)
-        plt.show()
+        # import matplotlib.pyplot as plt
+        # import matplotlib.animation as animation
+        #
+        # fig, ax = plt.subplots()
+        #
+        # ims = []
+        # for i in range(rain_map.shape[0]):
+        #     # x += np.pi / 15
+        #     # y += np.pi / 30
+        #     im = ax.imshow(rain_map[i, :, :], animated=True)
+        #     if i == 0:
+        #         ax.imshow(rain_map[i, :, :])  # show an initial one first
+        #     ims.append([im])
+        #
+        # ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
+        #                                 repeat_delay=1000)
+        # plt.show()
