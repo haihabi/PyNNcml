@@ -1,0 +1,13 @@
+name: Run Tests
+on:
+ workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/run_test_base.yml
+    with:
+      python-version: "3.10"
