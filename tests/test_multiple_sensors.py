@@ -37,7 +37,7 @@ class TestMultipeSensors(unittest.TestCase):
                                                                   quantization_delta=0.3)
         imc = pnc.mcm.InferMultipleCMLs(model)
         idw = pnc.mcm.InverseDistanceWeighting(32, 32)
-        res = imc(link_set)
+        res, _ = imc(link_set)
         rain_map = idw(res, link_set).numpy()
         self.assertTrue(rain_map.shape[1] == 32)
         self.assertTrue(rain_map.shape[2] == 32)
