@@ -1,9 +1,5 @@
 import unittest
-
-import matplotlib.pyplot as plt
-
 import pynncml as pnc
-import numpy as np
 from tests import helpers4tests as helpers
 from tests.test_datasets import OPEN_MRG_TIME_SLICE
 
@@ -40,27 +36,8 @@ class TestMultipeSensors(unittest.TestCase):
         model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 8,
                                                                   quantization_delta=0.3)
         imc = pnc.mcm.InferMultipleCMLs(model)
-        res = imc(link_set)
         idw = pnc.mcm.InverseDistanceWeighting(32, 32)
+        res = imc(link_set)
         rain_map = idw(res, link_set).numpy()
         self.assertTrue(rain_map.shape[1] == 32)
         self.assertTrue(rain_map.shape[2] == 32)
-        # print(rain_map.shape)
-
-        # import matplotlib.pyplot as plt
-        # import matplotlib.animation as animation
-        #
-        # fig, ax = plt.subplots()
-        #
-        # ims = []
-        # for i in range(rain_map.shape[0]):
-        #     # x += np.pi / 15
-        #     # y += np.pi / 30
-        #     im = ax.imshow(rain_map[i, :, :], animated=True)
-        #     if i == 0:
-        #         ax.imshow(rain_map[i, :, :])  # show an initial one first
-        #     ims.append([im])
-        #
-        # ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
-        #                                 repeat_delay=1000)
-        # plt.show()

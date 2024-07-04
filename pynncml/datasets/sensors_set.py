@@ -54,6 +54,11 @@ class PointSet:
 
 class LinkSet:
     def __init__(self, link_list: List[LinkBase]):
+        """
+        Data structure that contains a set of links.
+        :param link_list: List of links
+
+        """
         self.link_list = link_list
 
         xy_list = np.stack([l.meta_data.xy() for l in self])
@@ -64,10 +69,14 @@ class LinkSet:
 
         y_min = np.min(y)
         y_delta = np.max(y) - y_min
+
         self.x_min = x_min
         self.x_delta = x_delta
         self.y_min = y_min
         self.y_delta = y_delta
+
+    def __len__(self):
+        return self.n_links
 
     def area(self):
         xy_list = np.stack([l.meta_data.xy() for l in self])
