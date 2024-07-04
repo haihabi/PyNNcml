@@ -6,6 +6,7 @@ from pynncml import metrics
 from pynncml import neural_networks
 from pynncml import training_helpers
 from pynncml import analysis
+from pynncml import simulation
 from pynncml.plot_common import change_x_axis_time_format
 
 __version__ = "0.2.0"

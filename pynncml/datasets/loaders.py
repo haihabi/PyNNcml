@@ -130,8 +130,8 @@ def load_open_mrg(data_path="./data/", change2min_max=False, xy_min=None, xy_max
 
     gauge_metadata = pd.read_csv(os.path.join(data_path, 'gauges/city/CityGauges-metadata.csv'), index_col=0)
     gauge_data = pd.read_csv(os.path.join(data_path, 'gauges/city/CityGauges-2015JJA.csv'), index_col=0)
-    time_array_gauge = np.asarray([x.to_numpy() for x in pandas.to_datetime(gauge_data.index).to_numpy()])
-    sel_index = np.logical_and(time_array_gauge >= time_array[0], time_array_gauge < time_array[-1])
+    time_array_gauge = np.asarray([np.datetime64(i[:-1]) for i  in gauge_data.index.to_numpy()])
+    sel_index = np.logical_and(time_array_gauge >= time_array[0], time_array_gauge <= time_array[-1])
     gauge_list = []
     for g_id in gauge_data.keys():
         gauge_data_array = gauge_data.get(g_id).values[sel_index]

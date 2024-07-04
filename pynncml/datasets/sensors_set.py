@@ -20,7 +20,6 @@ COLOR_LIST = ["blue",
               "orange"]
 
 
-
 class PointSet:
     def __init__(self, gauge_set: List[PointSensor]):
         self.point_set = gauge_set
