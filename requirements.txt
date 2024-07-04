@@ -7,3 +7,4 @@ pandas
 xarray
 utm
 netcdf4
+tqdm
