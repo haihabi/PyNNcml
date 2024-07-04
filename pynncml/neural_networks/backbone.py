@@ -99,6 +99,11 @@ class Backbone(nn.Module):
         return features, hidden
 
     def _base_init(self, batch_size: int = 1) -> torch.Tensor:
+        """
+        This function generate the initial state for the recurrent layer.
+
+        :param batch_size: int represent the batch size.
+        """
         return torch.zeros(self.n_layers, batch_size, self.rnn_n_features,
                            device=self.fc_meta.weight.device.type)  # create inital state for rnn layer only
 

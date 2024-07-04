@@ -3,7 +3,13 @@ import torch
 from pynncml.neural_networks import InputNormalizationConfig
 
 
-def compute_data_normalization(in_data_loader, alpha=0.9):
+def compute_data_normalization(in_data_loader, alpha: float = 0.9):
+    """
+    Compute the normalization parameters for the input data.
+    :param in_data_loader: Data loader
+    :param alpha: IIR filter alpha
+    :return: InputNormalizationConfig
+    """
     mean_dynamic = 0
     std_dynamic = 0
     mean_meta = 0

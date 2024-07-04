@@ -10,7 +10,6 @@ class TestMultipeSensors(unittest.TestCase):
 
     def test_infer_multiple(self):
         ls, _ = helpers.generate_link_set(TestMultipeSensors.n_samples, TestMultipeSensors.n_link)
-        # ls.plot_links()
         model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 6,
                                                                   quantization_delta=1.0)
         imc = pnc.mcm.InferMultipleCMLs(model)
@@ -37,7 +36,7 @@ class TestMultipeSensors(unittest.TestCase):
                                                                   quantization_delta=0.3)
         imc = pnc.mcm.InferMultipleCMLs(model)
         idw = pnc.mcm.InverseDistanceWeighting(32, 32)
-        res, _ = imc(link_set)
+        res = imc(link_set)
         rain_map = idw(res, link_set).numpy()
         self.assertTrue(rain_map.shape[1] == 32)
         self.assertTrue(rain_map.shape[2] == 32)

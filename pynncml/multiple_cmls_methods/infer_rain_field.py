@@ -14,8 +14,4 @@ class InferRainField(nn.Module):
         rain_est = self.imc(link_set)
         rain_map = self.reconstruction_method(rain_est, link_set)
         return rain_map, rain_est
-        # res_list = []
-        # for link in link_set:
-        #     rain_est = self.cml2rain(link.attenuation(), link.meta_data)
-        #     res_list.append(rain_est)
-        # return torch.stack(res_list, dim=0)
+
