@@ -8,3 +8,4 @@ xarray
 utm
 netcdf4
 tqdm
+prettytable
