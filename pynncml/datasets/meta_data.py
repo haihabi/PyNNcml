@@ -13,6 +13,7 @@ class MetaData(object):
                  height_near: float,
                  lon_lat_site_zero: List[float] = None,
                  lon_lat_site_one: List[float] = None):
+
         self.frequency = frequency
         self.polarization = polarization
         self.length = length
@@ -42,19 +43,9 @@ class MetaData(object):
         else:
             raise Exception("")
 
-    def xy_scale(self):
-        if self.has_scale():
-            return np.stack([self.xy_scale_zero, self.xy_scale_one]).flatten()
-        else:
-            raise Exception("")
-
     def as_tensor(self) -> torch.Tensor:
         return torch.Tensor(
             [self.height_far, self.height_near, self.frequency, self.polarization, self.length]).reshape(1, -1).float()
 
     def xy_center(self):
-        if self.has_scale():
-            return (self.xy_scale_zero[0] + self.xy_scale_one[0]) / 2, (
-                    self.xy_scale_zero[1] + self.xy_scale_one[1]) / 2
-        else:
-            return (self.xy_zero[0] + self.xy_one[0]) / 2, (self.xy_zero[1] + self.xy_one[1]) / 2
+        return (self.xy_zero[0] + self.xy_one[0]) / 2, (self.xy_zero[1] + self.xy_one[1]) / 2

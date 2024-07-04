@@ -9,3 +9,4 @@ utm
 netcdf4
 tqdm
 prettytable
+huggingface_hub

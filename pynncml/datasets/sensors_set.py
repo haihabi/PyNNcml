@@ -20,6 +20,7 @@ COLOR_LIST = ["blue",
               "orange"]
 
 
+
 class PointSet:
     def __init__(self, gauge_set: List[PointSensor]):
         self.point_set = gauge_set
@@ -55,7 +56,19 @@ class PointSet:
 class LinkSet:
     def __init__(self, link_list: List[LinkBase]):
         self.link_list = link_list
-        self.scale_flag = False
+
+        xy_list = np.stack([l.meta_data.xy() for l in self])
+        x = np.concatenate([xy_list[:, 0], xy_list[:, 2]])
+        y = np.concatenate([xy_list[:, 1], xy_list[:, 3]])
+        x_min = np.min(x)
+        x_delta = np.max(x) - x_min
+
+        y_min = np.min(y)
+        y_delta = np.max(y) - y_min
+        self.x_min = x_min
+        self.x_delta = x_delta
+        self.y_min = y_min
+        self.y_delta = y_delta
 
     def area(self):
         xy_list = np.stack([l.meta_data.xy() for l in self])
@@ -69,26 +82,19 @@ class LinkSet:
         y_delta = np.max(y) - y_min
         return np.sqrt(x_delta ** 2 + y_delta ** 2)
 
-    def scale(self):
-        if not self.scale_flag:
-            self.scale_flag = True
-            xy_list = np.stack([l.meta_data.xy() for l in self])
-            x = np.concatenate([xy_list[:, 0], xy_list[:, 2]])
-            y = np.concatenate([xy_list[:, 1], xy_list[:, 3]])
-            x_min = np.min(x)
-            x_delta = np.max(x) - x_min
-
-            y_min = np.min(y)
-            y_delta = np.max(y) - y_min
-            for l in self:
-                l.meta_data.update_scale(x_min, x_delta, y_min, y_delta)
-
     @property
     def n_links(self):
         return len(self.link_list)
 
-    def center_point(self):
-        return PointSet([PointSensor(*l.meta_data.xy_center()) for l in self])
+    def center_point(self, scale=False):
+        point_list = []
+        for l in self:
+            x, y = l.meta_data.xy_center()
+            if scale:
+                x = (x - self.x_min) / self.x_delta
+                y = (y - self.y_min) / self.y_delta
+            point_list.append([x, y])
+        return point_list
 
     def get_link(self, link_index: int):
         if link_index > self.n_links or link_index < 0:
@@ -99,7 +105,7 @@ class LinkSet:
         index = 0
         gauge2index = {}
         for link in self.link_list:
-            xy_array = link.plot_link_position(self.scale_flag)
+            xy_array = link.plot_link_position()
             if link.gauge_ref is None:
                 plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]], color="black")
             else:
@@ -108,7 +114,7 @@ class LinkSet:
                     index = index + 1
                 plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]],
                          color=COLOR_LIST[gauge2index[link.gauge_ref]])
-        for g,i in gauge2index.items():
+        for g, i in gauge2index.items():
             plt.plot(g.x, g.y, "o", color=COLOR_LIST[i])
 
     def __iter__(self):

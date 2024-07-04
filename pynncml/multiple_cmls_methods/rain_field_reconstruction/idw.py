@@ -3,6 +3,8 @@ from torch import nn
 import numpy as np
 from torch.nn import Parameter
 
+from pynncml.datasets import LinkSet
+
 
 class InverseDistanceWeighting(nn.Module):
     def __init__(self, in_h, in_w, modified=True, r=4, point_set=None, eps=1e-6):
@@ -25,7 +27,7 @@ class InverseDistanceWeighting(nn.Module):
             self.point_set2weight()
 
     def point_set2weight(self):
-        x = self.point_set.to_tensor()
+        x = self.point_set
         # rain_est in shape [N Sensors,1,N_Step] and link_set
         d = self._calculate_distance(x.unsqueeze(dim=0))
         # d = d * is_neg + 2 * (1 - is_neg)
@@ -35,18 +37,16 @@ class InverseDistanceWeighting(nn.Module):
             self.w = torch.pow(torch.relu(self.r - d) / (self.r * d), self.p)
         else:
             self.w = 1 / torch.pow(d, self.p)
-        self.w[is_zero] = 1
+        self.w[is_zero] = torch.max(self.w)  # set zero distance to max weight
 
-    def forward(self, rain_est, link_set):
+    def forward(self, rain_est, link_set: LinkSet):
         if self.point_set is None:
-            link_set.scale_mlp()
-            self.point_set = link_set.center_point()
+            locations = link_set.center_point(scale=True)
+            self.point_set = torch.tensor(locations, device=rain_est.device).float()
             self.point_set2weight()
 
         r_sensor = rain_est.T.reshape([rain_est.shape[1], rain_est.shape[0], 1, 1])
-        # is_neg
         rain_map_non_zero = (r_sensor * self.w).sum(dim=1) / (self.w.sum(dim=1) + self.eps)
-        # rain_map_zero = (is_neg * r_sensor * is_zero).sum(dim=1)
         return rain_map_non_zero  # add channel axis
 
     def _calculate_distance(self, x_i):
