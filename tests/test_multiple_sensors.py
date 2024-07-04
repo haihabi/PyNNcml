@@ -34,10 +34,10 @@ class TestMultipeSensors(unittest.TestCase):
         self.assertTrue(map.shape[2] == 32)
 
     def test_idw_real(self):
-        # xy_min = [0.57e6, 1.32e6]
-        # xy_max = [0.5875e6, 1.335e6]
-        time_slice = slice("2015-06-01", "2015-06-2")
-        link_set, ps = pnc.datasets.load_open_mrg(time_slice=time_slice)
+        xy_min = [0.57e6, 1.32e6]
+        xy_max = [0.5875e6, 1.335e6]
+        time_slice = slice("2015-06-01", "2015-06-02")
+        link_set, ps = pnc.datasets.load_open_mrg(xy_min=xy_min, xy_max=xy_max, time_slice=time_slice)
         # print(link_set.area())
 
         model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 8,

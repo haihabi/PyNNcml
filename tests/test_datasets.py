@@ -14,6 +14,6 @@ class TestOpenCML(unittest.TestCase):
     def test_open_mrg_load(self):
         xy_min = [0.57e6, 1.32e6]
         xy_max = [0.5875e6, 1.335e6]
-        time_slice = slice("2015-06-01", "2015-06-10")
+        time_slice = slice("2015-06-01", "2015-06-02")
         dataset = pnc.datasets.load_open_mrg(xy_min=xy_min, xy_max=xy_max, time_slice=time_slice)
         print("a")
