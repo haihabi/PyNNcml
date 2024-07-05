@@ -74,6 +74,7 @@ class LinkSet:
         self.x_delta = x_delta
         self.y_min = y_min
         self.y_delta = y_delta
+        self.scale = np.sqrt(x_delta ** 2 + y_delta ** 2)
 
     def __len__(self):
         return self.n_links
@@ -99,8 +100,8 @@ class LinkSet:
         for l in self:
             x, y = l.meta_data.xy_center()
             if scale:
-                x = (x - self.x_min) / self.x_delta
-                y = (y - self.y_min) / self.y_delta
+                x = (x - self.x_min) / self.scale
+                y = (y - self.y_min) / self.scale
             point_list.append([x, y])
         return point_list
 
