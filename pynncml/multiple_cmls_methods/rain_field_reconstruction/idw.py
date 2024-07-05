@@ -19,9 +19,9 @@ class InverseDistanceWeighting(nn.Module):
         :param eps: Epsilon value to avoid division by zero
         """
         super(InverseDistanceWeighting, self).__init__()
-        y_grid_vector = np.linspace(0, 1, in_h)
-        x_grid_vector = np.linspace(0, 1, in_w)
-        y_mesh, x_mesh = np.meshgrid(y_grid_vector, x_grid_vector)
+        self.y_grid_vector = np.linspace(0, 1, in_h)
+        self.x_grid_vector = np.linspace(0, 1, in_w)
+        y_mesh, x_mesh = np.meshgrid(self.y_grid_vector, self.x_grid_vector)
         self.grid = Parameter(
             torch.tensor(
                 np.expand_dims(np.expand_dims(np.stack([x_mesh, y_mesh], axis=0).astype('float32'), axis=0), axis=0)
