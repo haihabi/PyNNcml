@@ -74,6 +74,7 @@ class LinkSet:
         self.x_delta = x_delta
         self.y_min = y_min
         self.y_delta = y_delta
+        self.scale = np.sqrt(x_delta ** 2 + y_delta ** 2)
 
     def __len__(self):
         return self.n_links
@@ -99,8 +100,8 @@ class LinkSet:
         for l in self:
             x, y = l.meta_data.xy_center()
             if scale:
-                x = (x - self.x_min) / self.x_delta
-                y = (y - self.y_min) / self.y_delta
+                x = (x - self.x_min) / self.scale
+                y = (y - self.y_min) / self.scale
             point_list.append([x, y])
         return point_list
 
@@ -109,11 +110,17 @@ class LinkSet:
             raise Exception("illegal link index")
         return self.link_list[link_index]
 
-    def plot_links(self):
+    def plot_links(self, scale=False, scale_factor=1.0):
         index = 0
         gauge2index = {}
         for link in self.link_list:
             xy_array = link.plot_link_position()
+            if scale:
+                xy_array[0] = scale_factor * (xy_array[0] - self.x_min) / self.scale
+                xy_array[2] = scale_factor * (xy_array[2] - self.x_min) / self.scale
+                xy_array[1] = scale_factor * (xy_array[1] - self.y_min) / self.scale
+                xy_array[3] = scale_factor * (xy_array[3] - self.y_min) / self.scale
+
             if link.gauge_ref is None:
                 plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]], color="black")
             else:

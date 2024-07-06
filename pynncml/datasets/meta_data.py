@@ -24,18 +24,9 @@ class MetaData(object):
         if self.has_location():
             self.xy_zero = np.flip(utm.from_latlon(self.lon_lat_site_zero[0], self.lon_lat_site_zero[1])[:2])
             self.xy_one = np.flip(utm.from_latlon(self.lon_lat_site_one[0], self.lon_lat_site_one[1])[:2])
-            self.xy_scale_zero = None
-            self.xy_scale_one = None
 
     def has_location(self):
         return self.lon_lat_site_one is not None and self.lon_lat_site_zero is not None
-
-    def has_scale(self):
-        return self.xy_scale_zero is not None and self.xy_scale_one is not None
-
-    def update_scale(self, x_min, x_delta, y_min, y_delta):
-        self.xy_scale_zero = [(self.xy_zero[0] - x_min) / x_delta, (self.xy_zero[1] - y_min) / y_delta]
-        self.xy_scale_one = [(self.xy_one[0] - x_min) / x_delta, (self.xy_one[1] - y_min) / y_delta]
 
     def xy(self):
         if self.has_location():
