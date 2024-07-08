@@ -74,7 +74,8 @@ class LinkSet:
         self.x_delta = x_delta
         self.y_min = y_min
         self.y_delta = y_delta
-        self.scale = np.sqrt(x_delta ** 2 + y_delta ** 2)
+        # self.scale = np.sqrt(x_delta ** 2 + y_delta ** 2)
+        self.scale = np.maximum(x_delta, y_delta)
 
     def __len__(self):
         return self.n_links
