@@ -38,3 +38,16 @@ class TestMultipeSensors(unittest.TestCase):
         rain_map = idw(res).numpy()
         self.assertTrue(rain_map.shape[1] == 48)
         self.assertTrue(rain_map.shape[2] == 16)
+
+    def test_gmz_real(self):
+        link_set, ps = pnc.datasets.load_open_mrg(time_slice=OPEN_MRG_TIME_SLICE, change2min_max=True)
+
+        model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 8,
+                                                                  quantization_delta=0.3)
+        imc = pnc.mcm.InferMultipleCMLs(model)
+        gmz = pnc.mcm.generate_link_set_gmz(link_set)
+        res = imc(link_set)
+        rain_map, _ = gmz(res)
+        rain_map = rain_map.numpy()
+        self.assertTrue(rain_map.shape[1] == 48)
+        self.assertTrue(rain_map.shape[2] == 16)

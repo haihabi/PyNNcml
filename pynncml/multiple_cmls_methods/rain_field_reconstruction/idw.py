@@ -47,8 +47,8 @@ class InverseDistanceWeighting(nn.Module):
         """
         super(InverseDistanceWeighting, self).__init__()
 
-        self.y_grid_vector = y_grid_vector
-        self.x_grid_vector = x_grid_vector
+        self.y_grid_vector = nn.Parameter(torch.tensor(y_grid_vector).float(), requires_grad=False)
+        self.x_grid_vector = nn.Parameter(torch.tensor(x_grid_vector).float(), requires_grad=False)
         y_mesh, x_mesh = np.meshgrid(self.y_grid_vector, self.x_grid_vector)
         self.grid = Parameter(
             torch.tensor(
