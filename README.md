@@ -6,13 +6,17 @@ This project is part of the M.Sc. thesis of Hai Victor Habi, under the supervisi
 
 
 
-# Install
-Installation via pip:
+# Getting Started
+## Installation
+PyNNcml is available on PyPI. To install, run the following command:
 ```
 pip install pynncml
 ```
 
-# Test Run Status
+## Supported Python Versions
+
+
+
 | Python Version | Status |
 |---|---|
 | Python 3.8  |![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_8.yml/badge.svg)|
@@ -21,41 +25,37 @@ pip install pynncml
 | Python 3.11 |![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_11.yml/badge.svg)|
 
 
+# PyNNcml Features
+
+## Task and Algorithms
+
+1. Wet Dry Classification (RNN[1,2,3] and STD Window[6])
+2. Rain Estimation (Constant Baseline [6], Dynamic Baseline [5], Direct RNN Estimation [4,3])
+3. Rain Field Generation (RainGAN )
+4. Rain Field Interpolation (IDW, GMZ [9])
 
 
-# Projects Structure
-
-1. Wet Dry Classification
-2. Baseline 
-3. Power Law 
-4. Rain estimation
-5. Metrics
-6. Robustness
-# Dataset
+## Datasets
 This repository includes an example of a dataset with a reference rain gauge. 
-In addition, this repository provide PyTorch version of the OpenMRG dataset [9].
+In addition, this repository provide PyTorch version of the OpenMRG dataset [10].
 
-# Usage
-The following examples:
-* Wet Dry Classification using neural network[1] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/wet_dry_classification_rnn.ipynb) 
-* wet Dry Classification using statistic test [6]  shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/wet_dry_classification.ipynb)
-* Rain estimation using dynamic baseline[5] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/rain_estimation_dynamic.ipynb)
-* Rain estimation using constant baseline[6] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/rain_estimation_constant.ipynb)
-* Training One Step RNN [4] on the OpenMRG dataset [9] shown in the following [notebook](https://github.com/haihabi/PyNNcml/blob/master/examples/training_rnn.ipynb)
+## Examples and Tutorials
+This repository includes examples of how to use the PyNNcml library to obtain various whether monotoning information using CMLs data. 
+Please see the [examples](examples) directory for more information.
 
 
-
-# Model Zoo
+## Model Zoo
 In this project we supply a set of trained networks in our [Model Zoo](https://github.com/haihabi/PyNNcml/tree/master/pynncml/model_zoo), this networks are trained on our own dataset which is not publicly available.
 The model contains three types of networks: Wet-dry classification network, one-step network (rain estimation only) and two-step network (rain estimation and wet-dry classification). Moreover, we have provided all of these networks with a various number of RNN cells (1, 2, 3). From more details about network structure and results see the publication list.
 
 # Contributing
 
-If you find a bug or have a question, please create a GitHub issue.
+PyNNCMLs aims at keeping a more up-to-date fork and welcomes contributions from anyone.
+
+If you would like to contribute, please follow the [contribution guidelines](CONTRIBUTING.md).
 
 
-
-# Publications
+# References
 
 Please cite one of following paper if you found our neural network model useful. Thanks!
 
