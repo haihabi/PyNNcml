@@ -12,6 +12,16 @@ from pynncml.model_zoo.model_common import get_model_from_zoo, ModelType
 
 def two_step_constant_baseline(power_law_type: PowerLawType, r_min: float, window_size: int,
                                threshold: float, wa_factor: float = None):
+    """
+    This function create a two step constant baseline model. The model is used to estimate the rain rate from the CML data.
+
+
+    :param power_law_type: enum that define the type of the power law.
+    :param r_min: floating point number that represent the minimum value of the rain rate.
+    :param window_size: integer that represent the window size.
+    :param threshold: floating point number that represent the threshold value.
+    :param wa_factor: floating point number that represent the weight average factor.
+    """
     if wa_factor is None:
         return TwoStepConstant(power_law_type, r_min, window_size, threshold)
     else:
@@ -19,6 +29,15 @@ def two_step_constant_baseline(power_law_type: PowerLawType, r_min: float, windo
 
 
 def one_step_dynamic_baseline(power_law_type: PowerLawType, r_min: float, window_size: int, quantization_delta: float):
+    """
+    This function create a one step dynamic baseline model. The model is used to estimate the rain rate from the CML data.
+    This function also includes the quantization delta parameter for bias correction.
+
+    :param power_law_type: enum that define the type of the power law.
+    :param r_min: floating point number that represent the minimum value of the rain rate.
+    :param window_size: integer that represent the window size.
+    :param quantization_delta: floating point number that represent the quantization delta.
+    """
     return OneStepDynamic(power_law_type, r_min, window_size, quantization_delta)
 
 
@@ -30,7 +49,8 @@ def two_step_network(n_layers: int, rnn_type: RNNType,
                      rnn_input_size: int = DYNAMIC_INPUT_SIZE,
                      rnn_n_features: int = RNN_FEATURES,
                      metadata_input_size: int = STATIC_INPUT_SIZE,
-                     metadata_n_features: int = FC_FEATURES, pretrained=True):
+                     metadata_n_features: int = FC_FEATURES,
+                     pretrained=True):
     """
 
 

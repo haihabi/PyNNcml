@@ -14,12 +14,12 @@ Here, we provide examples of how to use the PyNNCML library to obtain various wh
 
 | Task            | Algorithm                           | Notebooks                                             | Description                                                  | 
 |-----------------|-------------------------------------|-------------------------------------------------------|--------------------------------------------------------------|
-| Rain Detection  | Classification using Rnn [1,2,3]    | [Notebook](examples/wet_dry_classification_rnn.ipynb) | This notebook  run rnn model for rain detection              |
-| Rain Detection  | Classification using Std Window [6] | [Notebook](examples/wet_dry_classification.ipynb)     | This notebook run std rolloing window for rain detection     |
-| Rain Estimation | Constant Baseline  [6]              | [Notebook](examples/rain_estimation_constant.ipynb)   | This notebook run rain estimation using constant baseline.   |
-| Rain Estimation | Dynamic Baseline    [5,7,8]         | [Notebook](examples/rain_estimation_dynamic.ipynb)    | This notebook run rain estimation using dynamic baseline.    |
-| Rain Estimation | Direct RNN Estimation [4,3]         | [Notebook](examples/rain_estimation_rnn.ipynb)        | This notebook run rain estimation using RNN Model.           |
-| Rain Estimation | RNN Training Example [1,2,3,4]      | [Notebook](examples/training_rnn.ipynb)               | This notebook train an RNN model on the OpenMRG Dataset [10] |
+| Rain Detection  | Classification using Rnn [1,2,3]    | [Notebook](wet_dry_classification_rnn.ipynb) | This notebook  run rnn model for rain detection              |
+| Rain Detection  | Classification using Std Window [6] | [Notebook](wet_dry_classification.ipynb)     | This notebook run std rolloing window for rain detection     |
+| Rain Estimation | Constant Baseline  [6]              | [Notebook](rain_estimation_constant.ipynb)   | This notebook run rain estimation using constant baseline.   |
+| Rain Estimation | Dynamic Baseline    [5,7,8]         | [Notebook](rain_estimation_dynamic.ipynb)    | This notebook run rain estimation using dynamic baseline.    |
+| Rain Estimation | Direct RNN Estimation [4,3]         | [Notebook](rain_estimation_rnn.ipynb)        | This notebook run rain estimation using RNN Model.           |
+| Rain Estimation | RNN Training Example [1,2,3,4]      | [Notebook](training_rnn.ipynb)               | This notebook train an RNN model on the OpenMRG Dataset [10] |
 
 
 ## Example Of Multiple CML and Rain Filed Mapping.
@@ -27,9 +27,9 @@ Here, we provide examples of how to use the PyNNCML library to obtain various wh
 
 | Task                     | Algorithm                       | Notebooks                                          | Description                                                                                    | 
 |--------------------------|---------------------------------|----------------------------------------------------|------------------------------------------------------------------------------------------------|
-| Rain Field Generation    | Rain Field generation using GAN | [Notebook](examples/rain_generator_notebook.ipynb) | This notebook  run RainGAN to generate rain field                                              |
-| Rain Field Interpolation | Interpolation Using IDW         | [Notebook](examples/rain_map_interpolation.ipynb)  | This notebook dynamic baseline followed by IDW interpolation                                   |
-| Rain Field Interpolation | Interpolation Using GMZ  [9]    | [Notebook](examples/rain_map_interpolation.ipynb)  | This notebook dynamic baseline followed by GMZ preprocessing and then interpolation using IDW. |
+| Rain Field Generation    | Rain Field generation using GAN | [Notebook](rain_generator_notebook.ipynb) | This notebook  run RainGAN to generate rain field                                              |
+| Rain Field Interpolation | Interpolation Using IDW         | [Notebook](rain_map_interpolation.ipynb)  | This notebook dynamic baseline followed by IDW interpolation                                   |
+| Rain Field Interpolation | Interpolation Using GMZ  [9]    | [Notebook](rain_map_interpolation.ipynb)  | This notebook dynamic baseline followed by GMZ preprocessing and then interpolation using IDW. |
 
 ## References
 

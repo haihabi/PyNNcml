@@ -196,7 +196,7 @@ def loader_open_mrg_dataset(data_path="./data/", change2min_max=False, xy_min=No
                                         xy_max=xy_max,
                                         time_slice=time_slice, link2gauge_distance=link2gauge_distance,
                                         window_size_in_min=window_size_in_min)
-    return LinkDataset(link_set)
+    return LinkDataset(link_set,point_set)
 
 
 def linkdataset2subsequent(in_linkdataset: LinkDataset, subsequent_size=128, threshold=0.1):

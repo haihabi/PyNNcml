@@ -2,8 +2,9 @@ from torch.utils.data import Dataset
 
 
 class LinkDataset(Dataset):
-    def __init__(self, link_set, transform=None, target_transform=None):
+    def __init__(self, link_set,point_set, transform=None, target_transform=None):
         self.link_set = link_set
+        self.point_set = point_set
         self.transform = transform
         self.target_transform = target_transform
 

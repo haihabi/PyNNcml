@@ -22,16 +22,30 @@ COLOR_LIST = ["blue",
 
 class PointSet:
     def __init__(self, gauge_set: List[PointSensor]):
+        """
+        Data structure that contains a set of points.
+        :param gauge_set: List of points
+        """
         self.point_set = gauge_set
 
     def to_tensor(self) -> torch.Tensor:
+        """
+        Convert the point set to a tensor.
+        :return: Tensor of shape [n_points, 2]
+        """
         return torch.Tensor([[p.x, p.y] for p in self.point_set])
 
     @property
     def n_points(self):
+        """
+        Number of points in the set.
+        """
         return len(self.point_set)
 
     def __iter__(self):
+        """
+        Initialize the iterator.
+        """
         self.n = 0
         return self
 
