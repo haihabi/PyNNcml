@@ -4,36 +4,62 @@ from prettytable import PrettyTable
 
 class ResultsAccumulator:
     def __init__(self):
+        """
+        Initialize the results accumulator
+
+        """
         self.results_dict = dict()
 
     def clear(self):
+        """
+        Clear the results accumulator
+        """
         self.results_dict.clear()
 
     def add_results(self, **kwargs):
+        """
+        Add results to the accumulator
+        :param kwargs: key-value pairs of the results
+        """
         for k, v in kwargs.items():
             if self.results_dict.get(k) is None:
                 self.results_dict.update({k: []})
             self.results_dict[k].append(v)
 
-    def get_results(self, name):
+    def get_results(self, name: str):
+        """
+        Get the results of a specific metric
+        """
         return np.asarray(self.results_dict[name])
 
 
 class AverageMetric(ResultsAccumulator):
-    def get_results(self, name):
+    def get_results(self, name: str):
+        """
+        Get the average of the results
+        """
         return np.mean(super().get_results(name))
 
 
 class GroupAnalysis:
     def __init__(self):
+        """
+        Initialize the group analysis
+        """
         self.reference = []
         self.estimation = []
 
     def append(self, reference: np.ndarray, estimation: np.ndarray):
+        """
+        Append the reference and estimation data
+        """
         self.reference.append(reference)
         self.estimation.append(estimation)
 
     def _analysis(self, ref, est, group_selection, normalized=False):
+        """
+        Perform the analysis
+        """
         ref = np.concatenate(self.reference)
         est = np.concatenate(self.estimation)
         bias = []
@@ -56,6 +82,9 @@ class GroupAnalysis:
         return rmse, bias, group_selection, group_data
 
     def run_analysis(self, group_selection):
+        """
+        Run the analysis
+        """
         ref = np.concatenate(self.reference)
         est = np.concatenate(self.estimation)
         rmse_group, bias_group, _, _ = self._analysis(ref, est, group_selection)
