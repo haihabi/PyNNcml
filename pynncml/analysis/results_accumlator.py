@@ -42,12 +42,16 @@ class AverageMetric(ResultsAccumulator):
 
 
 class GroupAnalysis:
-    def __init__(self):
+    def __init__(self, precision=2):
         """
         Initialize the group analysis
         """
         self.reference = []
         self.estimation = []
+        self.precision = precision
+
+    def apply_precision(self, value):
+        return round(value, self.precision)
 
     def append(self, reference: np.ndarray, estimation: np.ndarray):
         """
@@ -66,7 +70,7 @@ class GroupAnalysis:
         rmse = []
         group_data = []
         for gs, ge in group_selection:
-            sel = np.logical_and(gs <= ref, ref < ge)
+            sel = np.logical_and(gs <= ref, ref <= ge)
             _ref = ref[sel]
             _est = est[sel]
             group_data.append((_ref, _est))
@@ -77,8 +81,8 @@ class GroupAnalysis:
                 ref_mean = np.mean(_ref)
                 _rmse /= ref_mean
                 _bias /= ref_mean
-            bias.append(_bias)
-            rmse.append(_rmse)
+            bias.append(self.apply_precision(_bias))
+            rmse.append(self.apply_precision(_rmse))
         return rmse, bias, group_selection, group_data
 
     def run_analysis(self, group_selection):
@@ -92,22 +96,23 @@ class GroupAnalysis:
 
         delta = ref - est
         norm = np.mean(ref)
-        bias = np.mean(delta)
-        rmse = np.sqrt(np.mean(delta ** 2))
-        nbias = bias / norm
-        nrmse = rmse / norm
+        bias = self.apply_precision(np.mean(delta))
+        rmse = self.apply_precision(np.sqrt(np.mean(delta ** 2)))
+        nbias = self.apply_precision(bias / norm)
+        nrmse = self.apply_precision(rmse / norm)
         print("-" * 50, "Results Summery", "-" * 50)
-        table = [["Metric", *[f"{gs}<r<{ge}" for gs, ge in group_selection]],
-                 ["RMSE", *rmse_group],
-                 ["BIAS", *bias_group],
-                 ["NRMSE", *nrmse_group],
-                 ["NBIAS", *nbias_group],
-                 ["Total Metric", "Value", *["-" for _ in range(len(group_selection) - 1)]],
-                 ["RMSE", rmse, *["-" for _ in range(len(group_selection) - 1)]],
-                 ["BIAS", bias, *["-" for _ in range(len(group_selection) - 1)]],
-                 ["NRMSE", nrmse, *["-" for _ in range(len(group_selection) - 1)]],
-                 ["NBIAS", nbias, *["-" for _ in range(len(group_selection) - 1)]]
-                 ]
+        table = [
+            ["Metric", *[f"{self.apply_precision(gs)}<r<{self.apply_precision(ge)}" for gs, ge in group_selection]],
+            ["RMSE", *rmse_group],
+            ["BIAS", *bias_group],
+            ["NRMSE", *nrmse_group],
+            ["NBIAS", *nbias_group],
+            ["Total Metric", "Value", *["-" for _ in range(len(group_selection) - 1)]],
+            ["RMSE", rmse, *["-" for _ in range(len(group_selection) - 1)]],
+            ["BIAS", bias, *["-" for _ in range(len(group_selection) - 1)]],
+            ["NRMSE", nrmse, *["-" for _ in range(len(group_selection) - 1)]],
+            ["NBIAS", nbias, *["-" for _ in range(len(group_selection) - 1)]]
+            ]
         tab = PrettyTable(table[0])
         tab.add_rows(table[1:])
         print(tab)
