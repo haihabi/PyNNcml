@@ -5,8 +5,8 @@ from pynncml.single_cml_methods.wet_dry.wd_network import WetDryNetwork
 from pynncml.model_zoo.model_common import get_model_from_zoo, ModelType
 
 
-def statistics_wet_dry(th, step):
-    return STDWetDry(th, step)
+def statistics_wet_dry(th, step, is_min_max):
+    return STDWetDry(th, step, is_min_max)
 
 
 def wet_dry_network(n_layers: int, rnn_type: pnc.neural_networks.RNNType,

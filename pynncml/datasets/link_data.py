@@ -56,8 +56,8 @@ class LinkBase(object):
 
 
 class LinkMinMax(LinkBase):
-    def __init__(self, min_rsl, max_rsl, rain_gauge, time_array, meta_data, min_tsl=None, max_tsl=None):
-        super().__init__(time_array, rain_gauge, meta_data)
+    def __init__(self, min_rsl, max_rsl, rain_gauge, time_array, meta_data, min_tsl=None, max_tsl=None, gauge_ref=None):
+        super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref)
         self.min_rsl = min_rsl
         self.max_rsl = max_rsl
         self.min_tsl = min_tsl
@@ -126,7 +126,7 @@ class Link(LinkBase):
         :param meta_data:
         :param link_tsl:
         """
-        super().__init__(time_array, rain_gauge, meta_data)
+        super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref)
         self._check_input(link_rsl)
         assert len(link_rsl) == len(self)
         if link_tsl is not None:  # if link tsl is not none check that is valid
@@ -134,7 +134,6 @@ class Link(LinkBase):
             assert len(link_tsl) == len(self)
         self.link_rsl = link_rsl
         self.link_tsl = link_tsl
-        self.gauge_ref = gauge_ref
 
     def data_alignment(self):
         delta_gauge = np.min(np.diff(self.gauge_ref.time_array))
@@ -236,9 +235,10 @@ class Link(LinkBase):
         time_vector = np.asarray(time_vector)
         if self.has_tsl():
             return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data,
-                              min_tsl=min_tsl_vector, max_tsl=max_tsl_vector)
+                              min_tsl=min_tsl_vector, max_tsl=max_tsl_vector, gauge_ref=self.gauge_ref)
         else:
-            return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data)
+            return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data,
+                              gauge_ref=self.gauge_ref)
 
 
 def read_open_cml_dataset(pickle_path: str) -> list:
@@ -251,7 +251,7 @@ def read_open_cml_dataset(pickle_path: str) -> list:
 
 def handle_attenuation_input(attenuation: torch.Tensor) -> (torch.Tensor, torch.Tensor):
     if len(attenuation.shape) == 2:
-        att_max, att_min = attenuation, attenuation
+        att_max, att_min = attenuation[0,:], attenuation[1,:]
     elif len(attenuation.shape) == 3 and attenuation.shape[2] == 2:
         att_max, att_min = attenuation[:, :, 0], attenuation[:, :, 1]
     else:

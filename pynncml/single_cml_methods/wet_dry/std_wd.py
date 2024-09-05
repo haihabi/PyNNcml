@@ -1,15 +1,24 @@
 import torch
 import numpy as np
+from pynncml.datasets.link_data import handle_attenuation_input
 from torch import nn
 
 
 class STDWetDry(nn.Module):
-    def __init__(self, th, n_steps):
+    def __init__(self, th, n_steps, is_min_max=False):
         super(STDWetDry, self).__init__()
         self.n_steps = n_steps
         self.th = th
+        self.is_min_max = is_min_max
 
-    def forward(self, input_attenuation):  # model forward pass
+    def forward(self, input_attenuation):
+        if self.is_min_max:
+            att_max, att_min = handle_attenuation_input(input_attenuation)
+            if len(input_attenuation) == 3:
+                input_attenuation = (att_max - att_min).reshape([input_attenuation.shape[0], -1])
+            else:
+                input_attenuation = (att_max - att_min).reshape([1, -1])
+        # model forward pass
         shift_begin = [input_attenuation.shape[0], (self.n_steps - 1) // 2]
         shift_end = [input_attenuation.shape[0], self.n_steps - 1 - shift_begin[1]]
 

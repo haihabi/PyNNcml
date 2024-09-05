@@ -19,7 +19,7 @@ Here, we provide examples of how to use the PyNNCML library to obtain various wh
 | Rain Estimation | Constant Baseline  [6]              | [Notebook](rain_estimation_constant.ipynb)   | This notebook run rain estimation using constant baseline.   |
 | Rain Estimation | Dynamic Baseline    [5,7,8]         | [Notebook](rain_estimation_dynamic.ipynb)    | This notebook run rain estimation using dynamic baseline.    |
 | Rain Estimation | Direct RNN Estimation [4,3]         | [Notebook](rain_estimation_rnn.ipynb)        | This notebook run rain estimation using RNN Model.           |
-| Rain Estimation | RNN Training Example [1,2,3,4]      | [Notebook](training_rnn.ipynb)               | This notebook train an RNN model on the OpenMRG Dataset [10] |
+| Rain Estimation | RNN Training Example [1,2,3,4]      | [Notebook](tutorials/training_rnn.ipynb)               | This notebook train an RNN model on the OpenMRG Dataset [10] |
 
 
 ## Example Of Multiple CML and Rain Filed Mapping.
