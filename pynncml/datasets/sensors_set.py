@@ -145,7 +145,10 @@ class LinkSet:
                 plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]],
                          color=COLOR_LIST[gauge2index[link.gauge_ref]])
         for g, i in gauge2index.items():
-            plt.plot(g.x, g.y, "o", color=COLOR_LIST[i])
+            if self.scale:
+                plt.plot(scale_factor*(g.x - self.x_min) / self.scale,scale_factor* (g.y - self.y_min) / self.scale, "o", color=COLOR_LIST[i])
+            else:
+                plt.plot(g.x, g.y, "o", color=COLOR_LIST[i])
 
     def __iter__(self):
         self.n = 0
