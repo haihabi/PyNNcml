@@ -6,12 +6,28 @@ from torch import nn
 
 class STDWetDry(nn.Module):
     def __init__(self, th, n_steps, is_min_max=False):
+        """
+        This class create a wet-dry detection model based on the standard deviation of the CML data.
+
+        :param th: floating point number that represent the threshold value.
+        :param n_steps: integer that represent the step size.
+        :param is_min_max: boolean that state if the threshold is minimum or maximum.
+
+        return: None
+        """
         super(STDWetDry, self).__init__()
         self.n_steps = n_steps
         self.th = th
         self.is_min_max = is_min_max
 
     def forward(self, input_attenuation):
+        """
+        This function calculate the wet-dry detection based on the standard deviation of the CML data.
+
+        :param input_attenuation: tensor that represent the attenuation data.
+
+        return: tensor
+        """
         if self.is_min_max:
             att_max, att_min = handle_attenuation_input(input_attenuation)
             if len(input_attenuation) == 3:
