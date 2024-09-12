@@ -52,9 +52,15 @@ class SubSequentLinkDataset(Dataset):
         self.target_transform = target_transform
 
     def __len__(self):
+        """
+        Get the number of links
+        """
         return len(self.data)
 
     def __getitem__(self, idx):
+        """
+        Get the item of the link
+        """
         rain, data, metadata = self.label[idx], self.data[idx], self.meta_data[idx]
         if self.transform:
             raise NotImplemented

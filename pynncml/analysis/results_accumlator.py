@@ -60,9 +60,12 @@ class GroupAnalysis:
         self.reference.append(reference)
         self.estimation.append(estimation)
 
-    def _analysis(self, ref, est, group_selection, normalized=False):
+    def _analysis(self, group_selection, normalized=False):
         """
         Perform the analysis
+        :param group_selection: list of tuples containing the group selection
+        :param normalized: boolean, if True normalize the results
+        :return: rmse, bias, group_selection, group_data
         """
         ref = np.concatenate(self.reference)
         est = np.concatenate(self.estimation)
@@ -88,11 +91,12 @@ class GroupAnalysis:
     def run_analysis(self, group_selection):
         """
         Run the analysis
+        :param group_selection: list of tuples containing the group selection
         """
         ref = np.concatenate(self.reference)
         est = np.concatenate(self.estimation)
-        rmse_group, bias_group, _, _ = self._analysis(ref, est, group_selection)
-        nrmse_group, nbias_group, _, group_data = self._analysis(ref, est, group_selection, normalized=True)
+        rmse_group, bias_group, _, _ = self._analysis(group_selection)
+        nrmse_group, nbias_group, _, group_data = self._analysis(group_selection, normalized=True)
 
         delta = ref - est
         norm = np.mean(ref)
@@ -112,7 +116,7 @@ class GroupAnalysis:
             ["BIAS", bias, *["-" for _ in range(len(group_selection) - 1)]],
             ["NRMSE", nrmse, *["-" for _ in range(len(group_selection) - 1)]],
             ["NBIAS", nbias, *["-" for _ in range(len(group_selection) - 1)]]
-            ]
+        ]
         tab = PrettyTable(table[0])
         tab.add_rows(table[1:])
         print(tab)

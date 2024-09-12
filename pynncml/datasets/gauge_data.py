@@ -3,7 +3,19 @@ import numpy as np
 
 
 class PointSensor:
-    def __init__(self, data_array, time_array, lon, lat):
+    def __init__(self,
+                 data_array: np.ndarray,
+                 time_array: np.ndarray,
+                 lon: float,
+                 lat: float):
+        """
+        Point sensor data class for the gauge data.
+        :param data_array: np.ndarray
+        :param time_array: np.ndarray
+        :param lon: float
+        :param lat: float
+
+        """
         self.lon = lon
         self.lat = lat
         self.data_array = data_array
@@ -12,7 +24,12 @@ class PointSensor:
             raise Exception("Array shape mismatch")
         self.y, self.x = utm.from_latlon(self.lat, self.lon)[:2]
 
-    def change_time_base(self, new_time_base):
+    def change_time_base(self, new_time_base: int) -> 'PointSensor':
+        """
+        Change the time base of the data array
+        :param new_time_base: int
+        :return: PointSensor
+        """
         start_time = self.time_array[0] if self.time_array[0] % new_time_base == 0 else self.time_array[0] + (
                 new_time_base - self.time_array[0] % new_time_base)
         end_time = (self.time_array[-1]) if self.time_array[-1] % new_time_base == 0 else self.time_array[-1] - \

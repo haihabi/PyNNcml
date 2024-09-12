@@ -13,7 +13,18 @@ HOUR_IN_SECONDS = 3600
 
 
 class LinkBase(object):
-    def __init__(self, time_array: np.ndarray, rain_gauge: np.ndarray, meta_data: MetaData, gauge_ref=None):
+    def __init__(self,
+                 time_array: np.ndarray,
+                 rain_gauge: np.ndarray,
+                 meta_data: MetaData,
+                 gauge_ref=None):
+        """
+        LinkBase object is a data structure that contains the link dynamic information:
+        :param time_array: Time array
+        :param rain_gauge: Rain gauge data
+        :param meta_data: MetaData object
+        :param gauge_ref: Gauge reference
+        """
         self._check_input(time_array)
         self.gauge_ref = gauge_ref
         if rain_gauge is not None:
@@ -23,38 +34,65 @@ class LinkBase(object):
         self.time_array = time_array
         self.meta_data: MetaData = meta_data
 
-    def plot_link_position(self, scale=False):
+    def plot_link_position(self):
+        """
+        Plot the link position
+        """
         if self.meta_data.has_location():
             xy_array = self.meta_data.xy()
             return xy_array
 
     def time(self) -> np.ndarray:
+        """
+        Return the time array as datetime64
+        """
         return self.time_array.astype('datetime64[s]')
 
     @staticmethod
     def _check_input(input_array):
+        """
+        Check the input array is a numpy array and has one dimension
+        """
         assert isinstance(input_array, np.ndarray)
         assert len(input_array.shape) == 1
 
     def __len__(self) -> int:
+        """
+        Return the length of the time array
+        """
         return len(self.time_array)
 
     def step(self):
+        """
+        Return the time step of the time array in hours
+        """
         return np.diff(self.time_array).min() / HOUR_IN_SECONDS
 
     def cumulative_rain(self):
+        """
+        Return the cumulative rain gauge
+        """
         return np.cumsum(self.rain_gauge) * self.step()
 
     def rain(self):
+        """
+        Return the rain gauge
+        """
         return self.rain_gauge.copy()
 
     def start_time(self):
+        """
+        Return the start time of the time array
+        """
         return self.time_array[0]
 
     def stop_time(self):
         return self.time_array[-1]
 
     def delta_time(self):
+        """
+        Return the delta time of the time array
+        """
         return self.stop_time() - self.start_time()
 
 
@@ -121,13 +159,13 @@ class Link(LinkBase):
         """
         Link object is a data structure that contains the link dynamic information:
         received signal level (RSL) and transmitted signal level (TSL).
-        Addainly this object contains a refernce sequnce of a near rain gauge.
 
-        :param link_rsl:
-        :param rain_gauge:
-        :param time_array:
-        :param meta_data:
-        :param link_tsl:
+        :param link_rsl: Received signal level
+        :param time_array: Time array
+        :param meta_data: MetaData object
+        :param link_tsl: Transmitted signal level
+        :param rain_gauge: Rain gauge data
+        :param gauge_ref: Gauge reference
         """
         super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref)
         self._check_input(link_rsl)
@@ -244,6 +282,7 @@ class Link(LinkBase):
                               gauge_ref=self.gauge_ref)
 
 
+# TODO:Remove this function and replace with OpenMRG dataset
 def read_open_cml_dataset(pickle_path: str) -> list:
     if not os.path.isfile(pickle_path):
         raise Exception('The input path: ' + pickle_path + ' is not a file')
@@ -253,22 +292,37 @@ def read_open_cml_dataset(pickle_path: str) -> list:
 
 
 class AttenuationType(Enum):
+    """
+    Attenuation type enumeration
+
+    """
     MIN_MAX = 'min_max'
     REGULAR = 'regular'
 
 
 @dataclass
 class AttenuationData:
+    """
+    Attenuation data class
+    :param attenuation_min: torch.Tensor
+    :param attenuation_max: torch.Tensor
+    :param attenuation: torch.Tensor
+    :param attenuation_type: AttenuationType
+    """
     attenuation_min: torch.Tensor
     attenuation_max: torch.Tensor
     attenuation: torch.Tensor
-    attenuation_type: str
+    attenuation_type: AttenuationType
 
 
 def handle_attenuation_input(attenuation: torch.Tensor) -> AttenuationData:
-    attenuation_avg = attenuation_type = None
+    """
+    Handle the attenuation input and return the attenuation data
+    :param attenuation: torch.Tensor
+    :return: AttenuationData
+    """
+    attenuation_avg = att_min = att_max = None
     if len(attenuation.shape) == 2:
-        att_max = att_min = None
         attenuation_avg = attenuation
         attenuation_type = AttenuationType.REGULAR
     elif len(attenuation.shape) == 3 and attenuation.shape[2] == 2:
