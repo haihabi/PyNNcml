@@ -51,8 +51,8 @@ class TestDataStructure(unittest.TestCase):
         self.assertEqual(l.start_time(), res.start_time())
         res.plot()
         att = res.attenuation()
-        self.assertEqual(len(att.shape), 2)
-        self.assertEqual(att.shape[0], 2)
+        self.assertEqual(len(att.shape), 3)
+        self.assertEqual(att.shape[-1], 2)
         t = res.as_tensor(5)
 
         self.assertEqual(len(t.shape), 2)
@@ -74,7 +74,7 @@ class TestDataStructure(unittest.TestCase):
         self.assertTrue(np.round(np.sum(att + tsl - rsl) * 100) == 0)
         l_min_max = l.create_min_max_link(10)
         self.assertTrue(len(l_min_max) == 10)
-        self.assertEqual(len(l_min_max.attenuation().shape), 2)
+        self.assertEqual(len(l_min_max.attenuation().shape), 3)
 
     def test_link_set(self):
         ls,link_list = helpers.generate_link_set(TestDataStructure.n_samples, n_links=10)

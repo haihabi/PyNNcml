@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from pynncml.datasets.link_data import handle_attenuation_input
+from pynncml.datasets.link_data import handle_attenuation_input, AttenuationType
 from pynncml.datasets import MetaData
 from pynncml.single_cml_methods.baseline import DynamicBaseLine
 from pynncml.single_cml_methods.power_law import PowerLawType, PowerLaw
@@ -14,7 +14,13 @@ class OneStepDynamic(nn.Module):
         self.quantization_delta = quantization_delta
 
     def forward(self, data: torch.Tensor, metadata: MetaData) -> torch.Tensor:  # model forward pass
-        att_max, att_min = handle_attenuation_input(data)
+        att_data = handle_attenuation_input(data)
+        if att_data.attenuation_type == AttenuationType.MIN_MAX:
+            att_max = att_data.attenuation_max
+            att_min = att_data.attenuation_min
+        else:
+            att_min = att_data.attenuation
+            att_max = att_data.attenuation
         bl_min = self.bl(att_min + self.quantization_delta / 2)
         att = att_max - bl_min - self.quantization_delta / 2
         rain_rate = self.pl(att, metadata.length, metadata.frequency, metadata.polarization)

@@ -37,6 +37,14 @@ class LinkDataset(Dataset):
 
 class SubSequentLinkDataset(Dataset):
     def __init__(self, data, label, meta_data, transform=None, target_transform=None):
+        """
+        Dataset of subsequent links
+        :param data: data
+        :param label: label
+        :param meta_data: meta_data
+        :param transform: Transform
+        :param target_transform: Transform
+        """
         self.data = data
         self.label = label
         self.meta_data = meta_data

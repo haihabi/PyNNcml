@@ -7,7 +7,12 @@ MAX_LON_LAT = [57.80246, 12.07351]
 
 
 def generate_link_set(n_samples, n_links):
-    # [57.80246, 12.07351]
+    """
+    Generate a set of links used in tests only.
+    :param n_samples: Number of samples
+    :param n_links: Number of links
+
+    """
     link_list = []
     for _ in range(n_links):
         rsl = np.random.rand(n_samples)

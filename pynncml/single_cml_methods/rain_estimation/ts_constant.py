@@ -3,7 +3,7 @@ from torch import nn
 from pynncml.single_cml_methods.power_law import PowerLaw, PowerLawType
 from pynncml.single_cml_methods.wet_dry import STDWetDry
 from pynncml.single_cml_methods.baseline import ConstantBaseLine
-from pynncml.datasets.link_data import handle_attenuation_input
+from pynncml.datasets.link_data import handle_attenuation_input, AttenuationType
 from pynncml.datasets import MetaData
 
 
@@ -17,7 +17,15 @@ class TwoStepConstant(nn.Module):
         self.pl = PowerLaw(power_law_type, r_min)
 
     def forward(self, data: torch.Tensor, metadata: MetaData) -> (torch.Tensor, torch.Tensor):  # model forward pass
-        att_max, att_min = handle_attenuation_input(data)
+        att_data = handle_attenuation_input(data)
+        if att_data.attenuation_type == AttenuationType.MIN_MAX:
+            att_max = att_data.attenuation_max
+            att_min = att_data.attenuation_min
+        elif att_data.attenuation_type == AttenuationType.REGULAR:
+            att_min = att_data.attenuation
+            att_max = att_data.attenuation
+        else:
+            raise ValueError("Attenuation type not supported")
 
         wet_dry_classification, _ = self.wd(data)
         bl_min = self.bl(att_min, wet_dry_classification)

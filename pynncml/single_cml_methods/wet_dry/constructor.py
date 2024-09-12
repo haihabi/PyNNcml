@@ -5,13 +5,13 @@ from pynncml.single_cml_methods.wet_dry.wd_network import WetDryNetwork
 from pynncml.model_zoo.model_common import get_model_from_zoo, ModelType
 
 
-def statistics_wet_dry(th, step, is_min_max) -> STDWetDry:
+def statistics_wet_dry(th, step, is_min_max=False) -> STDWetDry:
     """
     This function create a wet-dry detection model based on the standard deviation of the CML data.
 
     :param th: floating point number that represent the threshold value.
     :param step: integer that represent the step size.
-    :param is_min_max: boolean that state if the threshold is minimum or maximum.
+    :param is_min_max: boolean that state if the threshold is minimum or maximum. Default is False.
 
     return: STDWetDry object
     """

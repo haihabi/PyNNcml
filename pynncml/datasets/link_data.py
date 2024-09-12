@@ -2,9 +2,12 @@ import numpy as np
 import pickle
 import os
 import torch
+from attr import dataclass
+
 import pynncml as pnc
 from matplotlib import pyplot as plt
 from pynncml.datasets.meta_data import MetaData
+from enum import Enum
 
 HOUR_IN_SECONDS = 3600
 
@@ -68,18 +71,18 @@ class LinkMinMax(LinkBase):
 
     def attenuation(self) -> torch.Tensor:
         if self.has_tsl():
-            att_min = torch.tensor(self.min_tsl - self.max_rsl).reshape(1, -1).float()
-            att_max = torch.tensor((self.max_tsl - self.min_rsl)).reshape(1, -1).float()
+            att_min = torch.tensor(self.min_tsl - self.max_rsl).reshape(1, -1, 1).float()
+            att_max = torch.tensor((self.max_tsl - self.min_rsl)).reshape(1, -1, 1).float()
         else:
-            att_min = torch.tensor(- self.max_rsl).reshape(1, -1).float()
-            att_max = torch.tensor(- self.min_rsl).reshape(1, -1).float()
-        return torch.cat([att_max, att_min], dim=0)
+            att_min = torch.tensor(- self.max_rsl).reshape(1, -1, 1).float()
+            att_max = torch.tensor(- self.min_rsl).reshape(1, -1, 1).float()
+        return torch.cat([att_max, att_min], dim=-1)  # [B, T, 2]
 
     def plot(self):
         att = self.attenuation()
         # print(att.shape)
-        att_max = att[0, :]
-        att_min = att[1, :]
+        att_max = att[0, :, 1]
+        att_min = att[0, :, 0]
         if self.rain_gauge is not None: plt.subplot(1, 2, 1)
         plt.plot(self.time(), att_max.numpy().flatten(), label=r'$A_n^{max}$')
         plt.plot(self.time(), att_min.numpy().flatten(), label=r'$A_n^{min}$')
@@ -249,11 +252,31 @@ def read_open_cml_dataset(pickle_path: str) -> list:
     return [Link(oc[0], oc[1], oc[2], oc[3]) for oc in open_cml_ds if len(oc) == 4]
 
 
-def handle_attenuation_input(attenuation: torch.Tensor) -> (torch.Tensor, torch.Tensor):
+class AttenuationType(Enum):
+    MIN_MAX = 'min_max'
+    REGULAR = 'regular'
+
+
+@dataclass
+class AttenuationData:
+    attenuation_min: torch.Tensor
+    attenuation_max: torch.Tensor
+    attenuation: torch.Tensor
+    attenuation_type: str
+
+
+def handle_attenuation_input(attenuation: torch.Tensor) -> AttenuationData:
+    attenuation_avg = attenuation_type = None
     if len(attenuation.shape) == 2:
-        att_max, att_min = attenuation[0,:], attenuation[1,:]
+        att_max = att_min = None
+        attenuation_avg = attenuation
+        attenuation_type = AttenuationType.REGULAR
     elif len(attenuation.shape) == 3 and attenuation.shape[2] == 2:
-        att_max, att_min = attenuation[:, :, 0], attenuation[:, :, 1]
+        att_max, att_min = attenuation[:, :, 0], attenuation[:, :, 1]  # split the attenuation to max and min
+        attenuation_type = AttenuationType.MIN_MAX
     else:
         raise Exception('The input attenuation vector dont match min max format or regular format')
-    return att_max, att_min
+    return AttenuationData(attenuation_min=att_min,
+                           attenuation_max=att_max,
+                           attenuation=attenuation_avg,
+                           attenuation_type=attenuation_type)
