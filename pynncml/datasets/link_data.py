@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import os
 import torch
-from attr import dataclass
+from dataclasses import dataclass
 
 import pynncml as pnc
 from matplotlib import pyplot as plt
@@ -97,7 +97,15 @@ class LinkBase(object):
 
 
 class LinkMinMax(LinkBase):
-    def __init__(self, min_rsl, max_rsl, rain_gauge, time_array, meta_data, min_tsl=None, max_tsl=None, gauge_ref=None):
+    def __init__(self,
+                 min_rsl,
+                 max_rsl,
+                 rain_gauge,
+                 time_array,
+                 meta_data,
+                 min_tsl=None,
+                 max_tsl=None,
+                 gauge_ref=None):
         super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref)
         self.min_rsl = min_rsl
         self.max_rsl = max_rsl
