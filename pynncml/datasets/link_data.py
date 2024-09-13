@@ -107,15 +107,34 @@ class LinkMinMax(LinkBase):
                  max_tsl=None,
                  gauge_ref=None):
         super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref)
+        """
+        LinkMinMax object is a data structure that contains the link dynamic information in min max format.
+        :param min_rsl: Minimum received signal level
+        :param max_rsl: Maximum received signal level
+        :param rain_gauge: Rain gauge data
+        :param time_array: Time array
+        :param meta_data: MetaData object
+        :param min_tsl: Minimum transmitted signal level
+        :param max_tsl: Maximum transmitted signal level
+        :param gauge_ref: Gauge reference
+        
+        """
         self.min_rsl = min_rsl
         self.max_rsl = max_rsl
         self.min_tsl = min_tsl
         self.max_tsl = max_tsl
 
     def has_tsl(self) -> bool:
+        """
+        Check if the link has transmitted signal level
+        """
         return self.min_tsl is not None and self.max_tsl is not None
 
     def attenuation(self) -> torch.Tensor:
+        """
+        Calculate the attenuation from the link data
+        :return attenuation: torch.Tensor
+        """
         if self.has_tsl():
             att_min = torch.tensor(self.min_tsl - self.max_rsl).reshape(1, -1, 1).float()
             att_max = torch.tensor((self.max_tsl - self.min_rsl)).reshape(1, -1, 1).float()
@@ -125,8 +144,11 @@ class LinkMinMax(LinkBase):
         return torch.cat([att_max, att_min], dim=-1)  # [B, T, 2]
 
     def plot(self):
+        """
+        Plot the attenuation and rain gauge data.
+
+        """
         att = self.attenuation()
-        # print(att.shape)
         att_max = att[0, :, 1]
         att_min = att[0, :, 0]
         if self.rain_gauge is not None: plt.subplot(1, 2, 1)
@@ -146,6 +168,11 @@ class LinkMinMax(LinkBase):
             plt.grid()
 
     def as_tensor(self, constant_tsl=None):
+        """
+        Return the link data as tensor format.
+        :param constant_tsl: Constant transmitted signal level
+        :return: torch.Tensor
+        """
         if self.has_tsl():
             return torch.stack([torch.Tensor(self.max_rsl).float(), torch.Tensor(self.min_rsl).float(),
                                 torch.Tensor(self.max_tsl).float(), torch.Tensor(self.min_tsl).float()])
@@ -185,6 +212,10 @@ class Link(LinkBase):
         self.link_tsl = link_tsl
 
     def data_alignment(self):
+        """
+        Align the link data with the gauge data
+        :return: gauge_data, rsl, tsl, meta_data
+        """
         delta_gauge = np.min(np.diff(self.gauge_ref.time_array))
         delta_link = np.min(np.diff(self.time_array))
 
@@ -219,7 +250,6 @@ class Link(LinkBase):
             i = np.where(time_link == gauge_end_point)[0][0]
             rsl = rsl[:(i + ratio)]
             tsl = tsl[:(i + ratio)]
-            time_link = time_link[:(i + ratio)]
 
         rsl = np.lib.stride_tricks.as_strided(rsl, shape=(int(rsl.shape[0] / ratio), ratio), strides=(4 * ratio, 4))
         tsl = np.lib.stride_tricks.as_strided(tsl, shape=(int(tsl.shape[0] / ratio), ratio), strides=(4 * ratio, 4))
@@ -227,6 +257,10 @@ class Link(LinkBase):
         return gauge_data, rsl, tsl, np.asarray([self.meta_data.frequency, self.meta_data.length]).astype("float32")
 
     def plot(self):
+        """
+        Plot the attenuation and rain gauge data.
+
+        """
         if self.rain_gauge is not None: plt.subplot(1, 2, 1)
         plt.plot(self.time(), self.attenuation().numpy().flatten())
         plt.ylabel(r'$A_n$')
@@ -242,15 +276,27 @@ class Link(LinkBase):
             plt.grid()
 
     def attenuation(self) -> torch.Tensor:
+        """
+        Calculate the attenuation from the link data
+        :return attenuation: torch.Tensor
+        """
         if self.has_tsl():
             return torch.tensor(-(self.link_tsl - self.link_rsl)).reshape(1, -1).float()
         else:
             return torch.tensor(-self.link_rsl).reshape(1, -1).float()
 
     def has_tsl(self) -> bool:
+        """
+        Check if the link has transmitted signal level
+
+        """
         return self.link_tsl is not None
 
     def create_min_max_link(self, step_size) -> LinkMinMax:
+        """
+        Create a min max link from the link data
+        :param step_size: Step size
+        """
         low_time = np.linspace(self.start_time(), self.stop_time() - step_size,
                                np.ceil(self.delta_time() / step_size).astype('int'))
         high_time = np.linspace(self.start_time() + step_size, self.stop_time(),

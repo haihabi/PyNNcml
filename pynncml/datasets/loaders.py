@@ -11,15 +11,7 @@ from pynncml.datasets.dataset import LinkDataset
 from pynncml.datasets.gauge_data import PointSensor
 from pynncml.datasets import PointSet
 import numpy as np
-from enum import Enum
-
 from pynncml.datasets.xarray_processing import xarray2link
-
-
-class DataType(Enum):
-    Instance = 0
-    MinMax = 1
-    Average = 2
 
 
 def download_data_file(url, local_path=".", local_file_name=None, print_output=True):
@@ -171,5 +163,3 @@ def loader_open_mrg_dataset(data_path="./data/",
                                         time_slice=time_slice, link2gauge_distance=link2gauge_distance,
                                         window_size_in_min=window_size_in_min)
     return LinkDataset(link_set, point_set)
-
-
