@@ -139,8 +139,8 @@ class LinkMinMax(LinkBase):
             att_min = torch.tensor(self.min_tsl - self.max_rsl).reshape(1, -1, 1).float()
             att_max = torch.tensor((self.max_tsl - self.min_rsl)).reshape(1, -1, 1).float()
         else:
-            att_min = torch.tensor(- self.max_rsl).reshape(1, -1, 1).float()
-            att_max = torch.tensor(- self.min_rsl).reshape(1, -1, 1).float()
+            att_min = torch.tensor(-self.max_rsl).reshape(1, -1, 1).float()
+            att_max = torch.tensor(-self.min_rsl).reshape(1, -1, 1).float()
         return torch.cat([att_max, att_min], dim=-1)  # [B, T, 2]
 
     def plot(self):
@@ -149,8 +149,8 @@ class LinkMinMax(LinkBase):
 
         """
         att = self.attenuation()
-        att_max = att[0, :, 1]
-        att_min = att[0, :, 0]
+        att_max = att[0, :, 0]
+        att_min = att[0, :, 1]
         if self.rain_gauge is not None: plt.subplot(1, 2, 1)
         plt.plot(self.time(), att_max.numpy().flatten(), label=r'$A_n^{max}$')
         plt.plot(self.time(), att_min.numpy().flatten(), label=r'$A_n^{min}$')
