@@ -16,7 +16,8 @@ class TwoStepConstant(nn.Module):
         self.wa_factor = wa_factor
         self.pl = PowerLaw(power_law_type, r_min)
 
-    def forward(self, data: torch.Tensor, metadata: MetaData) -> (torch.Tensor, torch.Tensor):  # model forward pass
+    def forward(self, data: torch.Tensor, metadata: MetaData) -> (
+    torch.Tensor, torch.Tensor, torch.Tensor):  # model forward pass
         att_data = handle_attenuation_input(data)
         if att_data.attenuation_type == AttenuationType.MIN_MAX:
             att_max = att_data.attenuation_max
@@ -31,4 +32,4 @@ class TwoStepConstant(nn.Module):
         bl_min = self.bl(att_min, wet_dry_classification)
         att = att_max - bl_min - self.wa_factor
         rain_rate = self.pl(att, metadata.length, metadata.frequency, metadata.polarization)
-        return rain_rate, wet_dry_classification
+        return rain_rate, wet_dry_classification, bl_min

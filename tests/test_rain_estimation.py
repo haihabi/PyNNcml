@@ -11,7 +11,7 @@ class TestRainEstimation(unittest.TestCase):
         att = torch.ones(10, 100)
         swd = pnc.scm.rain_estimation.two_step_constant_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 6, 0.5)
 
-        res, wd = swd(att, pnc.datasets.MetaData(15, 0, 18, 10, 12))
+        res, wd, _ = swd(att, pnc.datasets.MetaData(15, 0, 18, 10, 12))
         self.assertTrue(res.shape[0] == 10)
         self.assertTrue(res.shape[1] == 100)
         self.assertTrue(res.numpy().sum() == 0)
@@ -21,7 +21,7 @@ class TestRainEstimation(unittest.TestCase):
         swd = pnc.scm.rain_estimation.two_step_constant_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 6, 0.5,
                                                                  wa_factor=-1)
 
-        res, wd = swd(att, pnc.datasets.MetaData(15, 0, 18, 10, 12))
+        res, wd, _ = swd(att, pnc.datasets.MetaData(15, 0, 18, 10, 12))
         self.assertTrue(res.shape[0] == 10)
         self.assertTrue(res.shape[1] == 100)
         self.assertTrue(res.numpy().sum() == 0)
@@ -31,7 +31,7 @@ class TestRainEstimation(unittest.TestCase):
         model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 6,
                                                                   quantization_delta=0.1)
 
-        res = model(att, pnc.datasets.MetaData(15, 0, 18, 10, 12))
+        res, _ = model(att, pnc.datasets.MetaData(15, 0, 18, 10, 12))
         self.assertTrue(res.shape[0] == 10)
         self.assertTrue(res.shape[1] == 100)
         self.assertTrue(res.numpy().sum() == 0)

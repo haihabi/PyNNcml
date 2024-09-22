@@ -27,8 +27,10 @@ class InferMultipleCMLs(nn.Module):
         """
         res_list = []
         for link in link_set:
-            att=link.attenuation()
-            rain_est = self.cml2rain(att, link.meta_data) # .T.unsqueeze(dim=0)
+            att = link.attenuation()
+            rain_est = self.cml2rain(att, link.meta_data)  # .T.unsqueeze(dim=0)
+            if isinstance(rain_est, tuple):
+                rain_est = rain_est[0]
             res_list.append(rain_est.flatten())
         link_results = torch.stack(res_list, dim=0)
         return link_results
