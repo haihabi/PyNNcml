@@ -91,5 +91,9 @@ class InverseDistanceWeighting(nn.Module):
         return rain_map_non_zero  # add channel axis
 
     def _calculate_distance(self, x_i):
+        """
+        Calculate the distance between the points in the point set and the grid points
+        :param x_i: Point set tensor
+        """
         x_i = x_i.unsqueeze(dim=-1).unsqueeze(dim=-1)
         return torch.sqrt(torch.pow(x_i - self.grid, 2.0).sum(dim=2))

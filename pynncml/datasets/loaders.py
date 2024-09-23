@@ -11,10 +11,18 @@ from pynncml.datasets.dataset import LinkDataset
 from pynncml.datasets.gauge_data import PointSensor
 from pynncml.datasets import PointSet
 import numpy as np
+
 from pynncml.datasets.xarray_processing import xarray2link
 
 
 def download_data_file(url, local_path=".", local_file_name=None, print_output=True):
+    """
+    Download a file from a URL to a local path
+    :param url: URL to download from
+    :param local_path: Local path to download to
+    :param local_file_name: Local file name to save as
+    :param print_output: Print download information
+    """
     if not os.path.exists(local_path):
         if print_output:
             print(f"Creating path {local_path}")
@@ -47,6 +55,11 @@ download_open_mrg = partial(
 
 
 def transform_open_mrg(fn, path_to_extract_to):
+    """
+    Transform the OpenMRG dataset to a xarray dataset
+    :param fn: File name
+    :param path_to_extract_to: Path to extract to
+    """
     # For this ZIP file we cannot extract only the CML dataset since
     # the NetCDF with the CML dataset is quite large. This seems to
     # lead to crashes when reding directly from the ZIP file via Python.
@@ -81,7 +94,13 @@ def transform_open_mrg(fn, path_to_extract_to):
     return ds
 
 
-def rain2rain_rate(in_array, window_size=15, step_time=60):
+def rain2rain_rate(in_array: np.ndarray, window_size: int = 15, step_time: int = 60):
+    """
+    Convert rain to rain rate
+    :param in_array: Input array
+    :param window_size: Window size
+    :param step_time: Step time
+    """
     res = np.zeros(in_array.shape[0])
     scale = np.zeros(in_array.shape[0])
     start = False

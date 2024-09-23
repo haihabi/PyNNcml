@@ -15,7 +15,11 @@ def change_x_axis_time_format(input_format: str):
 
 def plot_wet_dry_detection_mark(in_ax, in_x, in_detection_array, in_rain_array):
     """
-
+    Plot the wet-dry detection mark.
+    :param in_ax: The axis.
+    :param in_x: The x-axis.
+    :param in_detection_array: The detection array.
+    :param in_rain_array: The rain array.
 
     """
     rain_max = np.max(in_rain_array)

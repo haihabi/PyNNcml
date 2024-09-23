@@ -10,12 +10,26 @@ from pynncml.single_cml_methods.power_law import PowerLawType, PowerLaw
 
 class OneStepDynamic(nn.Module):
     def __init__(self, power_law_type: PowerLawType, r_min: float, window_size: int, quantization_delta: float = 1.0):
+        """
+        This function create a one step dynamic baseline model. The model is used to estimate the rain rate from the CML data.
+        This function also includes the quantization delta parameter for bias correction.
+        :param power_law_type: enum that define the type of the power law.
+        :param r_min: floating point number that represent the minimum value of the rain rate.
+        :param window_size: integer that represent the window size.
+        :param quantization_delta: floating point number that represent the quantization delta
+        """
         super(OneStepDynamic, self).__init__()
         self.bl = DynamicBaseLine(window_size)
         self.pl = PowerLaw(power_law_type, r_min)
         self.quantization_delta = quantization_delta
 
-    def forward(self, data: torch.Tensor, metadata: MetaData) -> tuple[Any, Any]:  # model forward pass
+    def forward(self, data: torch.Tensor, metadata: MetaData) -> tuple[Any, Any]:
+        """
+        This is the module forward function
+        :param data: A tensor of attenuation.
+        :param metadata: A metadata class that hold the metadata of the CML data.
+        :return: A tuple of rain rate and baseline.
+        """
         att_data = handle_attenuation_input(data)
         if att_data.attenuation_type == AttenuationType.MIN_MAX:
             att_max = att_data.attenuation_max

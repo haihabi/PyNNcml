@@ -5,14 +5,35 @@ from pynncml.datasets import MetaData, Link, LinkSet
 
 
 def xarray_time_slice(ds, start_time, end_time):
+    """
+    Slice the xarray dataset based on time
+    :param ds: xarray dataset
+    :param start_time: start time
+    :param end_time: end time
+    :return: xarray dataset
+    """
     return ds.sel(time=slice(start_time, end_time))
 
 
 def xarray_location_slice(ds, lon_min, lon_max, lat_min, lat_max):
+    """
+    Slice the xarray dataset based on location
+    :param ds: xarray dataset
+    :param lon_min: min longitude
+    :param lon_max: max longitude
+    :param lat_min: min latitude
+    :param lat_max: max latitude
+    """
     return ds.sel(lon=slice(lon_min, lon_max), lat=slice(lat_min, lat_max))
 
 
 def xarray_sublink2link(ds_sublink, gauge=None):
+    """
+    Convert xarray sublink to link
+    :param ds_sublink: xarray dataset
+    :param gauge: gauge data
+    :return: Link
+    """
     md = MetaData(float(ds_sublink.frequency),
                   "Vertical" in str(ds_sublink.polarization),
                   float(ds_sublink.length),
@@ -45,7 +66,7 @@ def xarray2link(ds,
                 xy_max=None,
                 xy_min=None,
                 change2min_max=False,
-                min_max_window:int=900):
+                min_max_window: int = 900):
     """
     Convert xarray dataset to link set
     :param ds: xarray dataset
@@ -85,7 +106,7 @@ def xarray2link(ds,
                 if d_min < link2gauge_distance:
                     link = xarray_sublink2link(ds_sublink, gauge)
                 else:
-                    link = None # Link is too far from the gauge
+                    link = None  # Link is too far from the gauge
             if change2min_max and link is not None:
                 link = link.create_min_max_link(min_max_window)
             if link is not None: link_list.append(link)

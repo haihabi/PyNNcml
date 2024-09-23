@@ -5,7 +5,6 @@ from pynncml import multiple_cmls_methods as mcm
 from pynncml import metrics
 from pynncml import neural_networks
 from pynncml import training_helpers
-from pynncml import analysis
 from pynncml import simulation
 from pynncml.plot_common import change_x_axis_time_format, plot_wet_dry_detection_mark
 

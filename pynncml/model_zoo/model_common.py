@@ -4,6 +4,13 @@ import pkg_resources
 
 
 class ModelType(Enum):
+    """
+    Model type
+
+    ONESTEP: One step model
+    TWOSTEP: Two steps model
+    WETDRY: Wet dry model
+    """
     ONESTEP = 0
     TWOSTEP = 1
     WETDRY = 2
@@ -31,7 +38,14 @@ MODEL_ZOO = {
                        }}
 
 
+# TODO: Move to huggingface model zoo.
 def get_model_from_zoo(model_type: ModelType, rnn_type: RNNType, n_layers: int) -> str:
+    """
+    Get the path to the model from the model zoo
+    :param model_type: ModelType
+    :param rnn_type: RNNType
+    :param n_layers: int
+    """
     if MODEL_ZOO.get(model_type) is None:
         raise Exception('unknown model:' + str(model_type))
     if MODEL_ZOO.get(model_type).get(rnn_type) is None:

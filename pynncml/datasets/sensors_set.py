@@ -50,6 +50,10 @@ class PointSet:
         return self
 
     def __next__(self):
+        """
+        Get the next point in the set.
+        :return: PointSensor
+        """
         if self.n < self.n_points:
             p = self.point_set[self.n]
             self.n += 1
@@ -58,10 +62,17 @@ class PointSet:
             raise StopIteration
 
     def plot_points(self):
+        """
+        Plot the points in the set.
+        """
         for p in self:
             plt.plot(p.x, p.y, "o", color="red")
 
     def find_near_gauge(self, xy_center):
+        """
+        Find the nearest gauge to the center point.
+        :param xy_center: Center point
+        """
         d_list = [math.sqrt((xy_center[0] - g.x) ** 2 + (xy_center[1] - g.y) ** 2) for g in self.point_set]
         return np.min(d_list), self.point_set[np.argmin(d_list)]
 
@@ -88,13 +99,19 @@ class LinkSet:
         self.x_delta = x_delta
         self.y_min = y_min
         self.y_delta = y_delta
-        # self.scale = np.sqrt(x_delta ** 2 + y_delta ** 2)
         self.scale = np.maximum(x_delta, y_delta)
 
     def __len__(self):
+        """
+        Get the number of links
+        """
         return self.n_links
 
     def area(self):
+        """
+        Get the area of the link set
+        :return: float
+        """
         xy_list = np.stack([l.meta_data.xy() for l in self])
         x = np.concatenate([xy_list[:, 0], xy_list[:, 2]])
         y = np.concatenate([xy_list[:, 1], xy_list[:, 3]])
@@ -108,9 +125,17 @@ class LinkSet:
 
     @property
     def n_links(self):
+        """
+        Number of links in the set.
+        """
         return len(self.link_list)
 
     def center_point(self, scale=False):
+        """
+        Get the center point of the link set.
+        :param scale: Scale the center point
+        :return: Center points
+        """
         point_list = []
         for l in self:
             x, y = l.meta_data.xy_center()
@@ -121,11 +146,20 @@ class LinkSet:
         return point_list
 
     def get_link(self, link_index: int):
+        """
+        Get the link at the given index.
+        :param link_index: Index of the link
+        """
         if link_index > self.n_links or link_index < 0:
             raise Exception("illegal link index")
         return self.link_list[link_index]
 
-    def plot_links(self, scale=False, scale_factor=1.0):
+    def plot_links(self, scale: bool = False, scale_factor: float = 1.0):
+        """
+        Plot the links in the set.
+        :param scale: Scale the link
+        :param scale_factor: Scale factor
+        """
         index = 0
         gauge2index = {}
         for link in self.link_list:
@@ -146,15 +180,23 @@ class LinkSet:
                          color=COLOR_LIST[gauge2index[link.gauge_ref]])
         for g, i in gauge2index.items():
             if self.scale:
-                plt.plot(scale_factor*(g.x - self.x_min) / self.scale,scale_factor* (g.y - self.y_min) / self.scale, "o", color=COLOR_LIST[i])
+                plt.plot(scale_factor * (g.x - self.x_min) / self.scale, scale_factor * (g.y - self.y_min) / self.scale,
+                         "o", color=COLOR_LIST[i])
             else:
                 plt.plot(g.x, g.y, "o", color=COLOR_LIST[i])
 
     def __iter__(self):
+        """
+        Initialize the iterator.
+        """
         self.n = 0
         return self
 
     def __next__(self):
+        """
+        Get the next link in the set.
+        :return: LinkBase
+        """
         if self.n < self.n_links:
             link = self.link_list[self.n]
             self.n += 1

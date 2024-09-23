@@ -3,7 +3,7 @@ import torch
 from pynncml.neural_networks import InputNormalizationConfig, RNNType, INPUT_NORMALIZATION, STATIC_INPUT_SIZE, \
     DYNAMIC_INPUT_SIZE, RNN_FEATURES, FC_FEATURES
 from pynncml.single_cml_methods.power_law import PowerLawType
-from pynncml.single_cml_methods.rain_estimation.ts_constant import TwoStepConstant
+from pynncml.single_cml_methods.rain_estimation.ts_constant import TwoStepsConstant
 from pynncml.single_cml_methods.rain_estimation.os_dynamic import OneStepDynamic
 from pynncml.single_cml_methods.rain_estimation.os_network import OneStepNetwork
 from pynncml.single_cml_methods.rain_estimation.ts_network import TwoStepNetwork
@@ -23,9 +23,9 @@ def two_step_constant_baseline(power_law_type: PowerLawType, r_min: float, windo
     :param wa_factor: floating point number that represent the weight average factor.
     """
     if wa_factor is None:
-        return TwoStepConstant(power_law_type, r_min, window_size, threshold)
+        return TwoStepsConstant(power_law_type, r_min, window_size, threshold)
     else:
-        return TwoStepConstant(power_law_type, r_min, window_size, threshold, wa_factor=wa_factor)
+        return TwoStepsConstant(power_law_type, r_min, window_size, threshold, wa_factor=wa_factor)
 
 
 def one_step_dynamic_baseline(power_law_type: PowerLawType, r_min: float, window_size: int, quantization_delta: float):
