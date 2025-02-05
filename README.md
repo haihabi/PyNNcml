@@ -19,12 +19,12 @@ pip install pynncml
 
 
 
-| Python Version | Status |
-|---|---|
-| Python 3.8  |![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_8.yml/badge.svg)|
-| Python 3.9 |![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_9.yml/badge.svg)|
-| Python 3.10 |![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_10.yml/badge.svg)|
-| Python 3.11 |![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_11.yml/badge.svg)|
+| Python Version | Status                                                                                                |
+|----------------|-------------------------------------------------------------------------------------------------------|
+| Python 3.9     | ![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_9.yml/badge.svg)  |
+| Python 3.10    | ![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_10.yml/badge.svg) |
+| Python 3.11    | ![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_11.yml/badge.svg) |
+| Python 3.12    | ![Run Tests](https://github.com/haihabi/PyNNcml/actions/workflows/run_test_python_3_12.yml/badge.svg) |
 
 
 # PyNNcml Features

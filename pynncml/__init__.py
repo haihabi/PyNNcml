@@ -8,4 +8,4 @@ from pynncml import training_helpers
 from pynncml import simulation
 from pynncml.plot_common import change_x_axis_time_format, plot_wet_dry_detection_mark
 
-__version__ = "0.3.4"
+__version__ = "0.3.5"

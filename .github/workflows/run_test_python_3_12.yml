@@ -1,4 +1,4 @@
-name: Run Tests 3.8
+name: Run Tests 3.11
 on:
   workflow_dispatch: # Allow manual triggers
   schedule:
@@ -11,4 +11,4 @@ jobs:
   run-tests:
     uses: ./.github/workflows/run_test_base.yml
     with:
-      python-version: "3.8"
+      python-version: "3.12"

@@ -21,7 +21,7 @@ setuptools.setup(
     long_description=get_log_description(),
     long_description_content_type="text/markdown",
     install_requires=read_install_requires(),
-    python_requires='>=3.6',
+    python_requires='>=3.9',
     url="https://github.com/haihabi/pynncml",
     packages=setuptools.find_packages(exclude=['tests']),
     package_data={'pynncml.model_zoo': ['*']},
