@@ -1,6 +1,6 @@
 import torch
 from pynncml.neural_networks.rain_gan import DCGANGenerator
-from huggingface_hub import hf_hub_url, cached_download
+from huggingface_hub import hf_hub_url, hf_hub_download
 from pynncml.utils import get_working_device
 
 
@@ -28,8 +28,8 @@ def get_rain_filed_generation_function(h: int, w: int, working_device=None) -> c
             return self.resize(self.net_g(z, cond))
 
     rain_gan = RainGAN(net_g, h, w)
-    hf_url = hf_hub_url("HVH/RainGAN", "RainGAN32x32.pt")
-    file_path = cached_download(hf_url)
+
+    file_path = hf_hub_download("HVH/RainGAN", "RainGAN32x32.pt")
     net_g.load_state_dict(torch.load(file_path, map_location='cpu'))
     net_g.eval()
 

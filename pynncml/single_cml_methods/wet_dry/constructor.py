@@ -49,5 +49,5 @@ def wet_dry_network(n_layers: int, rnn_type: pnc.neural_networks.RNNType,
                           metadata_input_size=metadata_input_size, metadata_n_features=metadata_n_features)
     if pretrained and not enable_tn:
         model_file = get_model_from_zoo(ModelType.WETDRY, rnn_type, n_layers)
-        model.load_state_dict(torch.load(model_file, map_location=torch.device('cpu')))
+        model.load_state_dict(torch.load(model_file,weights_only=True, map_location=torch.device('cpu')))
     return model
