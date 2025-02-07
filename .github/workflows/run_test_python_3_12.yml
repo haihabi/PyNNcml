@@ -1,4 +1,4 @@
-name: Run Tests 3.11
+name: Run Tests 3.12
 on:
   workflow_dispatch: # Allow manual triggers
   schedule:
