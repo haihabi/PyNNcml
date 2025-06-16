@@ -2,6 +2,7 @@ from pynncml.neural_networks import TimeNormalization
 from pynncml import datasets
 from pynncml import single_cml_methods as scm
 from pynncml import multiple_cmls_methods as mcm
+from pynncml import single_sml_methods as ssm
 from pynncml import metrics
 from pynncml import neural_networks
 from pynncml import training_helpers

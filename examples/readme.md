@@ -2,9 +2,7 @@
 # Examples of using the PyNNCML library
 
 This document provides an overview of the examples on how to use the PyNNCML library to obtain various whether monotoning information using CMLs data.
-
-
-
+# The examples are divided into two main categories:
 ## Example Of Single CML
 
 Here, we provide examples of how to use the PyNNCML library to obtain various whether monotoning information using CMLs data. Those method apply on a single CML data and provide the following examples and tasks:
@@ -30,6 +28,11 @@ Here, we provide examples of how to use the PyNNCML library to obtain various wh
 | Rain Field Generation    | Rain Field generation using GAN | [Notebook](rain_generator_notebook.ipynb) | This notebook  run RainGAN to generate rain field                                              |
 | Rain Field Interpolation | Interpolation Using IDW         | [Notebook](rain_map_interpolation.ipynb)  | This notebook dynamic baseline followed by IDW interpolation                                   |
 | Rain Field Interpolation | Interpolation Using GMZ  [9]    | [Notebook](rain_map_interpolation.ipynb)  | This notebook dynamic baseline followed by GMZ preprocessing and then interpolation using IDW. |
+
+## Example Of Single SML.
+| Task            | Algorithm                           | Notebooks                             | Description                                                  |
+|-----------------|-------------------------------------|---------------------------------------|--------------------------------------------------------------|
+| Rain Estimation| Kalman base rain estimation         | [Notebook](rain_estimation_sml.ipynb) | This notebook run Kalman filter for rain estimation using SML data. |
 
 ## References
 
