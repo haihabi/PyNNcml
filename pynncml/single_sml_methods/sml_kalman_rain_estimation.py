@@ -72,20 +72,6 @@ def calc_l(FT: torch.Tensor, ST: torch.Tensor):
     return L
 
 
-# def sat_data_preprocessing(in_data, timedelta=0.5, interval=15):
-#     indexes = np.ceil(interval / timedelta)
-#     Din_r = np.zeros(len(in_data))
-#     for x in range(in_data.shape[0]):
-#         if x > 0:
-#             if x <= indexes:
-#                 Din_r[x] = -1 * (np.max(in_data[0:x]) - in_data[x])
-#             else:
-#                 Din_r[x] = -1 * (np.max(in_data[x - int(indexes):x]) - in_data[x])
-#         else:
-#             Din_r[x] = in_data[x]
-#     Din_r = Din_r + np.median(in_data)
-#     return Din_r
-
 def sat_data_preprocessing(in_data: torch.Tensor, timedelta=0.5, interval=15):
     indexes = math.ceil(interval / timedelta)
     din_r = torch.zeros(in_data.shape)
@@ -111,14 +97,10 @@ def ApplyDiffMask(RainRate_org, Diff_Rain_Flag):
 
 
 def apply_power_law(L: torch.Tensor):
-    # L_dB = 10 * np.log10(L)
     L_dB = 10 * torch.log10(L)
     hr = h0 - dh
-    # L1_dB = L_dB * np.sin(teta) / hr
     L1_dB = L_dB * teta_sin / hr
-    # RainRate_org = alpha * (np.power(L1_dB, beta, dtype=complex))
     L1_dB_complex=torch.complex(L1_dB,torch.zeros_like(L1_dB))
     RainRate_org = alpha * (torch.pow(L1_dB_complex, beta))
-    # RainRate_org = abs(RainRate_org)
     RainRate_org = torch.abs(RainRate_org)
     return RainRate_org

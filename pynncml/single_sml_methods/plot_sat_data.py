@@ -1,8 +1,17 @@
 import torch
+import numpy as np
 from matplotlib import pyplot as plt, dates as mdates
 
 
 def plot_rain_vs_sat_data(rain_array: torch.Tensor, rain_timestamp, sat_array: torch.Tensor, sat_timestamp):
+    """
+    Plots the rain gauge data against the satellite signal data.
+    :param rain_array: 2D tensor of shape [n_samples, timesteps] containing the rain gauge data.
+    :param rain_timestamp: Timestamps corresponding to the rain gauge data.
+    :param sat_array: 2D tensor of shape [n_samples, timesteps] containing the satellite signal data.
+    :param sat_timestamp: Timestamps corresponding to the satellite signal data.
+    :return: None
+    """
     fig, ax = plt.subplots(1, figsize=(10, 8))
     ax1 = ax.twinx()
 
@@ -23,10 +32,7 @@ def plot_rain_vs_sat_data(rain_array: torch.Tensor, rain_timestamp, sat_array: t
     plt.show()
 
 
-import numpy as np
 
-
-# def PlotRainEstimationVsGaugeData(RainEst, RainDF, SatDF, ST, FT):
 def plot_rain_estimation_vs_gauge_data(rain_estimation: torch.Tensor,
                                        ST: torch.Tensor,
                                        FT: torch.Tensor,
