@@ -53,8 +53,6 @@ def Calc_L(FT, ST):
 
 
 def sat_data_preprocessing(in_data, timedelta=0.5, interval=15):
-    # (30 seconds)
-    # min
     indexes = np.ceil(interval / timedelta)
     Din_r = np.zeros(len(in_data))
     for x in range(in_data.shape[0]):

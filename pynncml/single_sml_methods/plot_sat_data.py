@@ -1,21 +1,16 @@
-import numpy as np
+import torch
 from matplotlib import pyplot as plt, dates as mdates
 
 
-def PlotRainVsSatData(rain_array,rain_timestamp, sat_array,sat_timestamp):
+def plot_rain_vs_sat_data(rain_array: torch.Tensor, rain_timestamp, sat_array: torch.Tensor, sat_timestamp):
     fig, ax = plt.subplots(1, figsize=(10, 8))
-    # Plots of rain estimation from Sat signal
     ax1 = ax.twinx()
 
-    ax.plot_date(rain_timestamp, sat_array, '-', color='purple', label='Esno Data ')
-    ax1.plot_date(sat_timestamp, rain_array, '-', label="Rain Gauge")
+    ax.plot_date(sat_timestamp, sat_array.cpu().detach().numpy(), '-', color='purple', label='Esno Data ')
+    ax1.plot_date(rain_timestamp, rain_array.cpu().detach().numpy(), '-', label="Rain Gauge")
 
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
-    # ax1.set_ylim([0, 10])
-    # ax.set_ylim([-15, 12])
     ax.set_ylabel('Satellite  Signal Es/No [dB]')
-
-    # ax1.set_ylim([0, 80])
     ax1.set_ylabel('Rain[mm/h]')
 
     ax.legend(loc='upper left')
@@ -26,6 +21,9 @@ def PlotRainVsSatData(rain_array,rain_timestamp, sat_array,sat_timestamp):
     fig.tight_layout()
     plt.xticks(rotation=45)
     plt.show()
+
+
+import numpy as np
 
 
 def PlotRainEstimationVsGaugeData(RainEst, RainDF, SatDF, ST, FT):
