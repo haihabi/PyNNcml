@@ -45,6 +45,16 @@ class LinkBase(object):
             if not all([isinstance(i, PointSensor) for i in self.gauge_ref]):
                 raise TypeError('gauge_ref must be a list of PointSensor')
 
+    def number_of_labels(self) -> int:
+        """
+        Return the number of labels in the link data
+        :return: int
+        """
+        output = 1 if self.radar_cml_projection_ref is not None else 0
+        if self.gauge_ref is not None:
+            output += len(self.gauge_ref)
+        return output
+
     def plot_link_position(self):
         """
         Plot the link position
@@ -227,22 +237,10 @@ class Link(LinkBase):
         self.link_rsl = link_rsl
         self.link_tsl = link_tsl
 
-    def number_of_labels(self) -> int:
-        """
-        Return the number of labels in the link data
-        :return: int
-        """
-        output = 1 if self.radar_cml_projection_ref is not None else 0
-        if self.gauge_ref is not None:
-            if isinstance(self.gauge_ref, PointSensor):
-                output += 1
-            else:
-                output += len(self.gauge_ref)
-        return output
-
-    def generate_reference_matrix(self):
+    def generate_reference_matrix(self, max_label_size):
         """
         Generate the reference matrix for the link data
+        :param max_label_size: Maximum label size, if None, the label maybe unaligned.
         :return: None
         """
         max_start_time = 0
@@ -270,12 +268,7 @@ class Link(LinkBase):
 
         label_matrix = []
         time_matrix = []
-        if self.radar_cml_projection_ref is not None:
-            ref_data, time_radar = cut_array(self.radar_cml_projection_ref.data_array,
-                                             self.radar_cml_projection_ref.time_array,
-                                             max_start_time, min_end_time)
-            label_matrix.append(ref_data)
-            time_matrix.append(time_radar)
+
         if self.gauge_ref is not None:
             if isinstance(self.gauge_ref, PointSensor):
                 ref_data, time_gauge = cut_array(self.gauge_ref.data_array,
@@ -288,15 +281,29 @@ class Link(LinkBase):
                     ref_data, time_gauge = cut_array(g.data_array, g.time_array, max_start_time, min_end_time)
                     label_matrix.append(ref_data)
                     time_matrix.append(time_gauge)
+        if self.radar_cml_projection_ref is not None:
+            ref_data, time_radar = cut_array(self.radar_cml_projection_ref.data_array,
+                                             self.radar_cml_projection_ref.time_array,
+                                             max_start_time, min_end_time)
+            label_matrix.append(ref_data)
+            time_matrix.append(time_radar)
+        if max_label_size is not None:
+            if len(label_matrix) > max_label_size:
+                raise Exception(f"Too many labels, expected {max_label_size}, got {len(label_matrix)}")
+            nan_array = np.ones(label_matrix[0].shape) * np.nan
+            while len(label_matrix) < max_label_size:
+                label_matrix.append(nan_array)
+
         label_matrix = np.stack(label_matrix, axis=-1)
         time_matrix = np.stack(time_matrix, axis=-1)
         if np.any(np.abs(np.diff(time_matrix, axis=1)) != 0):
             raise Exception("Time arrays are not aligned, please check the input data")
         return label_matrix, time_matrix[:, 0]
 
-    def data_alignment(self):
+    def data_alignment(self, max_label_size: int = None):
         """
         Align the link data with the gauge data
+        :param max_label_size: Maximum label size, if None, the label maybe unaligned.
         :return: gauge_data, rsl, tsl, meta_data
         """
         if self.gauge_ref is not None:
@@ -315,7 +322,7 @@ class Link(LinkBase):
             raise Exception("Gauge reference must have the same time step")
         delta_gauge = np.min(delta_ref)
         delta_link = np.min(np.diff(self.time_array))
-        label_matrix, label_time_array = self.generate_reference_matrix()
+        label_matrix, label_time_array = self.generate_reference_matrix(max_label_size)
 
         ratio = int(delta_gauge / delta_link)
         gauge_end_cut = (self.time_array[-1] - self.time_array[-1] % delta_gauge) in label_time_array
@@ -328,10 +335,9 @@ class Link(LinkBase):
         tsl = self.link_tsl
         time_link = self.time_array
         if gauge_start_cut:
-            link_start_point=self.time_array[0] - self.time_array[0] % delta_gauge
+            link_start_point = self.time_array[0] - self.time_array[0] % delta_gauge
             i = np.where(label_time_array == link_start_point)[0][0]
             label_matrix = label_matrix[i:, :]
-
 
         if gauge_end_cut:
             link_end_point = self.time_array[-1] - self.time_array[-1] % delta_gauge

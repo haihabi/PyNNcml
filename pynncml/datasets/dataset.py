@@ -1,8 +1,10 @@
 from torch.utils.data import Dataset
 
+from pynncml.datasets import LinkSet
+
 
 class LinkDataset(Dataset):
-    def __init__(self, link_set, point_set, transform=None, target_transform=None):
+    def __init__(self, link_set:LinkSet, point_set, transform=None, target_transform=None):
         """
         Dataset of links
         :param link_set: LinkSet
@@ -27,7 +29,7 @@ class LinkDataset(Dataset):
 
         :return: rain, rsl, tsl, metadata
         """
-        rain, rsl, tsl, metadata = self.link_set.get_link(idx).data_alignment()
+        rain, rsl, tsl, metadata = self.link_set.get_link(idx).data_alignment(self.link_set.max_label_size)
         if self.transform:
             raise NotImplemented
         if self.target_transform:

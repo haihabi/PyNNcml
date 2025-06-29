@@ -84,7 +84,7 @@ class PointSet:
         :return: List of gauges within the range
         """
         d_list = [math.sqrt((xy_center[0] - g.x) ** 2 + (xy_center[1] - g.y) ** 2) for g in self.point_set]
-        gauge_with_distance= [(self.point_set[i],d) for i, d in enumerate(d_list) if d < range_limit]
+        gauge_with_distance = [(self.point_set[i], d) for i, d in enumerate(d_list) if d < range_limit]
         sorted_gauge_with_distance = sorted(gauge_with_distance, key=lambda x: x[1])
         return [g[1] for g in sorted_gauge_with_distance], [g[0] for g in sorted_gauge_with_distance]
 
@@ -97,6 +97,7 @@ class LinkSet:
 
         """
         self.link_list = link_list
+        self.max_label_size = max([l.number_of_labels() for l in self.link_list])
         if len(self.link_list) == 0:
             raise Exception("Link set is empty")
         pair_list = self.find_link_pairs()
@@ -207,14 +208,14 @@ class LinkSet:
             if link.gauge_ref is None:
                 plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]], color="black")
             else:
-                gauge_near=None
-                if isinstance(link.gauge_ref,PointSensor):
-                    gauge_near= link.gauge_ref
+                gauge_near = None
+                if isinstance(link.gauge_ref, PointSensor):
+                    gauge_near = link.gauge_ref
                 elif isinstance(link.gauge_ref, list):
                     gauge_near = link.gauge_ref[0]
                 if gauge2index.get(gauge_near) is None:
-                        gauge2index.update({gauge_near: index})
-                        index = index + 1
+                    gauge2index.update({gauge_near: index})
+                    index = index + 1
                 plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]],
                          color=COLOR_LIST[gauge2index[gauge_near]])
         for g, i in gauge2index.items():
