@@ -12,7 +12,9 @@ class MetaData(object):
                  height_far: float,
                  height_near: float,
                  lon_lat_site_zero: List[float] = None,
-                 lon_lat_site_one: List[float] = None):
+                 lon_lat_site_one: List[float] = None,
+                 force_zone_number=32, force_zone_letter="V"
+                 ):
         """
         Metadata class for the links
         :param frequency: Frequency
@@ -32,8 +34,8 @@ class MetaData(object):
         self.lon_lat_site_zero = lon_lat_site_zero
         self.lon_lat_site_one = lon_lat_site_one
         if self.has_location():
-            self.xy_zero = np.flip(utm.from_latlon(self.lon_lat_site_zero[0], self.lon_lat_site_zero[1])[:2])
-            self.xy_one = np.flip(utm.from_latlon(self.lon_lat_site_one[0], self.lon_lat_site_one[1])[:2])
+            self.xy_zero = utm.from_latlon(self.lon_lat_site_zero[1], self.lon_lat_site_zero[0],force_zone_number=force_zone_number,force_zone_letter=force_zone_letter)[:2]
+            self.xy_one = utm.from_latlon(self.lon_lat_site_one[1], self.lon_lat_site_one[0],force_zone_number=force_zone_number,force_zone_letter=force_zone_letter)[:2]
 
     def has_location(self) -> bool:
         """

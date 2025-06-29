@@ -6,6 +6,8 @@ from dataclasses import dataclass
 
 import pynncml as pnc
 from matplotlib import pyplot as plt
+
+from pynncml.datasets.gauge_data import PointSensor
 from pynncml.datasets.meta_data import MetaData
 from enum import Enum
 
@@ -17,7 +19,8 @@ class LinkBase(object):
                  time_array: np.ndarray,
                  rain_gauge: np.ndarray,
                  meta_data: MetaData,
-                 gauge_ref=None):
+                 gauge_ref=None,
+                 radar_cml_projection_ref=None):
         """
         LinkBase object is a data structure that contains the link dynamic information:
         :param time_array: Time array
@@ -27,12 +30,20 @@ class LinkBase(object):
         """
         self._check_input(time_array)
         self.gauge_ref = gauge_ref
+        self.radar_cml_projection_ref = radar_cml_projection_ref
         if rain_gauge is not None:
             self._check_input(rain_gauge)
             assert time_array.shape[0] == rain_gauge.shape[0]
         self.rain_gauge = rain_gauge
         self.time_array = time_array
         self.meta_data: MetaData = meta_data
+        if self.gauge_ref is not None:
+            if not isinstance(self.gauge_ref, list):
+                raise TypeError('gauge_ref must be a list')
+            if len(self.gauge_ref) == 0:
+                raise Exception("Gauge reference is empty")
+            if not all([isinstance(i, PointSensor) for i in self.gauge_ref]):
+                raise TypeError('gauge_ref must be a list of PointSensor')
 
     def plot_link_position(self):
         """
@@ -105,8 +116,10 @@ class LinkMinMax(LinkBase):
                  meta_data,
                  min_tsl=None,
                  max_tsl=None,
-                 gauge_ref=None):
-        super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref)
+                 gauge_ref=None,
+                 radar_cml_projection_ref=None):
+        super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref,
+                         radar_cml_projection_ref=radar_cml_projection_ref)
         """
         LinkMinMax object is a data structure that contains the link dynamic information in min max format.
         :param min_rsl: Minimum received signal level
@@ -117,6 +130,7 @@ class LinkMinMax(LinkBase):
         :param min_tsl: Minimum transmitted signal level
         :param max_tsl: Maximum transmitted signal level
         :param gauge_ref: Gauge reference
+        :param radar_cml_projection_ref: Radar CML projection reference
         
         """
         self.min_rsl = min_rsl
@@ -190,7 +204,8 @@ class Link(LinkBase):
     def __init__(self, link_rsl: np.ndarray, time_array: np.ndarray, meta_data,
                  rain_gauge: np.ndarray = None,
                  link_tsl=None,
-                 gauge_ref=None):
+                 gauge_ref=None,
+                 radar_cml_projection_ref=None):
         """
         Link object is a data structure that contains the link dynamic information:
         received signal level (RSL) and transmitted signal level (TSL).
@@ -202,7 +217,8 @@ class Link(LinkBase):
         :param rain_gauge: Rain gauge data
         :param gauge_ref: Gauge reference
         """
-        super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref)
+        super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref,
+                         radar_cml_projection_ref=radar_cml_projection_ref)
         self._check_input(link_rsl)
         assert len(link_rsl) == len(self)
         if link_tsl is not None:  # if link tsl is not none check that is valid
@@ -211,42 +227,126 @@ class Link(LinkBase):
         self.link_rsl = link_rsl
         self.link_tsl = link_tsl
 
+    def number_of_labels(self) -> int:
+        """
+        Return the number of labels in the link data
+        :return: int
+        """
+        output = 1 if self.radar_cml_projection_ref is not None else 0
+        if self.gauge_ref is not None:
+            if isinstance(self.gauge_ref, PointSensor):
+                output += 1
+            else:
+                output += len(self.gauge_ref)
+        return output
+
+    def generate_reference_matrix(self):
+        """
+        Generate the reference matrix for the link data
+        :return: None
+        """
+        max_start_time = 0
+        min_end_time = np.inf
+        if self.radar_cml_projection_ref is not None:
+            max_start_time = np.maximum(max_start_time, self.radar_cml_projection_ref.time_array[0])
+            min_end_time = np.minimum(min_end_time, self.radar_cml_projection_ref.time_array[-1])
+        if self.gauge_ref is not None:
+            for g in self.gauge_ref:
+                max_start_time = np.maximum(max_start_time, g.time_array[0])
+                min_end_time = np.minimum(min_end_time, g.time_array[-1])
+
+        def cut_array(in_array, in_time, in_start, in_end):
+            """
+            Cut the array to the given time range
+            :param in_array: Input array
+            :param in_time: Input time array
+            :param in_start: Start time
+            :param in_end: End time
+            :return: Cut array and cut time array
+            """
+            i_start = np.where(in_time >= in_start)[0][0]
+            i_end = np.where(in_time <= in_end)[0][-1]
+            return in_array[i_start:i_end + 1], in_time[i_start:i_end + 1]
+
+        label_matrix = []
+        time_matrix = []
+        if self.radar_cml_projection_ref is not None:
+            ref_data, time_radar = cut_array(self.radar_cml_projection_ref.data_array,
+                                             self.radar_cml_projection_ref.time_array,
+                                             max_start_time, min_end_time)
+            label_matrix.append(ref_data)
+            time_matrix.append(time_radar)
+        if self.gauge_ref is not None:
+            if isinstance(self.gauge_ref, PointSensor):
+                ref_data, time_gauge = cut_array(self.gauge_ref.data_array,
+                                                 self.gauge_ref.time_array,
+                                                 max_start_time, min_end_time)
+                label_matrix.append(ref_data)
+                time_matrix.append(time_gauge)
+            else:
+                for g in self.gauge_ref:
+                    ref_data, time_gauge = cut_array(g.data_array, g.time_array, max_start_time, min_end_time)
+                    label_matrix.append(ref_data)
+                    time_matrix.append(time_gauge)
+        label_matrix = np.stack(label_matrix, axis=-1)
+        time_matrix = np.stack(time_matrix, axis=-1)
+        if np.any(np.abs(np.diff(time_matrix, axis=1)) != 0):
+            raise Exception("Time arrays are not aligned, please check the input data")
+        return label_matrix, time_matrix[:, 0]
+
     def data_alignment(self):
         """
         Align the link data with the gauge data
         :return: gauge_data, rsl, tsl, meta_data
         """
-        delta_gauge = np.min(np.diff(self.gauge_ref.time_array))
+        if self.gauge_ref is not None:
+            if not isinstance(self.gauge_ref, list):
+                raise TypeError('gauge_ref must be a list')
+            if len(self.gauge_ref) == 0:
+                raise Exception("Gauge reference is empty")
+            if not all([isinstance(i, PointSensor) for i in self.gauge_ref]):
+                raise TypeError('gauge_ref must be a list of PointSensor')
+            delta_ref = [np.min(np.diff(g.time_array)) for g in self.gauge_ref]
+        else:
+            delta_ref = []
+        if self.radar_cml_projection_ref is not None:
+            delta_ref.append(np.min(np.diff(self.radar_cml_projection_ref.time_array)))
+        if len(np.unique(delta_ref)) != 1:
+            raise Exception("Gauge reference must have the same time step")
+        delta_gauge = np.min(delta_ref)
         delta_link = np.min(np.diff(self.time_array))
+        label_matrix, label_time_array = self.generate_reference_matrix()
 
         ratio = int(delta_gauge / delta_link)
-        gauge_end_cut = (self.time_array[-1] - self.time_array[-1] % delta_gauge) in self.gauge_ref.time_array
-        gauge_start_cut = (self.time_array[0] - self.time_array[0] % delta_gauge) in self.gauge_ref.time_array
+        gauge_end_cut = (self.time_array[-1] - self.time_array[-1] % delta_gauge) in label_time_array
+        gauge_start_cut = (self.time_array[0] - self.time_array[0] % delta_gauge) in label_time_array
 
-        link_end_cut = (self.gauge_ref.time_array[-1] - self.gauge_ref.time_array[-1] % delta_link) in self.time_array
-        link_start_cut = (self.gauge_ref.time_array[0] - self.gauge_ref.time_array[0] % delta_link) in self.time_array
+        link_end_cut = (label_time_array[-1] - label_time_array[-1] % delta_link) in self.time_array
+        link_start_cut = (label_time_array[0] - label_time_array[0] % delta_link) in self.time_array
 
         rsl = self.link_rsl
         tsl = self.link_tsl
         time_link = self.time_array
-        gauge_data = self.gauge_ref.data_array
         if gauge_start_cut:
-            raise NotImplemented
+            link_start_point=self.time_array[0] - self.time_array[0] % delta_gauge
+            i = np.where(label_time_array == link_start_point)[0][0]
+            label_matrix = label_matrix[i:, :]
+
 
         if gauge_end_cut:
             link_end_point = self.time_array[-1] - self.time_array[-1] % delta_gauge
-            i = np.where(self.gauge_ref.time_array == link_end_point)[0][0]
-            gauge_data = gauge_data[:(i + 1)]
+            i = np.where(label_time_array == link_end_point)[0][0]
+            label_matrix = label_matrix[:(i + 1), :]
 
         if link_start_cut:
-            gauge_start_point = self.gauge_ref.time_array[0] - self.gauge_ref.time_array[0] % delta_link
+            gauge_start_point = label_time_array[0] - label_time_array[0] % delta_link
             i = np.where(time_link == gauge_start_point)[0][0]
             rsl = rsl[i:]
             tsl = tsl[i:]
             time_link = time_link[i:]
 
         if link_end_cut:
-            gauge_end_point = self.gauge_ref.time_array[-1] - self.gauge_ref.time_array[-1] % delta_link
+            gauge_end_point = label_time_array[-1] - label_time_array[-1] % delta_link
             i = np.where(time_link == gauge_end_point)[0][0]
             rsl = rsl[:(i + ratio)]
             tsl = tsl[:(i + ratio)]
@@ -254,7 +354,7 @@ class Link(LinkBase):
         rsl = np.lib.stride_tricks.as_strided(rsl, shape=(int(rsl.shape[0] / ratio), ratio), strides=(4 * ratio, 4))
         tsl = np.lib.stride_tricks.as_strided(tsl, shape=(int(tsl.shape[0] / ratio), ratio), strides=(4 * ratio, 4))
 
-        return gauge_data, rsl, tsl, np.asarray([self.meta_data.frequency, self.meta_data.length]).astype("float32")
+        return label_matrix, rsl, tsl, np.asarray([self.meta_data.frequency, self.meta_data.length]).astype("float32")
 
     def plot(self):
         """
@@ -334,15 +434,6 @@ class Link(LinkBase):
         else:
             return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data,
                               gauge_ref=self.gauge_ref)
-
-
-# TODO:Remove this function and replace with OpenMRG dataset
-def read_open_cml_dataset(pickle_path: str) -> list:
-    if not os.path.isfile(pickle_path):
-        raise Exception('The input path: ' + pickle_path + ' is not a file')
-    with open(pickle_path, "rb") as f:
-        open_cml_ds = pickle.load(f)
-    return [Link(oc[0], oc[1], oc[2], oc[3]) for oc in open_cml_ds if len(oc) == 4]
 
 
 class AttenuationType(Enum):

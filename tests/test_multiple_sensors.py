@@ -28,7 +28,7 @@ class TestMultipeSensors(unittest.TestCase):
         self.assertTrue(map.shape[0] == TestMultipeSensors.n_samples)
 
     def test_idw_real(self):
-        link_set, ps = pnc.datasets.load_open_mrg(time_slice=OPEN_MRG_TIME_SLICE, change2min_max=True)
+        link_set, ps, _ = pnc.datasets.load_open_mrg(time_slice=OPEN_MRG_TIME_SLICE, change2min_max=True)
 
         model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 8,
                                                                   quantization_delta=0.3)
@@ -36,11 +36,11 @@ class TestMultipeSensors(unittest.TestCase):
         idw = pnc.mcm.generate_link_set_idw(link_set)
         res = imc(link_set)
         rain_map = idw(res).numpy()
-        self.assertTrue(rain_map.shape[1] == 48)
-        self.assertTrue(rain_map.shape[2] == 16)
+        self.assertTrue(rain_map.shape[1] == 29)
+        self.assertTrue(rain_map.shape[2] == 18)
 
     def test_gmz_real(self):
-        link_set, ps = pnc.datasets.load_open_mrg(time_slice=OPEN_MRG_TIME_SLICE, change2min_max=True)
+        link_set, ps, _ = pnc.datasets.load_open_mrg(time_slice=OPEN_MRG_TIME_SLICE, change2min_max=True)
 
         model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 8,
                                                                   quantization_delta=0.3)
@@ -49,5 +49,5 @@ class TestMultipeSensors(unittest.TestCase):
         res = imc(link_set)
         rain_map, _ = gmz(res)
         rain_map = rain_map.numpy()
-        self.assertTrue(rain_map.shape[1] == 48)
-        self.assertTrue(rain_map.shape[2] == 16)
+        self.assertTrue(rain_map.shape[1] == 29)
+        self.assertTrue(rain_map.shape[2] == 18)

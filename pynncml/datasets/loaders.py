@@ -12,7 +12,8 @@ from pynncml.datasets.gauge_data import PointSensor
 from pynncml.datasets import PointSet
 import numpy as np
 
-from pynncml.datasets.xarray_processing import xarray2link
+from pynncml.datasets.radar_data import RadarData
+from pynncml.datasets.xarray_processing import xarray2link, LinkSelection
 
 
 def download_data_file(url, local_path=".", local_file_name=None, print_output=True):
@@ -123,8 +124,40 @@ def rain2rain_rate(in_array: np.ndarray, window_size: int = 15, step_time: int =
     return np.convolve(res, np.ones(window_size) * (1 / window_size), mode='same')
 
 
+def radar2rain(dbz_tensor):
+    """
+    Convert radar reflectivity (dBZ) to rain rate using the Z-R relationship.
+    :param dbz_tensor: Input tensor of radar reflectivity in dBZ
+    :return: Tensor of rain rate in mm/h
+    """
+    gain = 0.4
+    offset = -30
+    # dbz_tensor = radar_tensor * gain + offset
+    radar_rain_tensor = np.power(10, ((dbz_tensor / 10) - np.log10(200)) * (1 / 1.5))
+    radar_rain_tensor[dbz_tensor < 5] = 0
+    radar_rain_tensor[np.round((dbz_tensor - offset) / gain) == 255] = 0
+    radar_rain_tensor = np.nan_to_num(radar_rain_tensor, nan=0)
+    return radar_rain_tensor
+
+
 def load_open_mrg(data_path="./data/", change2min_max=False, xy_min=None, xy_max=None, time_slice=None,
-                  rain_gauge_time_base=900, link2gauge_distance=2000, window_size_in_min=15):
+                  rain_gauge_time_base=900, link2gauge_distance=2000, window_size_in_min=15,
+                  multiple_gauges_per_link=False,
+                  link_selection: LinkSelection = LinkSelection.GAUGEONLY):
+    """
+    Load OpenMRG dataset and process it to create a LinkSet and PointSet.
+    :param data_path: Path to store the dataset
+    :param change2min_max: Change to min max dataset
+    :param xy_min: Minimum xy use to filter the dataset based on xy location
+    :param xy_max: Maximum xy use to filter the dataset based on xy location
+    :param time_slice: Time slice to filter the dataset
+    :param rain_gauge_time_base: Time base for the rain gauge data in seconds
+    :param link2gauge_distance: Link to gauge distance in meter
+    :param window_size_in_min: Window size in minute for rain rate calculation
+    :param multiple_gauges_per_link: Use multiple gauges per link
+    :param link_selection: Link selection strategy
+    :return: LinkSet, PointSet and RadarData
+    """
     download_open_mrg(local_path=data_path)
     file_location = data_path + "OpenMRG.zip"
     ds = transform_open_mrg(file_location, data_path)
@@ -148,15 +181,31 @@ def load_open_mrg(data_path="./data/", change2min_max=False, xy_min=None, xy_max
         lon = gauge_metadata.get("Longitude_DecDeg").values[i]
         lat = gauge_metadata.get("Latitude_DecDeg").values[i]
         if not np.any(np.isnan(rain_rate_gauge)):
-            ps = PointSensor(rain_rate_gauge, time_array_gauge.astype("int")[sel_index], lat, lon)
+            ps = PointSensor(rain_rate_gauge, time_array_gauge.astype("int")[sel_index], lon, lat)
             ps = ps.change_time_base(rain_gauge_time_base)
             gauge_list.append(ps)
     ps = PointSet(gauge_list)
     ###########################################
+    # Process Radar
+    ###########################################
+    radar_file = os.path.join(data_path, 'radar/radar.nc')
+    if not os.path.exists(radar_file):
+        raise FileNotFoundError("Radar file not found. Please check the data path.")
+    radar_ds = xr.open_dataset(radar_file)
+    if time_slice is not None:
+        radar_ds = radar_ds.sel(time=time_slice)
+    time = np.asarray(radar_ds.time)
+    lat = np.asarray(radar_ds.lat)
+    lon_array = np.asarray(radar_ds.lon)
+    radar_array = radar2rain(np.asarray(radar_ds.data))
+    rd = RadarData(radar_array, lat, lon_array, time.astype('datetime64[s]').astype("int"))
+    rd = rd.change_time_base(rain_gauge_time_base)
+    ###########################################
     # Process Links
     ###########################################
-    link_set = xarray2link(ds, link2gauge_distance, ps, xy_max, xy_min, change2min_max=change2min_max)
-    return link_set, ps
+    link_set = xarray2link(ds, link2gauge_distance, ps, rd, xy_max, xy_min, change2min_max=change2min_max,
+                           multiple_gauges_per_link=multiple_gauges_per_link, link_selection=link_selection)
+    return link_set, ps, rd
 
 
 def loader_open_mrg_dataset(data_path="./data/",
@@ -165,7 +214,9 @@ def loader_open_mrg_dataset(data_path="./data/",
                             xy_max=None,
                             time_slice=None,
                             link2gauge_distance=2000,
-                            window_size_in_min=15):
+                            window_size_in_min=15,
+                            multiple_gauges_per_link=False,
+                            link_selection: LinkSelection = LinkSelection.GAUGEONLY):
     """
     Load OpenMRG dataset
     :param data_path: Path to store the dataset
@@ -175,10 +226,14 @@ def loader_open_mrg_dataset(data_path="./data/",
     :param time_slice: Time slice to filter the dataset
     :param link2gauge_distance: Link to gauge distance in meter
     :param window_size_in_min: Window size in minute
+    :param multiple_gauges_per_link: Use multiple gauges per link
+    :param link_selection: Link selection strategy
     :return: LinkDataset
     """
-    link_set, point_set = load_open_mrg(data_path=data_path, change2min_max=change2min_max, xy_min=xy_min,
-                                        xy_max=xy_max,
-                                        time_slice=time_slice, link2gauge_distance=link2gauge_distance,
-                                        window_size_in_min=window_size_in_min)
+    link_set, point_set, _ = load_open_mrg(data_path=data_path, change2min_max=change2min_max, xy_min=xy_min,
+                                           xy_max=xy_max,
+                                           time_slice=time_slice, link2gauge_distance=link2gauge_distance,
+                                           window_size_in_min=window_size_in_min,
+                                           multiple_gauges_per_link=multiple_gauges_per_link,
+                                           link_selection=link_selection)
     return LinkDataset(link_set, point_set)

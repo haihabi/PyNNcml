@@ -74,7 +74,19 @@ class PointSet:
         :param xy_center: Center point
         """
         d_list = [math.sqrt((xy_center[0] - g.x) ** 2 + (xy_center[1] - g.y) ** 2) for g in self.point_set]
-        return np.min(d_list), self.point_set[np.argmin(d_list)]
+        return np.min(d_list), [self.point_set[np.argmin(d_list)]]
+
+    def find_near_gauges(self, xy_center, range_limit):
+        """
+        Find the nearest gauges to the center point within a given range.
+        :param xy_center: Center point
+        :param range_limit: Range limit for searching gauges
+        :return: List of gauges within the range
+        """
+        d_list = [math.sqrt((xy_center[0] - g.x) ** 2 + (xy_center[1] - g.y) ** 2) for g in self.point_set]
+        gauge_with_distance= [(self.point_set[i],d) for i, d in enumerate(d_list) if d < range_limit]
+        sorted_gauge_with_distance = sorted(gauge_with_distance, key=lambda x: x[1])
+        return [g[1] for g in sorted_gauge_with_distance], [g[0] for g in sorted_gauge_with_distance]
 
 
 class LinkSet:
@@ -85,7 +97,11 @@ class LinkSet:
 
         """
         self.link_list = link_list
+        if len(self.link_list) == 0:
+            raise Exception("Link set is empty")
+        pair_list = self.find_link_pairs()
 
+        self.pair_list = pair_list
         xy_list = np.stack([l.meta_data.xy() for l in self])
         x = np.concatenate([xy_list[:, 0], xy_list[:, 2]])
         y = np.concatenate([xy_list[:, 1], xy_list[:, 3]])
@@ -100,6 +116,24 @@ class LinkSet:
         self.y_min = y_min
         self.y_delta = y_delta
         self.scale = np.maximum(x_delta, y_delta)
+
+    def find_link_pairs(self):
+        found_list_pair = []
+        pair_list = []
+        # Find pairs of links that are the same but in different directions
+        for link in self.link_list:
+            if link not in found_list_pair:
+                xy = link.meta_data.xy()
+                for _link in self.link_list:
+                    if (_link.meta_data.xy()[0] == xy[2] and
+                            _link.meta_data.xy()[2] == xy[0] and
+                            _link.meta_data.xy()[1] == xy[3] and
+                            _link.meta_data.xy()[3] == xy[1] and
+                            _link != link):
+                        found_list_pair.append(_link)
+                        found_list_pair.append(link)
+                        pair_list.append((link, _link))
+        return pair_list
 
     def __len__(self):
         """
@@ -154,7 +188,7 @@ class LinkSet:
             raise Exception("illegal link index")
         return self.link_list[link_index]
 
-    def plot_links(self, scale: bool = False, scale_factor: float = 1.0):
+    def plot_links(self, scale: bool = False, scale_factor: float = 1.0, scale_y: float = 1.0):
         """
         Plot the links in the set.
         :param scale: Scale the link
@@ -167,20 +201,25 @@ class LinkSet:
             if scale:
                 xy_array[0] = scale_factor * (xy_array[0] - self.x_min) / self.scale
                 xy_array[2] = scale_factor * (xy_array[2] - self.x_min) / self.scale
-                xy_array[1] = scale_factor * (xy_array[1] - self.y_min) / self.scale
-                xy_array[3] = scale_factor * (xy_array[3] - self.y_min) / self.scale
+                xy_array[1] = scale_y * (xy_array[1] - self.y_min) / self.scale
+                xy_array[3] = scale_y * (xy_array[3] - self.y_min) / self.scale
 
             if link.gauge_ref is None:
                 plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]], color="black")
             else:
-                if gauge2index.get(link.gauge_ref) is None:
-                    gauge2index.update({link.gauge_ref: index})
-                    index = index + 1
+                gauge_near=None
+                if isinstance(link.gauge_ref,PointSensor):
+                    gauge_near= link.gauge_ref
+                elif isinstance(link.gauge_ref, list):
+                    gauge_near = link.gauge_ref[0]
+                if gauge2index.get(gauge_near) is None:
+                        gauge2index.update({gauge_near: index})
+                        index = index + 1
                 plt.plot([xy_array[0], xy_array[2]], [xy_array[1], xy_array[3]],
-                         color=COLOR_LIST[gauge2index[link.gauge_ref]])
+                         color=COLOR_LIST[gauge2index[gauge_near]])
         for g, i in gauge2index.items():
             if self.scale:
-                plt.plot(scale_factor * (g.x - self.x_min) / self.scale, scale_factor * (g.y - self.y_min) / self.scale,
+                plt.plot(scale_factor * (g.x - self.x_min) / self.scale, scale_y * (g.y - self.y_min) / self.scale,
                          "o", color=COLOR_LIST[i])
             else:
                 plt.plot(g.x, g.y, "o", color=COLOR_LIST[i])
