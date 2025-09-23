@@ -26,6 +26,7 @@ def generate_link_set(n_samples, n_links):
         lat_one = MIN_LON_LAT[1] + (MAX_LON_LAT[1] - MIN_LON_LAT[1]) * s[3]
         l = pnc.datasets.Link(rsl, time, pnc.datasets.MetaData(32, True, 3, 4, 5,
                                                                lon_lat_site_zero=[lon_zero, lat_zero],
-                                                               lon_lat_site_one=[lon_one, lat_one]), rain_gauge=rain)
+                                                               lon_lat_site_one=[lon_one, lat_one]))
+        l.add_reference(rain_gauge=rain)
         link_list.append(l)
     return pynncml.datasets.sensors_set.LinkSet(link_list), link_list

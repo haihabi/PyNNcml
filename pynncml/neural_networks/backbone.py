@@ -19,7 +19,7 @@ class Backbone(nn.Module):
     :param metadata_n_features: int that represent the metadata feature size.
     """
 
-    def __init__(self, n_layers: int, rnn_type: neural_networks.RNNType,
+    def __init__(self, n_layers: int, rnn_type: neural_networks.DNNType,
                  normalization_cfg: neural_networks.InputNormalizationConfig,
                  enable_tn: bool,
                  tn_alpha: float,
@@ -35,11 +35,11 @@ class Backbone(nn.Module):
         self.metadata_n_features = metadata_n_features
         self.rnn_n_features = rnn_n_features
         # Model Layers
-        if rnn_type == neural_networks.RNNType.GRU:
+        if rnn_type == neural_networks.DNNType.GRU:
             self.rnn = nn.GRU(rnn_input_size, rnn_n_features,
                               bidirectional=False, num_layers=n_layers,
                               batch_first=True)
-        elif rnn_type == neural_networks.RNNType.LSTM:
+        elif rnn_type == neural_networks.DNNType.LSTM:
             self.rnn = nn.LSTM(rnn_input_size, rnn_n_features,
                                bidirectional=False, num_layers=n_layers,
                                batch_first=True)
@@ -114,7 +114,7 @@ class Backbone(nn.Module):
         :param batch_size: int represent the batch size.
         :return: A Tensor, that hold the initial state.
         """
-        if self.rnn_type == neural_networks.RNNType.GRU:
+        if self.rnn_type == neural_networks.DNNType.GRU:
             state = self._base_init(batch_size)
         else:
             state = (self._base_init(batch_size), self._base_init(batch_size))

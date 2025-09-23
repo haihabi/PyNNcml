@@ -17,26 +17,40 @@ HOUR_IN_SECONDS = 3600
 class LinkBase(object):
     def __init__(self,
                  time_array: np.ndarray,
-                 rain_gauge: np.ndarray,
-                 meta_data: MetaData,
-                 gauge_ref=None,
-                 radar_cml_projection_ref=None):
+                 meta_data: MetaData):
         """
         LinkBase object is a data structure that contains the link dynamic information:
         :param time_array: Time array
         :param rain_gauge: Rain gauge data
         :param meta_data: MetaData object
-        :param gauge_ref: Gauge reference
         """
         self._check_input(time_array)
+        self.time_array = time_array
+        self.meta_data: MetaData = meta_data
+        self.rain_gauge = None
+        self.gauge_ref = None
+        self.radar_cml_projection_ref = None
+
+    def has_reference(self)->bool:
+        return self.gauge_ref is not None or self.radar_cml_projection_ref is not None or self.rain_gauge is not None
+
+    def add_reference(self,
+                      rain_gauge: np.ndarray=None,
+                      gauge_ref=None,
+                      radar_cml_projection_ref=None):
+        """
+
+        :param rain_gauge:
+        :param gauge_ref:
+        :param radar_cml_projection_ref:
+        :return:
+        """
         self.gauge_ref = gauge_ref
         self.radar_cml_projection_ref = radar_cml_projection_ref
         if rain_gauge is not None:
             self._check_input(rain_gauge)
-            assert time_array.shape[0] == rain_gauge.shape[0]
+            assert self.time_array.shape[0] == rain_gauge.shape[0]
         self.rain_gauge = rain_gauge
-        self.time_array = time_array
-        self.meta_data: MetaData = meta_data
         if self.gauge_ref is not None:
             if not isinstance(self.gauge_ref, list):
                 raise TypeError('gauge_ref must be a list')
@@ -121,15 +135,11 @@ class LinkMinMax(LinkBase):
     def __init__(self,
                  min_rsl,
                  max_rsl,
-                 rain_gauge,
                  time_array,
                  meta_data,
                  min_tsl=None,
-                 max_tsl=None,
-                 gauge_ref=None,
-                 radar_cml_projection_ref=None):
-        super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref,
-                         radar_cml_projection_ref=radar_cml_projection_ref)
+                 max_tsl=None):
+        super().__init__(time_array, meta_data)
         """
         LinkMinMax object is a data structure that contains the link dynamic information in min max format.
         :param min_rsl: Minimum received signal level
@@ -212,10 +222,7 @@ class LinkMinMax(LinkBase):
 
 class Link(LinkBase):
     def __init__(self, link_rsl: np.ndarray, time_array: np.ndarray, meta_data,
-                 rain_gauge: np.ndarray = None,
-                 link_tsl=None,
-                 gauge_ref=None,
-                 radar_cml_projection_ref=None):
+                 link_tsl=None):
         """
         Link object is a data structure that contains the link dynamic information:
         received signal level (RSL) and transmitted signal level (TSL).
@@ -224,11 +231,8 @@ class Link(LinkBase):
         :param time_array: Time array
         :param meta_data: MetaData object
         :param link_tsl: Transmitted signal level
-        :param rain_gauge: Rain gauge data
-        :param gauge_ref: Gauge reference
         """
-        super().__init__(time_array, rain_gauge, meta_data, gauge_ref=gauge_ref,
-                         radar_cml_projection_ref=radar_cml_projection_ref)
+        super().__init__(time_array,  meta_data)
         self._check_input(link_rsl)
         assert len(link_rsl) == len(self)
         if link_tsl is not None:  # if link tsl is not none check that is valid
@@ -435,11 +439,13 @@ class Link(LinkBase):
             rain_vector = None
         time_vector = np.asarray(time_vector)
         if self.has_tsl():
-            return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data,
-                              min_tsl=min_tsl_vector, max_tsl=max_tsl_vector, gauge_ref=self.gauge_ref)
+            link_min_max= LinkMinMax(min_rsl_vector, max_rsl_vector, time_vector, self.meta_data,
+                              min_tsl=min_tsl_vector, max_tsl=max_tsl_vector)
         else:
-            return LinkMinMax(min_rsl_vector, max_rsl_vector, rain_vector, time_vector, self.meta_data,
-                              gauge_ref=self.gauge_ref)
+            link_min_max= LinkMinMax(min_rsl_vector, max_rsl_vector,  time_vector, self.meta_data)
+        if self.has_reference():
+            link_min_max.add_reference(rain_gauge=rain_vector, gauge_ref=self.gauge_ref,radar_cml_projection_ref=self.radar_cml_projection_ref)
+        return link_min_max
 
 
 class AttenuationType(Enum):

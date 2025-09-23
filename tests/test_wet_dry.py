@@ -15,7 +15,7 @@ class TestWetDry(unittest.TestCase):
 
     def test_wet_dry_network(self):
         att = torch.ones(1, 100, 4)
-        swd = pnc.scm.wet_dry.wet_dry_network(1, pnc.neural_networks.RNNType.LSTM)
+        swd = pnc.scm.wet_dry.wet_dry_network(1, pnc.neural_networks.DNNType.LSTM)
         res, state = swd(att, pnc.datasets.MetaData(15, 0, 18, 10, 12).as_tensor(), swd.init_state(batch_size=1))
         self.assertTrue(res.shape[0] == 1)
         self.assertTrue(res.shape[1] == 100)

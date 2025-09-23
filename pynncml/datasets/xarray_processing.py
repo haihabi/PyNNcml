@@ -29,7 +29,7 @@ def xarray_location_slice(ds, lon_min, lon_max, lat_min, lat_max):
     return ds.sel(lon=slice(lon_min, lon_max), lat=slice(lat_min, lat_max))
 
 
-def xarray_sublink2link(ds_sublink, gauge=None, radar_cml_projection=None):
+def xarray_sublink2link(ds_sublink):
     """
     Convert xarray sublink to link
     :param ds_sublink: xarray dataset
@@ -54,10 +54,8 @@ def xarray_sublink2link(ds_sublink, gauge=None, radar_cml_projection=None):
         link = Link(rsl,
                     ds_sublink.time.to_numpy().astype('datetime64[s]').astype("int"),
                     meta_data=md,
-                    rain_gauge=None,
                     link_tsl=tsl,
-                    gauge_ref=gauge,
-                    radar_cml_projection_ref=radar_cml_projection)
+                    )
     else:
         link = None
     return link
@@ -152,7 +150,8 @@ def xarray2link(ds,
                     active_link = active_link or (d_min < link2gauge_distance and link_selection.enable_gauge())
 
                 if active_link:
-                    link = xarray_sublink2link(ds_sublink, gauge, radar_cml_projection)
+                    link = xarray_sublink2link(ds_sublink) # TODO: Change the none handling is case of nan.
+                    if link is not None:link.add_reference(gauge_ref=gauge,radar_cml_projection_ref=radar_cml_projection)
                 else:
                     link = None  # Link is too far from the gauge
 

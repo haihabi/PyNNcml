@@ -1,6 +1,6 @@
 import torch
 
-from pynncml.neural_networks import InputNormalizationConfig, RNNType, INPUT_NORMALIZATION, STATIC_INPUT_SIZE, \
+from pynncml.neural_networks import InputNormalizationConfig, DNNType, INPUT_NORMALIZATION, STATIC_INPUT_SIZE, \
     DYNAMIC_INPUT_SIZE, RNN_FEATURES, FC_FEATURES
 from pynncml.single_cml_methods.power_law import PowerLawType
 from pynncml.single_cml_methods.rain_estimation.ts_constant import TwoStepsConstant
@@ -41,7 +41,7 @@ def one_step_dynamic_baseline(power_law_type: PowerLawType, r_min: float, window
     return OneStepDynamic(power_law_type, r_min, window_size, quantization_delta)
 
 
-def two_step_network(n_layers: int, rnn_type: RNNType,
+def two_step_network(n_layers: int, rnn_type: DNNType,
                      normalization_cfg: InputNormalizationConfig = INPUT_NORMALIZATION,
                      enable_tn: bool = False,
                      tn_alpha: float = 0.9,
@@ -77,7 +77,7 @@ def two_step_network(n_layers: int, rnn_type: RNNType,
 
 
 def one_step_network(n_layers: int,
-                     rnn_type: RNNType,
+                     rnn_type: DNNType,
                      normalization_cfg: InputNormalizationConfig = INPUT_NORMALIZATION,
                      enable_tn: bool = False,
                      tn_alpha: float = 0.9,

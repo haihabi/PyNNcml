@@ -18,7 +18,7 @@ def statistics_wet_dry(th, step, is_min_max=False) -> STDWetDry:
     return STDWetDry(th, step, is_min_max)
 
 
-def wet_dry_network(n_layers: int, rnn_type: pnc.neural_networks.RNNType,
+def wet_dry_network(n_layers: int, rnn_type: pnc.neural_networks.DNNType,
                     normalization_cfg: pnc.neural_networks.InputNormalizationConfig = pnc.neural_networks.INPUT_NORMALIZATION,
                     enable_tn: bool = False,
                     tn_alpha: float = 0.9,

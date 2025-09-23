@@ -9,7 +9,7 @@ DYNAMIC_INPUT_SIZE = 4
 TOTAL_FEATURES = FC_FEATURES + RNN_FEATURES
 
 
-class RNNType(Enum):
+class DNNType(Enum):
     """
     The RNNType Enum: state the type of Recurrent Neural Network (RNN) the model will run.
     The enum support two types of RNNs LSTM or GRU.
@@ -17,6 +17,8 @@ class RNNType(Enum):
     """
     GRU = 0
     LSTM = 1
+    CNN = 2
+    TRANSFORMER = 3
 
 
 class InputNormalizationConfig(object):

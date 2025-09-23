@@ -23,7 +23,7 @@ class WetDryNetwork(nn.Module):
     :param metadata_n_features: int that represent the metadata feature size.
     """
 
-    def __init__(self, n_layers: int, rnn_type: pnc.neural_networks.RNNType,
+    def __init__(self, n_layers: int, rnn_type: pnc.neural_networks.DNNType,
                  normalization_cfg: neural_networks.InputNormalizationConfig,
                  enable_tn: bool,
                  tn_alpha: float,
