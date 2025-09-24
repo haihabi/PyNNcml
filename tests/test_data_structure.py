@@ -74,7 +74,7 @@ class TestDataStructure(unittest.TestCase):
         self.assertTrue(np.array_equal(l.time(), time.astype('datetime64[s]')))
         self.assertEqual(len(l.time()), TestDataStructure.n_samples)
         att = l.attenuation().numpy().flatten()
-        self.assertTrue(np.round(np.sum(att + tsl - rsl) * 100) == 0)
+        self.assertTrue(np.round(np.sum(att -tsl + rsl) * 100) == 0)
         l_min_max = l.create_min_max_link(10)
         self.assertTrue(len(l_min_max) == 10)
         self.assertEqual(len(l_min_max.attenuation().shape), 3)

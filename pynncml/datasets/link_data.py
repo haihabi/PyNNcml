@@ -392,7 +392,7 @@ class Link(LinkBase):
         :return attenuation: torch.Tensor
         """
         if self.has_tsl():
-            return torch.tensor(-(self.link_tsl - self.link_rsl)).reshape(1, -1).float()
+            return torch.tensor((self.link_tsl - self.link_rsl)).reshape(1, -1).float()
         else:
             return torch.tensor(-self.link_rsl).reshape(1, -1).float()
 
