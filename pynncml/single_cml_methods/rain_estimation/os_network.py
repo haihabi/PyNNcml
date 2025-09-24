@@ -2,7 +2,7 @@ import torch
 import pynncml as pnc
 from torch import nn
 from pynncml import neural_networks
-from pynncml.neural_networks.backbone import Backbone
+from pynncml.neural_networks.rnn_type_backbone import Backbone
 from pynncml.neural_networks.rain_head import RainHead
 
 

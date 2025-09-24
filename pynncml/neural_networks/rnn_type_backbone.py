@@ -9,14 +9,14 @@ class Backbone(nn.Module):
     The module is the backbone present in [1]
 
     :param n_layers: integer that state the number of recurrent layers.
-    :param rnn_type: enum that define the type of the recurrent layer (GRU or LSTM).
+    :param rnn_type: enum that defines the type of the recurrent layer (GRU or LSTM).
     :param normalization_cfg: a class tr.neural_networks.InputNormalizationConfig which hold the normalization parameters.
     :param enable_tn: boolean that enable or disable time normalization.
-    :param tn_alpha: floating point number which define the alpha factor of time normalization layer.
-    :param rnn_input_size: int that represent the dynamic input size.
-    :param rnn_n_features: int that represent the dynamic feature size.
-    :param metadata_input_size: int that represent the metadata input size.
-    :param metadata_n_features: int that represent the metadata feature size.
+    :param tn_alpha: floating point number that defines the alpha factor of time normalization layer.
+    :param rnn_input_size: int that represents the dynamic input size.
+    :param rnn_n_features: int that represents the dynamic feature size.
+    :param metadata_input_size: int that represents the metadata input size.
+    :param metadata_n_features: int that represents the metadata feature size.
     """
 
     def __init__(self, n_layers: int, rnn_type: neural_networks.DNNType,

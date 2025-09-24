@@ -36,9 +36,9 @@ def xarray_sublink2link(ds_sublink):
     :param gauge: gauge data
     :return: Link
     """
-    md = MetaData(float(ds_sublink.frequency),
-                  "Vertical" in str(ds_sublink.polarization),
-                  float(ds_sublink.length),
+    md = MetaData(float(ds_sublink.frequency)/1000,
+                  "v"==str(np.asarray(ds_sublink.polarization)),
+                  float(ds_sublink.length)/1000,
                   None,
                   None,
                   lon_lat_site_zero=[float(ds_sublink.site_0_lon), float(ds_sublink.site_0_lat)],
@@ -83,16 +83,34 @@ class LinkSelection(Enum):
         """
         return self == LinkSelection.ALL or self == LinkSelection.RADARONLY
 
-def xarray2link(ds,
-                link2gauge_distance,
-                ps,
-                rd=None,
-                xy_max=None,
-                xy_min=None,
-                change2min_max=False,
-                min_max_window: int = 900,
-                multiple_gauges_per_link=False,
-                link_selection=LinkSelection.ALL):
+def xarray2link(ds)->LinkSet:
+    """
+    This code convert xarray dataset to link set.
+
+    :param ds: xarray dataset
+    :return: LinkSet
+    """
+    link_list=[]
+    for si,sublink_id in enumerate(ds.sublink_id):
+        for ci,cml_id in enumerate(ds.cml_id):
+            ds_sublink=ds.isel(sublink_id=si).isel(cml_id=ci)
+            link_list.append(xarray_sublink2link(ds_sublink))
+    link_list=[l for l in link_list if l is not None]  # TODO: Change the none handling is case of nan.
+    return LinkSet(link_list)
+
+
+
+
+def xarray2link_with_reference(ds,
+                               link2gauge_distance,
+                               ps,
+                               rd=None,
+                               xy_max=None,
+                               xy_min=None,
+                               change2min_max=False,
+                               min_max_window: int = 900,
+                               multiple_gauges_per_link=False,
+                               link_selection=LinkSelection.ALL):
     """
     Convert xarray dataset to link set
     :param ds: xarray dataset
@@ -107,55 +125,46 @@ def xarray2link(ds,
     :param link_selection: LinkSelection enum to select the type of links to return
     :return: LinkSet
     """
+    base_link_set=xarray2link(ds)
     link_list = []
-    for i in tqdm(range(len(ds.sublink_id))):
-        ds_sublink = ds.isel(sublink_id=i)
-        md = MetaData(float(ds_sublink.frequency),
-                      "Vertical" in str(ds_sublink.polarization),
-                      float(ds_sublink.length),
-                      None,
-                      None,
-                      lon_lat_site_zero=[float(ds_sublink.site_0_lon), float(ds_sublink.site_0_lat)],
-                      lon_lat_site_one=[float(ds_sublink.site_1_lon), float(ds_sublink.site_1_lat)])
-        xy_array = md.xy()
-        if xy_min is None or xy_max is None:
-            is_in_area = True
-        else:
-            x_check = xy_min[0] < xy_array[0] and xy_min[0] < xy_array[2] and xy_max[0] > xy_array[2] and xy_max[0] > \
-                      xy_array[0]
+    for link in base_link_set:
 
-            y_check = xy_min[1] < xy_array[1] and xy_min[1] < xy_array[3] and xy_max[1] > xy_array[3] and xy_max[1] > \
-                      xy_array[1]
-            is_in_area = x_check and y_check
-
-        if is_in_area:
-            if ps is None:
-                link = xarray_sublink2link(ds_sublink)
-            else:
-                if rd is not None and link_selection.enable_radar():
-                    radar_cml_projection = rd.radar_projection2cml(md.lon_lat_site_zero, md.lon_lat_site_one)
+        if is_link_in_selected_area(link.meta_data, xy_max, xy_min):
+            if rd is not None and link_selection.enable_radar():
+                    radar_cml_projection = rd.radar_projection2cml(link.meta_data.lon_lat_site_zero, link.meta_data.lon_lat_site_one)
                     active_link = True
-                else:
+            else:
                     radar_cml_projection = None
                     active_link = False
-
-                if multiple_gauges_per_link:
-                    d_array,gauge = ps.find_near_gauges(md.xy_center(), link2gauge_distance)
+            if multiple_gauges_per_link:
+                    d_array,gauge = ps.find_near_gauges(link.meta_data.xy_center(), link2gauge_distance)
                     active_link = active_link or (len(gauge) > 0 and link_selection.enable_gauge())
                     if len(gauge)==0:
                         gauge = None
-
-                else:
-                    d_min, gauge = ps.find_near_gauge(md.xy_center())
+            else:
+                    d_min, gauge = ps.find_near_gauge(link.meta_data.xy_center())
                     active_link = active_link or (d_min < link2gauge_distance and link_selection.enable_gauge())
 
-                if active_link:
-                    link = xarray_sublink2link(ds_sublink) # TODO: Change the none handling is case of nan.
-                    if link is not None:link.add_reference(gauge_ref=gauge,radar_cml_projection_ref=radar_cml_projection)
-                else:
+            if active_link and link is not None:
+                    link.add_reference(gauge_ref=gauge,radar_cml_projection_ref=radar_cml_projection)
+            else:
                     link = None  # Link is too far from the gauge
 
             if change2min_max and link is not None:
                 link = link.create_min_max_link(min_max_window)
             if link is not None: link_list.append(link)
     return LinkSet(link_list)
+
+
+def is_link_in_selected_area(md: MetaData, xy_max, xy_min) -> bool:
+    xy_array = md.xy()
+    if xy_min is None or xy_max is None:
+        is_in_area = True
+    else:
+        x_check = xy_min[0] < xy_array[0] and xy_min[0] < xy_array[2] and xy_max[0] > xy_array[2] and xy_max[0] > \
+                  xy_array[0]
+
+        y_check = xy_min[1] < xy_array[1] and xy_min[1] < xy_array[3] and xy_max[1] > xy_array[3] and xy_max[1] > \
+                  xy_array[1]
+        is_in_area = x_check and y_check
+    return is_in_area

@@ -1,6 +1,6 @@
 
-import torch
 from torch import nn
+from pynncml.datasets.xarray_processing import xarray2link
 from pynncml.multiple_cmls_methods import InferMultipleCMLs
 
 
@@ -11,4 +11,5 @@ class XarrayInferenceEngine(nn.Module):
 
 
     def forward(self, x_xarray):
-        pass
+        link_set=xarray2link(x_xarray)
+        return self.inference_engine(link_set)

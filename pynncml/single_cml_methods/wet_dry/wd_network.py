@@ -1,7 +1,7 @@
 import torch
 import pynncml as pnc
 from torch import nn
-from pynncml.neural_networks.backbone import Backbone
+from pynncml.neural_networks.rnn_type_backbone import Backbone
 from pynncml.neural_networks.wd_head import WetDryHead
 from pynncml import neural_networks
 
