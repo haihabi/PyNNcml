@@ -2,7 +2,7 @@ import torch
 import pynncml as pnc
 from pynncml import neural_networks
 from pynncml.datasets.alignment import  AttenuationType
-from pynncml.neural_networks.base_neural_network import BaseCMLProcessingMethod
+from pynncml.cml_methods.base_cml_method import BaseCMLProcessingMethod
 from pynncml.neural_networks.rnn_type_backbone import Backbone
 from pynncml.neural_networks.rain_head import RainHead
 

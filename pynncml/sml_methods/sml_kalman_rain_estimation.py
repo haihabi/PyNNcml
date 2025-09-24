@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import math
-from pynncml.single_sml_methods.kalman_filter import apply_kalman_filter_ft, apply_kalman_filter_st
+from pynncml.sml_methods.kalman_filter import apply_kalman_filter_ft, apply_kalman_filter_st
 
 DiffGapValue = 0.4
 Tm = 275

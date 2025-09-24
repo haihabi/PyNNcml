@@ -28,7 +28,7 @@ class InferMultipleCMLs(nn.Module):
         :return: Rain fields
         """
         res_list = []
-        for link in link_set:
+        for link in link_set: # TODO: Update to batch mode
             if self.is_attenuation:
                 data = link.attenuation()
             else:

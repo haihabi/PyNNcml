@@ -17,7 +17,6 @@ class LinkBase(object):
         """
         LinkBase object is a data structure that contains the link dynamic information:
         :param time_array: Time array
-        :param rain_gauge: Rain gauge data
         :param meta_data: MetaData object
         """
         self._check_input(time_array)
@@ -26,6 +25,12 @@ class LinkBase(object):
         self.rain_gauge = None
         self.gauge_ref = None
         self.radar_cml_projection_ref = None
+        self.cml_id = None
+        self.sublink_id = None
+
+    def add_id(self, cml_id, sublink_id):
+        self.cml_id = cml_id
+        self.sublink_id = sublink_id
 
     def has_reference(self)->bool:
         return self.gauge_ref is not None or self.radar_cml_projection_ref is not None or self.rain_gauge is not None

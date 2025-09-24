@@ -1,9 +1,10 @@
 import torch
 import numpy as np
-from pynncml.datasets.alignment import handle_attenuation_input, AttenuationType
-from torch import nn
 
-from pynncml.neural_networks.base_neural_network import BaseCMLProcessingMethod
+from pynncml.cml_methods.results_data_structure import CMLResultsDataStructure
+from pynncml.datasets.alignment import handle_attenuation_input, AttenuationType
+
+from pynncml.cml_methods.base_cml_method import BaseCMLProcessingMethod
 
 
 class STDWetDry(BaseCMLProcessingMethod):
@@ -57,3 +58,7 @@ class STDWetDry(BaseCMLProcessingMethod):
 
         res = res - sigma_n
         return res.detach() + sigma_n, sigma_n_base
+
+    def convert_output_results(self,output_tensor)->CMLResultsDataStructure:
+        return CMLResultsDataStructure(wet_dry_detection=output_tensor.cpu().detach().numpy(),
+                                       rain_estimation=None)

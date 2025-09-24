@@ -94,8 +94,10 @@ def xarray2link(ds)->LinkSet:
     for si,sublink_id in enumerate(ds.sublink_id):
         for ci,cml_id in enumerate(ds.cml_id):
             ds_sublink=ds.isel(sublink_id=si).isel(cml_id=ci)
-            link_list.append(xarray_sublink2link(ds_sublink))
-    link_list=[l for l in link_list if l is not None]  # TODO: Change the none handling is case of nan.
+            link=xarray_sublink2link(ds_sublink)
+            if link is None: continue
+            link.add_id(cml_id=int(np.asarray(cml_id)),sublink_id=str(np.asarray(sublink_id)))
+            link_list.append(link)
     return LinkSet(link_list)
 
 

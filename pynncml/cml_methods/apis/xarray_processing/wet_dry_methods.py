@@ -1,4 +1,4 @@
-from pynncml.apis.xarray_processing.xarray_inference_engine import XarrayInferenceEngine
+from pynncml.cml_methods.apis.xarray_processing.xarray_inference_engine import XarrayInferenceEngine
 from pynncml.neural_networks import DNNType
 from pynncml.single_cml_methods.wet_dry import wet_dry_network,statistics_wet_dry
 

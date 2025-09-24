@@ -1,6 +1,6 @@
 import torch
-from pynncml.neural_networks.rain_gan import DCGANGenerator
-from huggingface_hub import hf_hub_url, hf_hub_download
+from pynncml.simulation.rain_gan import DCGANGenerator
+from huggingface_hub import hf_hub_download
 from pynncml.utils import get_working_device
 
 
