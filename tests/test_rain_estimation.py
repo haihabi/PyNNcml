@@ -55,14 +55,12 @@ class TestRainEstimation(unittest.TestCase):
 
     def test_one_step_network_tn_enable(self):
         att = torch.ones(1, 100, 4)
-        swd = pnc.scm.rain_estimation.one_step_network(1, pnc.neural_networks.DNNType.GRU, enable_tn=True,
-                                                       tn_affine=False)
+        swd = pnc.scm.rain_estimation.one_step_network(1, pnc.neural_networks.DNNType.GRU, enable_tn=True)
         res, state = swd(att, pnc.datasets.MetaData(15, 0, 18, 10, 12).as_tensor(), swd.init_state(batch_size=1))
         self.assertTrue(res.shape[0] == 1)
         self.assertTrue(res.shape[1] == 100)
         self.assertTrue(state[0].shape[-1] == pnc.neural_networks.RNN_FEATURES)
-        swd = pnc.scm.rain_estimation.one_step_network(1, pnc.neural_networks.DNNType.GRU, enable_tn=True,
-                                                       tn_affine=True)
+        swd = pnc.scm.rain_estimation.one_step_network(1, pnc.neural_networks.DNNType.GRU, enable_tn=True)
         res, state = swd(att, pnc.datasets.MetaData(15, 0, 18, 10, 12).as_tensor(), swd.init_state(batch_size=1))
         self.assertTrue(res.shape[0] == 1)
         self.assertTrue(res.shape[1] == 100)

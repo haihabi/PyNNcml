@@ -2,7 +2,7 @@ from typing import Tuple, Any
 
 import torch
 from torch import nn
-from pynncml.datasets.link_data import handle_attenuation_input, AttenuationType
+from pynncml.datasets.alignment import handle_attenuation_input, AttenuationType
 from pynncml.datasets import MetaData
 from pynncml.single_cml_methods.baseline import DynamicBaseLine
 from pynncml.single_cml_methods.power_law import PowerLawType, PowerLaw
@@ -31,7 +31,7 @@ class OneStepDynamic(nn.Module):
         :return: A tuple of rain rate and baseline.
         """
         att_data = handle_attenuation_input(data)
-        if att_data.attenuation_type == AttenuationType.MIN_MAX:
+        if att_data.attenuation_type == AttenuationType.MinMax:
             att_max = att_data.attenuation_max
             att_min = att_data.attenuation_min
         else:

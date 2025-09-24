@@ -3,7 +3,7 @@ from torch import nn
 from pynncml.single_cml_methods.power_law import PowerLaw, PowerLawType
 from pynncml.single_cml_methods.wet_dry import STDWetDry
 from pynncml.single_cml_methods.baseline import ConstantBaseLine
-from pynncml.datasets.link_data import handle_attenuation_input, AttenuationType
+from pynncml.datasets.alignment import handle_attenuation_input, AttenuationType
 from pynncml.datasets import MetaData
 
 
@@ -19,7 +19,7 @@ class TwoStepsConstant(nn.Module):
         :param wa_factor: floating point number that represent the weight average factor.
         """
         super(TwoStepsConstant, self).__init__()
-        self.wd = STDWetDry(threshold, window_size, is_min_max=PowerLawType.MAX == power_law_type)
+        self.wd = STDWetDry(threshold, window_size)
         self.bl = ConstantBaseLine()
         self.wa_factor = wa_factor
         self.pl = PowerLaw(power_law_type, r_min)
@@ -32,10 +32,10 @@ class TwoStepsConstant(nn.Module):
         :param metadata: A metadata class that hold the metadata of the CML data.
         """
         att_data = handle_attenuation_input(data)
-        if att_data.attenuation_type == AttenuationType.MIN_MAX:
+        if att_data.attenuation_type == AttenuationType.MinMax:
             att_max = att_data.attenuation_max
             att_min = att_data.attenuation_min
-        elif att_data.attenuation_type == AttenuationType.REGULAR:
+        elif att_data.attenuation_type == AttenuationType.Instance:
             att_min = att_data.attenuation
             att_max = att_data.attenuation
         else:

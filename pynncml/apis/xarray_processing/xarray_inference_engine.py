@@ -5,9 +5,9 @@ from pynncml.multiple_cmls_methods import InferMultipleCMLs
 
 
 class XarrayInferenceEngine(nn.Module):
-    def __init__(self,in_cml2rain_method, *args, **kwargs):
+    def __init__(self,in_cml2rain_method,is_recurrent=True,is_attenuation=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.inference_engine = InferMultipleCMLs(in_cml2rain_method)
+        self.inference_engine = InferMultipleCMLs(in_cml2rain_method,is_recurrent,is_attenuation)
 
 
     def forward(self, x_xarray):

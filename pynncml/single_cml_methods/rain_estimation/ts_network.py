@@ -1,39 +1,46 @@
 import torch
 import pynncml as pnc
-from torch import nn
+from pynncml.datasets.alignment import AttenuationType
+
+from pynncml.neural_networks.base_neural_network import BaseCMLProcessingMethod
 from pynncml.neural_networks.rnn_type_backbone import Backbone
 from pynncml.neural_networks.rain_head import RainHead
 from pynncml.neural_networks.wd_head import WetDryHead
 from pynncml import neural_networks
 
 
-class TwoStepNetwork(nn.Module):
+class TwoStepNetwork(BaseCMLProcessingMethod):
     """
 
 
-    :param n_layers: integer that state the number of recurrent layers.
-    :param rnn_type: enum that define the type of the recurrent layer (GRU or LSTM).
+    :param n_layers: integer that states the number of recurrent layers.
+    :param rnn_type: enum that defines the type of the recurrent layer (GRU or LSTM).
     :param normalization_cfg: a class pnc.neural_networks.InputNormalizationConfig which hold the normalization parameters.
     :param enable_tn: boolean that enable or disable time normalization.
-    :param tn_alpha: floating point number which define the alpha factor of time normalization layer.
-    :param tn_affine: boolean that state if time normalization have affine transformation.
-    :param rnn_input_size: int that represent the dynamic input size.
-    :param rnn_n_features: int that represent the dynamic feature size.
-    :param metadata_input_size: int that represent the metadata input size.
-    :param metadata_n_features: int that represent the metadata feature size.
+    :param tn_alpha: floating point number that defines the alpha factor of time normalization layer.
+    :param rnn_input_size: int that represents the dynamic input size.
+    :param rnn_n_features: int that represents the dynamic feature size.
+    :param metadata_input_size: int that represents the metadata input size.
+    :param metadata_n_features: int that represents the metadata feature size.
+    :param input_data_type: enum that defines the type of the input data MinMax or Instance.
+    :param input_rate: integer that represents the input rate in seconds.
+    :param output_rate: integer that represents the output rate in seconds.
     """
 
-    def __init__(self, n_layers: int, rnn_type: pnc.neural_networks.DNNType,
+    def __init__(self,
+                 n_layers: int, rnn_type: pnc.neural_networks.DNNType,
                  normalization_cfg: neural_networks.InputNormalizationConfig,
                  enable_tn: bool,
                  tn_alpha: float,
-                 tn_affine: bool,
                  rnn_input_size: int,
                  rnn_n_features: int,
                  metadata_input_size: int,
                  metadata_n_features: int,
+                 input_data_type: AttenuationType,
+                 input_rate: int,
+                 output_rate: int
                  ):
-        super(TwoStepNetwork, self).__init__()
+        super(TwoStepNetwork, self).__init__(input_data_type,input_rate,output_rate)
         self.bb = Backbone(n_layers, rnn_type, normalization_cfg, enable_tn=enable_tn, tn_alpha=tn_alpha,
                            rnn_input_size=rnn_input_size, rnn_n_features=rnn_n_features,
                            metadata_input_size=metadata_input_size,

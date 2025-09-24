@@ -1,11 +1,13 @@
 import torch
 import numpy as np
-from pynncml.datasets.link_data import handle_attenuation_input, AttenuationType
+from pynncml.datasets.alignment import handle_attenuation_input, AttenuationType
 from torch import nn
 
+from pynncml.neural_networks.base_neural_network import BaseCMLProcessingMethod
 
-class STDWetDry(nn.Module):
-    def __init__(self, th, n_steps, is_min_max=False):
+
+class STDWetDry(BaseCMLProcessingMethod):
+    def __init__(self, th, n_steps):
         """
         This class create a wet-dry detection model based on the standard deviation of the CML data.
 
@@ -15,12 +17,11 @@ class STDWetDry(nn.Module):
 
         return: None
         """
-        super(STDWetDry, self).__init__()
+        super(STDWetDry, self).__init__(input_data_type=None, input_rate=None, output_rate=None)
         self.n_steps = n_steps
         self.th = th
-        self.is_min_max = is_min_max
 
-    def forward(self, input_attenuation):
+    def forward(self, input_attenuation,input_meta_data=None):
         """
         This function calculate the wet-dry detection based on the standard deviation of the CML data.
 
@@ -29,7 +30,7 @@ class STDWetDry(nn.Module):
         return: tensor
         """
         att_data = handle_attenuation_input(input_attenuation)
-        if att_data.attenuation_type == AttenuationType.MIN_MAX:
+        if att_data.attenuation_type == AttenuationType.MinMax:
             att_max = att_data.attenuation_max
             att_min = att_data.attenuation_min
             if len(input_attenuation) == 3:

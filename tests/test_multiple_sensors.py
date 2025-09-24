@@ -8,6 +8,14 @@ class TestMultipeSensors(unittest.TestCase):
     n_samples = 100
     n_link = 20
 
+    def test_infer_multiple_rnn(self):
+        ls, _ = helpers.generate_link_set(TestMultipeSensors.n_samples, TestMultipeSensors.n_link)
+        model = pnc.scm.rain_estimation.one_step_network()
+        imc = pnc.mcm.InferMultipleCMLs(model,is_recurrent=True,is_attenuation=False)
+        res = imc(ls)
+        self.assertTrue(res.shape[0] == 20)
+        self.assertTrue(res.shape[-1] == 100)
+
     def test_infer_multiple(self):
         ls, _ = helpers.generate_link_set(TestMultipeSensors.n_samples, TestMultipeSensors.n_link)
         model = pnc.scm.rain_estimation.one_step_dynamic_baseline(pnc.scm.power_law.PowerLawType.MAX, 0.3, 6,

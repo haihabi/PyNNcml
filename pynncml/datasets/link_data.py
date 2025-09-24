@@ -1,15 +1,11 @@
 import numpy as np
-import pickle
-import os
 import torch
-from dataclasses import dataclass
 
 import pynncml as pnc
 from matplotlib import pyplot as plt
 
 from pynncml.datasets.gauge_data import PointSensor
 from pynncml.datasets.meta_data import MetaData
-from enum import Enum
 
 HOUR_IN_SECONDS = 3600
 
@@ -447,47 +443,14 @@ class Link(LinkBase):
             link_min_max.add_reference(rain_gauge=rain_vector, gauge_ref=self.gauge_ref,radar_cml_projection_ref=self.radar_cml_projection_ref)
         return link_min_max
 
-
-class AttenuationType(Enum):
-    """
-    Attenuation type enumeration
-
-    """
-    MIN_MAX = 'min_max'
-    REGULAR = 'regular'
-
-
-@dataclass
-class AttenuationData:
-    """
-    Attenuation data class
-    :param attenuation_min: torch.Tensor
-    :param attenuation_max: torch.Tensor
-    :param attenuation: torch.Tensor
-    :param attenuation_type: AttenuationType
-    """
-    attenuation_min: torch.Tensor
-    attenuation_max: torch.Tensor
-    attenuation: torch.Tensor
-    attenuation_type: AttenuationType
+    def as_tensor(self, constant_tsl=None):
+        if self.has_tsl():
+            return torch.stack([torch.Tensor(self.link_rsl).float(), torch.Tensor(self.link_tsl).float()])
+        else:
+            if constant_tsl is None:
+                return torch.stack([torch.Tensor(self.link_rsl).float()]).reshape(1, -1, 1)
+            else:
+                tsl = torch.Tensor(constant_tsl * np.ones(len(self))).float()
+                return torch.stack([tsl, torch.Tensor(self.link_rsl).float()], dim=-1)
 
 
-def handle_attenuation_input(attenuation: torch.Tensor) -> AttenuationData:
-    """
-    Handle the attenuation input and return the attenuation data
-    :param attenuation: torch.Tensor
-    :return: AttenuationData
-    """
-    attenuation_avg = att_min = att_max = None
-    if len(attenuation.shape) == 2:
-        attenuation_avg = attenuation
-        attenuation_type = AttenuationType.REGULAR
-    elif len(attenuation.shape) == 3 and attenuation.shape[2] == 2:
-        att_max, att_min = attenuation[:, :, 0], attenuation[:, :, 1]  # split the attenuation to max and min
-        attenuation_type = AttenuationType.MIN_MAX
-    else:
-        raise Exception('The input attenuation vector dont match min max format or regular format')
-    return AttenuationData(attenuation_min=att_min,
-                           attenuation_max=att_max,
-                           attenuation=attenuation_avg,
-                           attenuation_type=attenuation_type)
