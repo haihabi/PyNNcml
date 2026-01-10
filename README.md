@@ -57,6 +57,20 @@ PyNNCMLs aims at keeping a more up-to-date fork and welcomes contributions from 
 If you would like to contribute, please follow the [contribution guidelines](CONTRIBUTING.md).
 
 
+# Citing PyNNcml
+
+If you use this code in your research, please cite
+
+```bibtex
+@software{PyNNcml2026github,
+  author = {Hai Victor Habi},
+  title = {PyNNcml: Rain Estimation and Classification from Commercial Microwave Links Data},
+  url = {https://github.com/haihabi/PyNNcml},
+  year = {2026},
+}
+```
+
+
 # References
 
 Please cite one of following paper if you found our neural network model useful. Thanks!
